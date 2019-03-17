@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <bottom>
+      <BorderPane prefHeight="93.0" prefWidth="750.0" BorderPane.alignment="CENTER">
+         <right>
+            <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <right>
+                  <Button fx:id="aceptar" mnemonicParsing="false" onAction="#clickAceptar" text="Aceptar" BorderPane.alignment="BOTTOM_RIGHT">
+                     <BorderPane.margin>
+                        <Insets bottom="30.0" right="10.0" />
+                     </BorderPane.margin>
+                  </Button>
+               </right>
+               <left>
+                  <Button fx:id="cancelar" mnemonicParsing="false" onAction="#clickCancelar" text="Cancelar" BorderPane.alignment="BOTTOM_CENTER">
+                     <BorderPane.margin>
+                        <Insets bottom="30.0" left="10.0" />
+                     </BorderPane.margin>
+                  </Button>
+               </left>
+            </BorderPane>
+         </right>
+      </BorderPane>
+   </bottom>
+</BorderPane>
