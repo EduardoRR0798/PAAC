@@ -14,7 +14,7 @@ public class PAAC extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("RegistrarTesis.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("RegistrarProyecto.fxml"));
 
         Scene scene = new Scene(root);
 
