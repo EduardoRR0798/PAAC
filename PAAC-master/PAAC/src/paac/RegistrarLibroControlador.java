@@ -6,7 +6,10 @@
 package paac;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -52,95 +55,113 @@ public class RegistrarLibroControlador implements Initializable {
     @FXML
     private ComboBox colaboradorescb;
     @FXML
-    private ComboBox paisescb;
-    
-    
+    private ComboBox<Pais> paisescb;
+
     @FXML
     private void clickCancelar(ActionEvent event) {
-        
+
     }
-    
+
     @FXML
     private void clickAceptar(ActionEvent event) {
         Respuesta r = validarCampos();
-        if(r.isError()){
+        if (r.isError()) {
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
-        }else{
+        } else {
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
         }
     }
-    
+
     @FXML
     private void clickAgregar(ActionEvent event) {
-        
+
     }
+
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
-    
-    public Respuesta validarCampos(){
+        llenarCBPais();
+    }
+
+    public void llenarCBPais() {
+        ObservableList<Pais> listaPaises = FXCollections.observableArrayList();
+        ArrayList<Pais> arrayPais = new ArrayList<>();
+        
+        arrayPais.stream().forEach((p) -> {
+            listaPaises.add(p);
+        });
+
+        paisescb.setItems(listaPaises);
+        paisescb.setVisibleRowCount(10);
+    }
+
+    public Respuesta validarCampos() {
         Respuesta r = new Respuesta();
-        if(titulotxt.getText().isEmpty() || aniotxt.getText().isEmpty() 
-                || propositotxt.getText().isEmpty() || isbntxt.getText().isEmpty() 
+        if (titulotxt.getText().isEmpty() || aniotxt.getText().isEmpty()
+                || propositotxt.getText().isEmpty() || isbntxt.getText().isEmpty()
                 || editorialtxt.getText().isEmpty() || paginastxt.getText().isEmpty()
-                || ediciontxt.getText().isEmpty() || ejemplarestxt.getText().isEmpty()){
+                || ediciontxt.getText().isEmpty() || ejemplarestxt.getText().isEmpty()) {
             r.setError(true);
             r.setMensaje("No puede haber campos vacíos");
             r.setErrorcode(1);
             return r;
         }
-        if(titulotxt.getText().length()>10){
+        if (titulotxt.getText().length() > 255) {
             r.setError(true);
-            r.setMensaje("El titulo no puede tener mas de 10 caracteres");
+            r.setMensaje("El titulo no puede tener mas de 255 caracteres");
             r.setErrorcode(1);
             return r;
         }
-        if(!aniotxt.getText().matches("^(\\d{4})+$")){
+        if (paisescb.getSelectionModel().isEmpty()) {
             r.setError(true);
-            r.setMensaje("Ingrese un año valido");
+            r.setMensaje("Se debe selecccionar un pais");
             r.setErrorcode(2);
             return r;
         }
-        if(propositotxt.getText().length()>10){
+        if (!aniotxt.getText().matches("^(\\d{4})+$")) {
             r.setError(true);
-            r.setMensaje("El proposito no puede tener mas de 10 caracteres");
+            r.setMensaje("Ingrese un año valido");
             r.setErrorcode(3);
             return r;
         }
-        if(!isbntxt.getText().matches("^(97(8|9))?\\d{9}(\\d|X)$")){
+        if (propositotxt.getText().length() > 255) {
             r.setError(true);
-            r.setMensaje("Ingrese un número ISBN válido de 10 o 13 dígitos");
+            r.setMensaje("El proposito no puede tener mas de 255 caracteres");
             r.setErrorcode(4);
             return r;
         }
-        if(editorialtxt.getText().length()>10){
+        if (!isbntxt.getText().matches("^(97(8|9))?\\d{9}(\\d|X)$")) {
             r.setError(true);
-            r.setMensaje("El nombre de la editorial no puede ser mayor a 10 caracteres y no permite caracteres especiales");
+            r.setMensaje("Ingrese un número ISBN válido de 10 o 13 dígitos");
             r.setErrorcode(5);
             return r;
         }
-        if(!paginastxt.getText().matches("^[+]?\\d*$") && paginastxt.getText().length()<10){
+        if (editorialtxt.getText().length() > 255) {
             r.setError(true);
-            r.setMensaje("Solo se permite números en Páginas");
+            r.setMensaje("El nombre de la editorial no puede ser mayor a 255 caracteres");
             r.setErrorcode(6);
             return r;
         }
-        if(!ediciontxt.getText().matches("^[+]?\\d*$") && ediciontxt.getText().length()<10){
+        if (!paginastxt.getText().matches("^[+]?\\d*$") && paginastxt.getText().length() < 10) {
             r.setError(true);
-            r.setMensaje("Solo se permite números en Edición");
+            r.setMensaje("Solo se permite números en Páginas");
             r.setErrorcode(7);
             return r;
         }
-        if(!ejemplarestxt.getText().matches("^[+]?\\d*$") && ejemplarestxt.getText().length()<10){
+        if (!ediciontxt.getText().matches("^[+]?\\d*$") && ediciontxt.getText().length() < 10) {
+            r.setError(true);
+            r.setMensaje("Solo se permite números en Edición");
+            r.setErrorcode(8);
+            return r;
+        }
+        if (!ejemplarestxt.getText().matches("^[+]?\\d*$") && ejemplarestxt.getText().length() < 10) {
             r.setError(true);
             r.setMensaje("Solo se permite números en Ejemplares");
-            r.setErrorcode(8);
+            r.setErrorcode(9);
             return r;
         }
         r.setMensaje("Exitoso");

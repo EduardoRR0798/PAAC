@@ -59,7 +59,7 @@
                   <Insets left="10.0" />
                </GridPane.margin>
             </TextField>
-            <ComboBox fx:id="paisescb" prefHeight="31.0" prefWidth="187.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <ComboBox fx:id="paisescb" prefHeight="31.0" prefWidth="187.0" promptText="Seleccionar" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
@@ -120,12 +120,12 @@
                   <Insets bottom="5.0" left="10.0" />
                </GridPane.margin>
             </TextField>
-            <ComboBox fx:id="clasificacioncb" prefHeight="31.0" prefWidth="207.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+            <ComboBox fx:id="clasificacioncb" prefHeight="31.0" prefWidth="207.0" promptText="Seleccionar" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
             </ComboBox>
-            <ComboBox fx:id="estadocb" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+            <ComboBox fx:id="estadocb" prefWidth="150.0" promptText="Seleccionar" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
@@ -154,7 +154,7 @@
                               <Insets top="40.0" />
                            </GridPane.margin>
                         </Label>
-                        <ComboBox fx:id="autorescb" prefWidth="150.0" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
+                        <ComboBox fx:id="autorescb" prefWidth="150.0" promptText="Seleccionar" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
                            <GridPane.margin>
                               <Insets right="10.0" top="50.0" />
                            </GridPane.margin>
@@ -182,7 +182,7 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <ComboBox fx:id="colaboradorescb" prefWidth="150.0" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
+                        <ComboBox fx:id="colaboradorescb" prefWidth="150.0" promptText="Seleccionar" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
                            <GridPane.margin>
                               <Insets right="10.0" />
                            </GridPane.margin>
