@@ -20,6 +20,7 @@
       <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
       <Label text="Titulo:">
@@ -132,12 +133,12 @@
             <Insets left="25.0" right="25.0" />
          </GridPane.margin>
       </ListView>
-      <Button fx:id="btnAceptar" mnemonicParsing="false" onAction="#aceptar" text="Aceptar" GridPane.columnIndex="1" GridPane.rowIndex="8">
+      <Button fx:id="btnAceptar" mnemonicParsing="false" onAction="#aceptar" text="Aceptar" GridPane.columnIndex="1" GridPane.rowIndex="9">
          <GridPane.margin>
             <Insets left="110.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" text="Cancelar" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
+      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" text="Cancelar" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="9">
          <GridPane.margin>
             <Insets right="110.0" />
          </GridPane.margin>
@@ -147,12 +148,12 @@
             <Insets right="25.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="btnAgregar" mnemonicParsing="false" onAction="#agregarALista" text="+" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
+      <Button fx:id="btnAgregar" disable="true" mnemonicParsing="false" onAction="#agregarALista" text="+" visible="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
          <GridPane.margin>
             <Insets right="25.0" />
          </GridPane.margin>
       </Button>
-      <TextField fx:id="tfColaborador" GridPane.columnIndex="1" GridPane.rowIndex="7">
+      <TextField fx:id="tfColaborador" disable="true" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="7">
          <GridPane.margin>
             <Insets left="25.0" right="55.0" />
          </GridPane.margin>
@@ -167,5 +168,10 @@
             <Insets left="140.0" right="20.0" />
          </GridPane.margin>
       </DatePicker>
+      <Label fx:id="lblMensaje" prefHeight="17.0" prefWidth="354.0" GridPane.rowIndex="9">
+         <GridPane.margin>
+            <Insets left="25.0" right="25.0" />
+         </GridPane.margin>
+      </Label>
    </children>
 </GridPane>
