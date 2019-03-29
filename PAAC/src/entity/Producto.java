@@ -6,7 +6,7 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -54,26 +54,26 @@ public class Producto implements Serializable {
     @Column(name = "titulo")
     private String titulo;
     @OneToMany(mappedBy = "idProducto")
-    private Collection<Memoria> memoriaCollection;
+    private List<Memoria> memoriaList;
     @JoinColumn(name = "idPais", referencedColumnName = "idPais")
     @ManyToOne
     private Pais idPais;
     @OneToMany(mappedBy = "idProducto")
-    private Collection<CapituloLibro> capituloLibroCollection;
+    private List<CapituloLibro> capituloLibroList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "producto")
-    private Collection<ProductoProyecto> productoProyectoCollection;
+    private List<ProductoProyecto> productoProyectoList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idProducto")
-    private Collection<Prototipo> prototipoCollection;
+    private List<Prototipo> prototipoList;
     @OneToMany(mappedBy = "idProducto")
-    private Collection<Articulo> articuloCollection;
+    private List<Articulo> articuloList;
     @OneToMany(mappedBy = "idProducto")
-    private Collection<Tesis> tesisCollection;
+    private List<Tesis> tesisList;
     @OneToMany(mappedBy = "idProducto")
-    private Collection<Libro> libroCollection;
+    private List<Libro> libroList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "producto")
-    private Collection<ProductoColaborador> productoColaboradorCollection;
+    private List<ProductoColaborador> productoColaboradorList;
     @OneToMany(mappedBy = "idProducto")
-    private Collection<Patente> patenteCollection;
+    private List<Patente> patenteList;
 
     public Producto() {
     }
@@ -123,12 +123,12 @@ public class Producto implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Memoria> getMemoriaCollection() {
-        return memoriaCollection;
+    public List<Memoria> getMemoriaList() {
+        return memoriaList;
     }
 
-    public void setMemoriaCollection(Collection<Memoria> memoriaCollection) {
-        this.memoriaCollection = memoriaCollection;
+    public void setMemoriaList(List<Memoria> memoriaList) {
+        this.memoriaList = memoriaList;
     }
 
     public Pais getIdPais() {
@@ -140,75 +140,75 @@ public class Producto implements Serializable {
     }
 
     @XmlTransient
-    public Collection<CapituloLibro> getCapituloLibroCollection() {
-        return capituloLibroCollection;
+    public List<CapituloLibro> getCapituloLibroList() {
+        return capituloLibroList;
     }
 
-    public void setCapituloLibroCollection(Collection<CapituloLibro> capituloLibroCollection) {
-        this.capituloLibroCollection = capituloLibroCollection;
-    }
-
-    @XmlTransient
-    public Collection<ProductoProyecto> getProductoProyectoCollection() {
-        return productoProyectoCollection;
-    }
-
-    public void setProductoProyectoCollection(Collection<ProductoProyecto> productoProyectoCollection) {
-        this.productoProyectoCollection = productoProyectoCollection;
+    public void setCapituloLibroList(List<CapituloLibro> capituloLibroList) {
+        this.capituloLibroList = capituloLibroList;
     }
 
     @XmlTransient
-    public Collection<Prototipo> getPrototipoCollection() {
-        return prototipoCollection;
+    public List<ProductoProyecto> getProductoProyectoList() {
+        return productoProyectoList;
     }
 
-    public void setPrototipoCollection(Collection<Prototipo> prototipoCollection) {
-        this.prototipoCollection = prototipoCollection;
-    }
-
-    @XmlTransient
-    public Collection<Articulo> getArticuloCollection() {
-        return articuloCollection;
-    }
-
-    public void setArticuloCollection(Collection<Articulo> articuloCollection) {
-        this.articuloCollection = articuloCollection;
+    public void setProductoProyectoList(List<ProductoProyecto> productoProyectoList) {
+        this.productoProyectoList = productoProyectoList;
     }
 
     @XmlTransient
-    public Collection<Tesis> getTesisCollection() {
-        return tesisCollection;
+    public List<Prototipo> getPrototipoList() {
+        return prototipoList;
     }
 
-    public void setTesisCollection(Collection<Tesis> tesisCollection) {
-        this.tesisCollection = tesisCollection;
-    }
-
-    @XmlTransient
-    public Collection<Libro> getLibroCollection() {
-        return libroCollection;
-    }
-
-    public void setLibroCollection(Collection<Libro> libroCollection) {
-        this.libroCollection = libroCollection;
+    public void setPrototipoList(List<Prototipo> prototipoList) {
+        this.prototipoList = prototipoList;
     }
 
     @XmlTransient
-    public Collection<ProductoColaborador> getProductoColaboradorCollection() {
-        return productoColaboradorCollection;
+    public List<Articulo> getArticuloList() {
+        return articuloList;
     }
 
-    public void setProductoColaboradorCollection(Collection<ProductoColaborador> productoColaboradorCollection) {
-        this.productoColaboradorCollection = productoColaboradorCollection;
+    public void setArticuloList(List<Articulo> articuloList) {
+        this.articuloList = articuloList;
     }
 
     @XmlTransient
-    public Collection<Patente> getPatenteCollection() {
-        return patenteCollection;
+    public List<Tesis> getTesisList() {
+        return tesisList;
     }
 
-    public void setPatenteCollection(Collection<Patente> patenteCollection) {
-        this.patenteCollection = patenteCollection;
+    public void setTesisList(List<Tesis> tesisList) {
+        this.tesisList = tesisList;
+    }
+
+    @XmlTransient
+    public List<Libro> getLibroList() {
+        return libroList;
+    }
+
+    public void setLibroList(List<Libro> libroList) {
+        this.libroList = libroList;
+    }
+
+    @XmlTransient
+    public List<ProductoColaborador> getProductoColaboradorList() {
+        return productoColaboradorList;
+    }
+
+    public void setProductoColaboradorList(List<ProductoColaborador> productoColaboradorList) {
+        this.productoColaboradorList = productoColaboradorList;
+    }
+
+    @XmlTransient
+    public List<Patente> getPatenteList() {
+        return patenteList;
+    }
+
+    public void setPatenteList(List<Patente> patenteList) {
+        this.patenteList = patenteList;
     }
 
     @Override

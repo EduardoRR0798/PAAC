@@ -6,7 +6,7 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -43,9 +43,9 @@ public class Colaborador implements Serializable {
     @Column(name = "nombre")
     private String nombre;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "colaborador")
-    private Collection<ProductoColaborador> productoColaboradorCollection;
+    private List<ProductoColaborador> productoColaboradorList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "colaborador")
-    private Collection<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoCollection;
+    private List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoList;
 
     public Colaborador() {
     }
@@ -71,21 +71,21 @@ public class Colaborador implements Serializable {
     }
 
     @XmlTransient
-    public Collection<ProductoColaborador> getProductoColaboradorCollection() {
-        return productoColaboradorCollection;
+    public List<ProductoColaborador> getProductoColaboradorList() {
+        return productoColaboradorList;
     }
 
-    public void setProductoColaboradorCollection(Collection<ProductoColaborador> productoColaboradorCollection) {
-        this.productoColaboradorCollection = productoColaboradorCollection;
+    public void setProductoColaboradorList(List<ProductoColaborador> productoColaboradorList) {
+        this.productoColaboradorList = productoColaboradorList;
     }
 
     @XmlTransient
-    public Collection<ColaboradorCuerpoacademico> getColaboradorCuerpoacademicoCollection() {
-        return colaboradorCuerpoacademicoCollection;
+    public List<ColaboradorCuerpoacademico> getColaboradorCuerpoacademicoList() {
+        return colaboradorCuerpoacademicoList;
     }
 
-    public void setColaboradorCuerpoacademicoCollection(Collection<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoCollection) {
-        this.colaboradorCuerpoacademicoCollection = colaboradorCuerpoacademicoCollection;
+    public void setColaboradorCuerpoacademicoList(List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoList) {
+        this.colaboradorCuerpoacademicoList = colaboradorCuerpoacademicoList;
     }
 
     @Override
@@ -110,7 +110,7 @@ public class Colaborador implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Colaborador[ idColaborador=" + idColaborador + " ]";
+        return nombre;
     }
     
 }

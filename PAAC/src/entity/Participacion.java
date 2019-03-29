@@ -6,8 +6,8 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -71,9 +71,9 @@ public class Participacion implements Serializable {
     @ManyToOne
     private CuerpoAcademico idCA;
     @OneToMany(mappedBy = "idParticipacion")
-    private Collection<Cuerpoacademicoexterno> cuerpoacademicoexternoCollection;
+    private List<Cuerpoacademicoexterno> cuerpoacademicoexternoList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idParticipacion")
-    private Collection<CuerpoAcademicoPromep> cuerpoAcademicoPromepCollection;
+    private List<CuerpoAcademicoPromep> cuerpoAcademicoPromepList;
 
     public Participacion() {
     }
@@ -155,21 +155,21 @@ public class Participacion implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Cuerpoacademicoexterno> getCuerpoacademicoexternoCollection() {
-        return cuerpoacademicoexternoCollection;
+    public List<Cuerpoacademicoexterno> getCuerpoacademicoexternoList() {
+        return cuerpoacademicoexternoList;
     }
 
-    public void setCuerpoacademicoexternoCollection(Collection<Cuerpoacademicoexterno> cuerpoacademicoexternoCollection) {
-        this.cuerpoacademicoexternoCollection = cuerpoacademicoexternoCollection;
+    public void setCuerpoacademicoexternoList(List<Cuerpoacademicoexterno> cuerpoacademicoexternoList) {
+        this.cuerpoacademicoexternoList = cuerpoacademicoexternoList;
     }
 
     @XmlTransient
-    public Collection<CuerpoAcademicoPromep> getCuerpoAcademicoPromepCollection() {
-        return cuerpoAcademicoPromepCollection;
+    public List<CuerpoAcademicoPromep> getCuerpoAcademicoPromepList() {
+        return cuerpoAcademicoPromepList;
     }
 
-    public void setCuerpoAcademicoPromepCollection(Collection<CuerpoAcademicoPromep> cuerpoAcademicoPromepCollection) {
-        this.cuerpoAcademicoPromepCollection = cuerpoAcademicoPromepCollection;
+    public void setCuerpoAcademicoPromepList(List<CuerpoAcademicoPromep> cuerpoAcademicoPromepList) {
+        this.cuerpoAcademicoPromepList = cuerpoAcademicoPromepList;
     }
 
     @Override

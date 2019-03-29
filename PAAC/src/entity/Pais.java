@@ -6,7 +6,7 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -43,11 +43,11 @@ public class Pais implements Serializable {
     @Column(name = "nombre")
     private String nombre;
     @OneToMany(mappedBy = "idPais")
-    private Collection<Producto> productoCollection;
+    private List<Producto> productoList;
     @OneToMany(mappedBy = "idPais")
-    private Collection<Cuerpoacademicoexterno> cuerpoacademicoexternoCollection;
+    private List<Cuerpoacademicoexterno> cuerpoacademicoexternoList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idPais")
-    private Collection<Gradoacademico> gradoacademicoCollection;
+    private List<Gradoacademico> gradoacademicoList;
 
     public Pais() {
     }
@@ -73,30 +73,30 @@ public class Pais implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Producto> getProductoCollection() {
-        return productoCollection;
+    public List<Producto> getProductoList() {
+        return productoList;
     }
 
-    public void setProductoCollection(Collection<Producto> productoCollection) {
-        this.productoCollection = productoCollection;
-    }
-
-    @XmlTransient
-    public Collection<Cuerpoacademicoexterno> getCuerpoacademicoexternoCollection() {
-        return cuerpoacademicoexternoCollection;
-    }
-
-    public void setCuerpoacademicoexternoCollection(Collection<Cuerpoacademicoexterno> cuerpoacademicoexternoCollection) {
-        this.cuerpoacademicoexternoCollection = cuerpoacademicoexternoCollection;
+    public void setProductoList(List<Producto> productoList) {
+        this.productoList = productoList;
     }
 
     @XmlTransient
-    public Collection<Gradoacademico> getGradoacademicoCollection() {
-        return gradoacademicoCollection;
+    public List<Cuerpoacademicoexterno> getCuerpoacademicoexternoList() {
+        return cuerpoacademicoexternoList;
     }
 
-    public void setGradoacademicoCollection(Collection<Gradoacademico> gradoacademicoCollection) {
-        this.gradoacademicoCollection = gradoacademicoCollection;
+    public void setCuerpoacademicoexternoList(List<Cuerpoacademicoexterno> cuerpoacademicoexternoList) {
+        this.cuerpoacademicoexternoList = cuerpoacademicoexternoList;
+    }
+
+    @XmlTransient
+    public List<Gradoacademico> getGradoacademicoList() {
+        return gradoacademicoList;
+    }
+
+    public void setGradoacademicoList(List<Gradoacademico> gradoacademicoList) {
+        this.gradoacademicoList = gradoacademicoList;
     }
 
     @Override
@@ -121,7 +121,7 @@ public class Pais implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Pais[ idPais=" + idPais + " ]";
+        return nombre;
     }
     
 }

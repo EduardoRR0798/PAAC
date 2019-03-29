@@ -6,8 +6,8 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -68,7 +68,7 @@ public class Proyecto implements Serializable {
     @ManyToOne
     private Lgac idLGACApoyo;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "proyecto")
-    private Collection<ProductoProyecto> productoProyectoCollection;
+    private List<ProductoProyecto> productoProyectoList;
 
     public Proyecto() {
     }
@@ -142,12 +142,12 @@ public class Proyecto implements Serializable {
     }
 
     @XmlTransient
-    public Collection<ProductoProyecto> getProductoProyectoCollection() {
-        return productoProyectoCollection;
+    public List<ProductoProyecto> getProductoProyectoList() {
+        return productoProyectoList;
     }
 
-    public void setProductoProyectoCollection(Collection<ProductoProyecto> productoProyectoCollection) {
-        this.productoProyectoCollection = productoProyectoCollection;
+    public void setProductoProyectoList(List<ProductoProyecto> productoProyectoList) {
+        this.productoProyectoList = productoProyectoList;
     }
 
     @Override

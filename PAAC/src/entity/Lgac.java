@@ -6,7 +6,7 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -43,9 +43,9 @@ public class Lgac implements Serializable {
     @Column(name = "nombre")
     private String nombre;
     @OneToMany(mappedBy = "idLGACApoyo")
-    private Collection<Proyecto> proyectoCollection;
+    private List<Proyecto> proyectoList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "lgac")
-    private Collection<MiembroLgac> miembroLgacCollection;
+    private List<MiembroLgac> miembroLgacList;
 
     public Lgac() {
     }
@@ -71,21 +71,21 @@ public class Lgac implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Proyecto> getProyectoCollection() {
-        return proyectoCollection;
+    public List<Proyecto> getProyectoList() {
+        return proyectoList;
     }
 
-    public void setProyectoCollection(Collection<Proyecto> proyectoCollection) {
-        this.proyectoCollection = proyectoCollection;
+    public void setProyectoList(List<Proyecto> proyectoList) {
+        this.proyectoList = proyectoList;
     }
 
     @XmlTransient
-    public Collection<MiembroLgac> getMiembroLgacCollection() {
-        return miembroLgacCollection;
+    public List<MiembroLgac> getMiembroLgacList() {
+        return miembroLgacList;
     }
 
-    public void setMiembroLgacCollection(Collection<MiembroLgac> miembroLgacCollection) {
-        this.miembroLgacCollection = miembroLgacCollection;
+    public void setMiembroLgacList(List<MiembroLgac> miembroLgacList) {
+        this.miembroLgacList = miembroLgacList;
     }
 
     @Override

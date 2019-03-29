@@ -6,7 +6,7 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -53,11 +53,11 @@ public class CuerpoAcademico implements Serializable {
     @Column(name = "nombre")
     private String nombre;
     @OneToMany(mappedBy = "idCA")
-    private Collection<Participacion> participacionCollection;
+    private List<Participacion> participacionList;
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "cuerpoAcademico")
     private ProyectoInvestigacionconjunto proyectoInvestigacionconjunto;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "cuerpoAcademico")
-    private Collection<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoCollection;
+    private List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoList;
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "cuerpoAcademico")
     private Pe pe;
 
@@ -109,12 +109,12 @@ public class CuerpoAcademico implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Participacion> getParticipacionCollection() {
-        return participacionCollection;
+    public List<Participacion> getParticipacionList() {
+        return participacionList;
     }
 
-    public void setParticipacionCollection(Collection<Participacion> participacionCollection) {
-        this.participacionCollection = participacionCollection;
+    public void setParticipacionList(List<Participacion> participacionList) {
+        this.participacionList = participacionList;
     }
 
     public ProyectoInvestigacionconjunto getProyectoInvestigacionconjunto() {
@@ -126,12 +126,12 @@ public class CuerpoAcademico implements Serializable {
     }
 
     @XmlTransient
-    public Collection<ColaboradorCuerpoacademico> getColaboradorCuerpoacademicoCollection() {
-        return colaboradorCuerpoacademicoCollection;
+    public List<ColaboradorCuerpoacademico> getColaboradorCuerpoacademicoList() {
+        return colaboradorCuerpoacademicoList;
     }
 
-    public void setColaboradorCuerpoacademicoCollection(Collection<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoCollection) {
-        this.colaboradorCuerpoacademicoCollection = colaboradorCuerpoacademicoCollection;
+    public void setColaboradorCuerpoacademicoList(List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoList) {
+        this.colaboradorCuerpoacademicoList = colaboradorCuerpoacademicoList;
     }
 
     public Pe getPe() {

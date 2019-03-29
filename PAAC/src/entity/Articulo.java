@@ -6,7 +6,7 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -60,7 +60,7 @@ public class Articulo implements Serializable {
     @Column(name = "volumen")
     private String volumen;
     @OneToMany(mappedBy = "idArticulo")
-    private Collection<ArticuloIndexado> articuloIndexadoCollection;
+    private List<ArticuloIndexado> articuloIndexadoList;
     @JoinColumn(name = "idProducto", referencedColumnName = "idProducto")
     @ManyToOne
     private Producto idProducto;
@@ -129,12 +129,12 @@ public class Articulo implements Serializable {
     }
 
     @XmlTransient
-    public Collection<ArticuloIndexado> getArticuloIndexadoCollection() {
-        return articuloIndexadoCollection;
+    public List<ArticuloIndexado> getArticuloIndexadoList() {
+        return articuloIndexadoList;
     }
 
-    public void setArticuloIndexadoCollection(Collection<ArticuloIndexado> articuloIndexadoCollection) {
-        this.articuloIndexadoCollection = articuloIndexadoCollection;
+    public void setArticuloIndexadoList(List<ArticuloIndexado> articuloIndexadoList) {
+        this.articuloIndexadoList = articuloIndexadoList;
     }
 
     public Producto getIdProducto() {

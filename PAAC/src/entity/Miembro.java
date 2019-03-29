@@ -6,7 +6,7 @@
 package entity;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -36,7 +36,10 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Miembro.findByPeImpacta", query = "SELECT m FROM Miembro m WHERE m.peImpacta = :peImpacta")
     , @NamedQuery(name = "Miembro.findByPromep", query = "SELECT m FROM Miembro m WHERE m.promep = :promep")
     , @NamedQuery(name = "Miembro.findBySni", query = "SELECT m FROM Miembro m WHERE m.sni = :sni")
-    , @NamedQuery(name = "Miembro.findByTipo", query = "SELECT m FROM Miembro m WHERE m.tipo = :tipo")})
+    , @NamedQuery(name = "Miembro.findByTipo", query = "SELECT m FROM Miembro m WHERE m.tipo = :tipo")
+    , @NamedQuery(name = "Miembro.findByNombre", query = "SELECT m FROM Miembro m WHERE m.nombre = :nombre")
+    , @NamedQuery(name = "Miembro.findByUsuario", query = "SELECT m FROM Miembro m WHERE m.usuario = :usuario")
+    , @NamedQuery(name = "Miembro.findByContrasenia", query = "SELECT m FROM Miembro m WHERE m.contrasenia = :contrasenia")})
 public class Miembro implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -55,10 +58,16 @@ public class Miembro implements Serializable {
     private String sni;
     @Column(name = "tipo")
     private Integer tipo;
+    @Column(name = "nombre")
+    private String nombre;
+    @Column(name = "usuario")
+    private String usuario;
+    @Column(name = "contrasenia")
+    private String contrasenia;
     @OneToMany(mappedBy = "idMiembro")
-    private Collection<DatosLaborales> datosLaboralesCollection;
+    private List<DatosLaborales> datosLaboralesList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "miembro")
-    private Collection<MiembroLgac> miembroLgacCollection;
+    private List<MiembroLgac> miembroLgacList;
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "miembro")
     private Gradoacademico gradoacademico;
 
@@ -117,22 +126,46 @@ public class Miembro implements Serializable {
         this.tipo = tipo;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public String getContrasenia() {
+        return contrasenia;
+    }
+
+    public void setContrasenia(String contrasenia) {
+        this.contrasenia = contrasenia;
+    }
+
     @XmlTransient
-    public Collection<DatosLaborales> getDatosLaboralesCollection() {
-        return datosLaboralesCollection;
+    public List<DatosLaborales> getDatosLaboralesList() {
+        return datosLaboralesList;
     }
 
-    public void setDatosLaboralesCollection(Collection<DatosLaborales> datosLaboralesCollection) {
-        this.datosLaboralesCollection = datosLaboralesCollection;
+    public void setDatosLaboralesList(List<DatosLaborales> datosLaboralesList) {
+        this.datosLaboralesList = datosLaboralesList;
     }
 
     @XmlTransient
-    public Collection<MiembroLgac> getMiembroLgacCollection() {
-        return miembroLgacCollection;
+    public List<MiembroLgac> getMiembroLgacList() {
+        return miembroLgacList;
     }
 
-    public void setMiembroLgacCollection(Collection<MiembroLgac> miembroLgacCollection) {
-        this.miembroLgacCollection = miembroLgacCollection;
+    public void setMiembroLgacList(List<MiembroLgac> miembroLgacList) {
+        this.miembroLgacList = miembroLgacList;
     }
 
     public Gradoacademico getGradoacademico() {
@@ -165,7 +198,7 @@ public class Miembro implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Miembro[ idMiembro=" + idMiembro + " ]";
+        return nombre;
     }
     
 }
