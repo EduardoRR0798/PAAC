@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50720
 File Encoding         : 65001
 
-Date: 2019-03-28 18:28:35
+Date: 2019-03-28 22:19:33
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -285,6 +285,9 @@ CREATE TABLE `miembro` (
   `promep` varchar(50) DEFAULT NULL,
   `sni` varchar(100) DEFAULT NULL,
   `tipo` int(11) DEFAULT NULL,
+  `nombre` varchar(100) DEFAULT NULL,
+  `usuario` varchar(30) DEFAULT NULL,
+  `contrasenia` varchar(30) DEFAULT NULL,
   PRIMARY KEY (`idMiembro`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
