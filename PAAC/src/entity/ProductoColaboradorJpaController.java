@@ -35,8 +35,8 @@ public class ProductoColaboradorJpaController implements Serializable {
         if (productoColaborador.getProductoColaboradorPK() == null) {
             productoColaborador.setProductoColaboradorPK(new ProductoColaboradorPK());
         }
-        productoColaborador.getProductoColaboradorPK().setIdProducto(productoColaborador.getProducto().getIdProducto());
         productoColaborador.getProductoColaboradorPK().setIdColaborador(productoColaborador.getColaborador().getIdColaborador());
+        productoColaborador.getProductoColaboradorPK().setIdProducto(productoColaborador.getProducto().getIdProducto());
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -74,8 +74,8 @@ public class ProductoColaboradorJpaController implements Serializable {
     }
 
     public void edit(ProductoColaborador productoColaborador) throws NonexistentEntityException, Exception {
-        productoColaborador.getProductoColaboradorPK().setIdProducto(productoColaborador.getProducto().getIdProducto());
         productoColaborador.getProductoColaboradorPK().setIdColaborador(productoColaborador.getColaborador().getIdColaborador());
+        productoColaborador.getProductoColaboradorPK().setIdProducto(productoColaborador.getProducto().getIdProducto());
         EntityManager em = null;
         try {
             em = getEntityManager();

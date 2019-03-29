@@ -38,7 +38,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "ProyectoInvestigacionconjunto.findByFechaInicio", query = "SELECT p FROM ProyectoInvestigacionconjunto p WHERE p.fechaInicio = :fechaInicio")
     , @NamedQuery(name = "ProyectoInvestigacionconjunto.findByNombre", query = "SELECT p FROM ProyectoInvestigacionconjunto p WHERE p.nombre = :nombre")
     , @NamedQuery(name = "ProyectoInvestigacionconjunto.findByNombrePatrocinador", query = "SELECT p FROM ProyectoInvestigacionconjunto p WHERE p.nombrePatrocinador = :nombrePatrocinador")
-    , @NamedQuery(name = "ProyectoInvestigacionconjunto.findByTipoPatrocinador", query = "SELECT p FROM ProyectoInvestigacionconjunto p WHERE p.tipoPatrocinador = :tipoPatrocinador")})
+    , @NamedQuery(name = "ProyectoInvestigacionconjunto.findByTipoPatrocinador", query = "SELECT p FROM ProyectoInvestigacionconjunto p WHERE p.tipoPatrocinador = :tipoPatrocinador")
+    , @NamedQuery(name = "ProyectoInvestigacionconjunto.findByNombrePDF", query = "SELECT p FROM ProyectoInvestigacionconjunto p WHERE p.nombrePDF = :nombrePDF")})
 public class ProyectoInvestigacionconjunto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -64,6 +65,8 @@ public class ProyectoInvestigacionconjunto implements Serializable {
     private String nombrePatrocinador;
     @Column(name = "tipoPatrocinador")
     private String tipoPatrocinador;
+    @Column(name = "nombrePDF")
+    private String nombrePDF;
     @JoinColumn(name = "idProyectoInvestigacionConjunto", referencedColumnName = "idCuerpoAcademico", insertable = false, updatable = false)
     @OneToOne(optional = false)
     private CuerpoAcademico cuerpoAcademico;
@@ -137,6 +140,14 @@ public class ProyectoInvestigacionconjunto implements Serializable {
 
     public void setTipoPatrocinador(String tipoPatrocinador) {
         this.tipoPatrocinador = tipoPatrocinador;
+    }
+
+    public String getNombrePDF() {
+        return nombrePDF;
+    }
+
+    public void setNombrePDF(String nombrePDF) {
+        this.nombrePDF = nombrePDF;
     }
 
     public CuerpoAcademico getCuerpoAcademico() {

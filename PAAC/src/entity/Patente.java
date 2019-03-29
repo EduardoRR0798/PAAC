@@ -32,7 +32,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Patente.findByIdPatente", query = "SELECT p FROM Patente p WHERE p.idPatente = :idPatente")
     , @NamedQuery(name = "Patente.findByClasifIntlPatentes", query = "SELECT p FROM Patente p WHERE p.clasifIntlPatentes = :clasifIntlPatentes")
     , @NamedQuery(name = "Patente.findByDescripcion", query = "SELECT p FROM Patente p WHERE p.descripcion = :descripcion")
-    , @NamedQuery(name = "Patente.findByTipo", query = "SELECT p FROM Patente p WHERE p.tipo = :tipo")})
+    , @NamedQuery(name = "Patente.findByTipo", query = "SELECT p FROM Patente p WHERE p.tipo = :tipo")
+    , @NamedQuery(name = "Patente.findByNombreEvidencia", query = "SELECT p FROM Patente p WHERE p.nombreEvidencia = :nombreEvidencia")})
 public class Patente implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,6 +51,8 @@ public class Patente implements Serializable {
     private byte[] evidencia;
     @Column(name = "tipo")
     private String tipo;
+    @Column(name = "nombreEvidencia")
+    private String nombreEvidencia;
     @JoinColumn(name = "idProducto", referencedColumnName = "idProducto")
     @ManyToOne
     private Producto idProducto;
@@ -99,6 +102,14 @@ public class Patente implements Serializable {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    public String getNombreEvidencia() {
+        return nombreEvidencia;
+    }
+
+    public void setNombreEvidencia(String nombreEvidencia) {
+        this.nombreEvidencia = nombreEvidencia;
     }
 
     public Producto getIdProducto() {

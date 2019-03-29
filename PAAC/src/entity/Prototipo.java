@@ -33,7 +33,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Prototipo.findByAutores", query = "SELECT p FROM Prototipo p WHERE p.autores = :autores")
     , @NamedQuery(name = "Prototipo.findByCaracteristicas", query = "SELECT p FROM Prototipo p WHERE p.caracteristicas = :caracteristicas")
     , @NamedQuery(name = "Prototipo.findByInstitucionCreacion", query = "SELECT p FROM Prototipo p WHERE p.institucionCreacion = :institucionCreacion")
-    , @NamedQuery(name = "Prototipo.findByObjetivo", query = "SELECT p FROM Prototipo p WHERE p.objetivo = :objetivo")})
+    , @NamedQuery(name = "Prototipo.findByObjetivo", query = "SELECT p FROM Prototipo p WHERE p.objetivo = :objetivo")
+    , @NamedQuery(name = "Prototipo.findByNombrePDF", query = "SELECT p FROM Prototipo p WHERE p.nombrePDF = :nombrePDF")})
 public class Prototipo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -53,6 +54,8 @@ public class Prototipo implements Serializable {
     private String institucionCreacion;
     @Column(name = "objetivo")
     private String objetivo;
+    @Column(name = "nombrePDF")
+    private String nombrePDF;
     @JoinColumn(name = "idProducto", referencedColumnName = "idProducto")
     @ManyToOne(optional = false)
     private Producto idProducto;
@@ -110,6 +113,14 @@ public class Prototipo implements Serializable {
 
     public void setObjetivo(String objetivo) {
         this.objetivo = objetivo;
+    }
+
+    public String getNombrePDF() {
+        return nombrePDF;
+    }
+
+    public void setNombrePDF(String nombrePDF) {
+        this.nombrePDF = nombrePDF;
     }
 
     public Producto getIdProducto() {

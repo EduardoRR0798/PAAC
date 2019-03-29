@@ -36,9 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Memoria.findByEstado", query = "SELECT m FROM Memoria m WHERE m.estado = :estado")
     , @NamedQuery(name = "Memoria.findByFechaPublicacion", query = "SELECT m FROM Memoria m WHERE m.fechaPublicacion = :fechaPublicacion")
     , @NamedQuery(name = "Memoria.findByRangoPaginas", query = "SELECT m FROM Memoria m WHERE m.rangoPaginas = :rangoPaginas")
-    , @NamedQuery(name = "Memoria.findByNombreCongreso", query = "SELECT m FROM Memoria m WHERE m.nombreCongreso = :nombreCongreso")
-    , @NamedQuery(name = "Memoria.findByTitulo", query = "SELECT m FROM Memoria m WHERE m.titulo = :titulo")
-    , @NamedQuery(name = "Memoria.findByProposito", query = "SELECT m FROM Memoria m WHERE m.proposito = :proposito")})
+    , @NamedQuery(name = "Memoria.findByNombreCongreso", query = "SELECT m FROM Memoria m WHERE m.nombreCongreso = :nombreCongreso")})
 public class Memoria implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -58,10 +56,6 @@ public class Memoria implements Serializable {
     private String rangoPaginas;
     @Column(name = "nombreCongreso")
     private String nombreCongreso;
-    @Column(name = "titulo")
-    private String titulo;
-    @Column(name = "proposito")
-    private String proposito;
     @JoinColumn(name = "idProducto", referencedColumnName = "idProducto")
     @ManyToOne
     private Producto idProducto;
@@ -119,22 +113,6 @@ public class Memoria implements Serializable {
 
     public void setNombreCongreso(String nombreCongreso) {
         this.nombreCongreso = nombreCongreso;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public String getProposito() {
-        return proposito;
-    }
-
-    public void setProposito(String proposito) {
-        this.proposito = proposito;
     }
 
     public Producto getIdProducto() {
