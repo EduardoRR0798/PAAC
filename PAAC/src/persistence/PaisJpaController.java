@@ -254,7 +254,14 @@ public class PaisJpaController implements Serializable {
             }
         }
     }
-
+    
+    public List<Pais> findAll() {
+        EntityManager em = getEntityManager();
+        Query q = em.createNamedQuery("Pais.findAll", Pais.class);
+        List<Pais> ps = q.getResultList();
+        return ps;
+    }
+    
     public List<Pais> findPaisEntities() {
         return findPaisEntities(true, -1, -1);
     }

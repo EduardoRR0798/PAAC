@@ -11,9 +11,11 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import entity.Pais;
+import entity.CuerpoAcademico;
 import entity.Memoria;
 import java.util.ArrayList;
 import java.util.List;
+import entity.ProductoMiembro;
 import entity.CapituloLibro;
 import entity.ProductoProyecto;
 import entity.Prototipo;
@@ -25,6 +27,7 @@ import entity.Patente;
 import entity.Producto;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.IllegalOrphanException;
 import persistence.exceptions.NonexistentEntityException;
 
@@ -34,8 +37,8 @@ import persistence.exceptions.NonexistentEntityException;
  */
 public class ProductoJpaController implements Serializable {
 
-    public ProductoJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public ProductoJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -43,9 +46,12 @@ public class ProductoJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
-    public void create(Producto producto) {
+    public boolean create(Producto producto) {
         if (producto.getMemoriaList() == null) {
             producto.setMemoriaList(new ArrayList<Memoria>());
+        }
+        if (producto.getProductoMiembroList() == null) {
+            producto.setProductoMiembroList(new ArrayList<ProductoMiembro>());
         }
         if (producto.getCapituloLibroList() == null) {
             producto.setCapituloLibroList(new ArrayList<CapituloLibro>());
@@ -80,12 +86,23 @@ public class ProductoJpaController implements Serializable {
                 idPais = em.getReference(idPais.getClass(), idPais.getIdPais());
                 producto.setIdPais(idPais);
             }
+            CuerpoAcademico idCuerpoAcademico = producto.getIdCuerpoAcademico();
+            if (idCuerpoAcademico != null) {
+                idCuerpoAcademico = em.getReference(idCuerpoAcademico.getClass(), idCuerpoAcademico.getIdCuerpoAcademico());
+                producto.setIdCuerpoAcademico(idCuerpoAcademico);
+            }
             List<Memoria> attachedMemoriaList = new ArrayList<Memoria>();
             for (Memoria memoriaListMemoriaToAttach : producto.getMemoriaList()) {
                 memoriaListMemoriaToAttach = em.getReference(memoriaListMemoriaToAttach.getClass(), memoriaListMemoriaToAttach.getIdMemoria());
                 attachedMemoriaList.add(memoriaListMemoriaToAttach);
             }
             producto.setMemoriaList(attachedMemoriaList);
+            List<ProductoMiembro> attachedProductoMiembroList = new ArrayList<ProductoMiembro>();
+            for (ProductoMiembro productoMiembroListProductoMiembroToAttach : producto.getProductoMiembroList()) {
+                productoMiembroListProductoMiembroToAttach = em.getReference(productoMiembroListProductoMiembroToAttach.getClass(), productoMiembroListProductoMiembroToAttach.getIdMiembroProducto());
+                attachedProductoMiembroList.add(productoMiembroListProductoMiembroToAttach);
+            }
+            producto.setProductoMiembroList(attachedProductoMiembroList);
             List<CapituloLibro> attachedCapituloLibroList = new ArrayList<CapituloLibro>();
             for (CapituloLibro capituloLibroListCapituloLibroToAttach : producto.getCapituloLibroList()) {
                 capituloLibroListCapituloLibroToAttach = em.getReference(capituloLibroListCapituloLibroToAttach.getClass(), capituloLibroListCapituloLibroToAttach.getIdCapitulolibro());
@@ -139,6 +156,10 @@ public class ProductoJpaController implements Serializable {
                 idPais.getProductoList().add(producto);
                 idPais = em.merge(idPais);
             }
+            if (idCuerpoAcademico != null) {
+                idCuerpoAcademico.getProductoList().add(producto);
+                idCuerpoAcademico = em.merge(idCuerpoAcademico);
+            }
             for (Memoria memoriaListMemoria : producto.getMemoriaList()) {
                 Producto oldIdProductoOfMemoriaListMemoria = memoriaListMemoria.getIdProducto();
                 memoriaListMemoria.setIdProducto(producto);
@@ -146,6 +167,15 @@ public class ProductoJpaController implements Serializable {
                 if (oldIdProductoOfMemoriaListMemoria != null) {
                     oldIdProductoOfMemoriaListMemoria.getMemoriaList().remove(memoriaListMemoria);
                     oldIdProductoOfMemoriaListMemoria = em.merge(oldIdProductoOfMemoriaListMemoria);
+                }
+            }
+            for (ProductoMiembro productoMiembroListProductoMiembro : producto.getProductoMiembroList()) {
+                Producto oldIdProductoOfProductoMiembroListProductoMiembro = productoMiembroListProductoMiembro.getIdProducto();
+                productoMiembroListProductoMiembro.setIdProducto(producto);
+                productoMiembroListProductoMiembro = em.merge(productoMiembroListProductoMiembro);
+                if (oldIdProductoOfProductoMiembroListProductoMiembro != null) {
+                    oldIdProductoOfProductoMiembroListProductoMiembro.getProductoMiembroList().remove(productoMiembroListProductoMiembro);
+                    oldIdProductoOfProductoMiembroListProductoMiembro = em.merge(oldIdProductoOfProductoMiembroListProductoMiembro);
                 }
             }
             for (CapituloLibro capituloLibroListCapituloLibro : producto.getCapituloLibroList()) {
@@ -221,11 +251,15 @@ public class ProductoJpaController implements Serializable {
                 }
             }
             em.getTransaction().commit();
-        } finally {
+        } catch(Exception e) {
+            e.printStackTrace();
+            return false;
+        }finally {
             if (em != null) {
                 em.close();
             }
         }
+        return true;
     }
 
     public void edit(Producto producto) throws IllegalOrphanException, NonexistentEntityException, Exception {
@@ -236,8 +270,12 @@ public class ProductoJpaController implements Serializable {
             Producto persistentProducto = em.find(Producto.class, producto.getIdProducto());
             Pais idPaisOld = persistentProducto.getIdPais();
             Pais idPaisNew = producto.getIdPais();
+            CuerpoAcademico idCuerpoAcademicoOld = persistentProducto.getIdCuerpoAcademico();
+            CuerpoAcademico idCuerpoAcademicoNew = producto.getIdCuerpoAcademico();
             List<Memoria> memoriaListOld = persistentProducto.getMemoriaList();
             List<Memoria> memoriaListNew = producto.getMemoriaList();
+            List<ProductoMiembro> productoMiembroListOld = persistentProducto.getProductoMiembroList();
+            List<ProductoMiembro> productoMiembroListNew = producto.getProductoMiembroList();
             List<CapituloLibro> capituloLibroListOld = persistentProducto.getCapituloLibroList();
             List<CapituloLibro> capituloLibroListNew = producto.getCapituloLibroList();
             List<ProductoProyecto> productoProyectoListOld = persistentProducto.getProductoProyectoList();
@@ -286,6 +324,10 @@ public class ProductoJpaController implements Serializable {
                 idPaisNew = em.getReference(idPaisNew.getClass(), idPaisNew.getIdPais());
                 producto.setIdPais(idPaisNew);
             }
+            if (idCuerpoAcademicoNew != null) {
+                idCuerpoAcademicoNew = em.getReference(idCuerpoAcademicoNew.getClass(), idCuerpoAcademicoNew.getIdCuerpoAcademico());
+                producto.setIdCuerpoAcademico(idCuerpoAcademicoNew);
+            }
             List<Memoria> attachedMemoriaListNew = new ArrayList<Memoria>();
             for (Memoria memoriaListNewMemoriaToAttach : memoriaListNew) {
                 memoriaListNewMemoriaToAttach = em.getReference(memoriaListNewMemoriaToAttach.getClass(), memoriaListNewMemoriaToAttach.getIdMemoria());
@@ -293,6 +335,13 @@ public class ProductoJpaController implements Serializable {
             }
             memoriaListNew = attachedMemoriaListNew;
             producto.setMemoriaList(memoriaListNew);
+            List<ProductoMiembro> attachedProductoMiembroListNew = new ArrayList<ProductoMiembro>();
+            for (ProductoMiembro productoMiembroListNewProductoMiembroToAttach : productoMiembroListNew) {
+                productoMiembroListNewProductoMiembroToAttach = em.getReference(productoMiembroListNewProductoMiembroToAttach.getClass(), productoMiembroListNewProductoMiembroToAttach.getIdMiembroProducto());
+                attachedProductoMiembroListNew.add(productoMiembroListNewProductoMiembroToAttach);
+            }
+            productoMiembroListNew = attachedProductoMiembroListNew;
+            producto.setProductoMiembroList(productoMiembroListNew);
             List<CapituloLibro> attachedCapituloLibroListNew = new ArrayList<CapituloLibro>();
             for (CapituloLibro capituloLibroListNewCapituloLibroToAttach : capituloLibroListNew) {
                 capituloLibroListNewCapituloLibroToAttach = em.getReference(capituloLibroListNewCapituloLibroToAttach.getClass(), capituloLibroListNewCapituloLibroToAttach.getIdCapitulolibro());
@@ -358,6 +407,14 @@ public class ProductoJpaController implements Serializable {
                 idPaisNew.getProductoList().add(producto);
                 idPaisNew = em.merge(idPaisNew);
             }
+            if (idCuerpoAcademicoOld != null && !idCuerpoAcademicoOld.equals(idCuerpoAcademicoNew)) {
+                idCuerpoAcademicoOld.getProductoList().remove(producto);
+                idCuerpoAcademicoOld = em.merge(idCuerpoAcademicoOld);
+            }
+            if (idCuerpoAcademicoNew != null && !idCuerpoAcademicoNew.equals(idCuerpoAcademicoOld)) {
+                idCuerpoAcademicoNew.getProductoList().add(producto);
+                idCuerpoAcademicoNew = em.merge(idCuerpoAcademicoNew);
+            }
             for (Memoria memoriaListOldMemoria : memoriaListOld) {
                 if (!memoriaListNew.contains(memoriaListOldMemoria)) {
                     memoriaListOldMemoria.setIdProducto(null);
@@ -372,6 +429,23 @@ public class ProductoJpaController implements Serializable {
                     if (oldIdProductoOfMemoriaListNewMemoria != null && !oldIdProductoOfMemoriaListNewMemoria.equals(producto)) {
                         oldIdProductoOfMemoriaListNewMemoria.getMemoriaList().remove(memoriaListNewMemoria);
                         oldIdProductoOfMemoriaListNewMemoria = em.merge(oldIdProductoOfMemoriaListNewMemoria);
+                    }
+                }
+            }
+            for (ProductoMiembro productoMiembroListOldProductoMiembro : productoMiembroListOld) {
+                if (!productoMiembroListNew.contains(productoMiembroListOldProductoMiembro)) {
+                    productoMiembroListOldProductoMiembro.setIdProducto(null);
+                    productoMiembroListOldProductoMiembro = em.merge(productoMiembroListOldProductoMiembro);
+                }
+            }
+            for (ProductoMiembro productoMiembroListNewProductoMiembro : productoMiembroListNew) {
+                if (!productoMiembroListOld.contains(productoMiembroListNewProductoMiembro)) {
+                    Producto oldIdProductoOfProductoMiembroListNewProductoMiembro = productoMiembroListNewProductoMiembro.getIdProducto();
+                    productoMiembroListNewProductoMiembro.setIdProducto(producto);
+                    productoMiembroListNewProductoMiembro = em.merge(productoMiembroListNewProductoMiembro);
+                    if (oldIdProductoOfProductoMiembroListNewProductoMiembro != null && !oldIdProductoOfProductoMiembroListNewProductoMiembro.equals(producto)) {
+                        oldIdProductoOfProductoMiembroListNewProductoMiembro.getProductoMiembroList().remove(productoMiembroListNewProductoMiembro);
+                        oldIdProductoOfProductoMiembroListNewProductoMiembro = em.merge(oldIdProductoOfProductoMiembroListNewProductoMiembro);
                     }
                 }
             }
@@ -552,10 +626,20 @@ public class ProductoJpaController implements Serializable {
                 idPais.getProductoList().remove(producto);
                 idPais = em.merge(idPais);
             }
+            CuerpoAcademico idCuerpoAcademico = producto.getIdCuerpoAcademico();
+            if (idCuerpoAcademico != null) {
+                idCuerpoAcademico.getProductoList().remove(producto);
+                idCuerpoAcademico = em.merge(idCuerpoAcademico);
+            }
             List<Memoria> memoriaList = producto.getMemoriaList();
             for (Memoria memoriaListMemoria : memoriaList) {
                 memoriaListMemoria.setIdProducto(null);
                 memoriaListMemoria = em.merge(memoriaListMemoria);
+            }
+            List<ProductoMiembro> productoMiembroList = producto.getProductoMiembroList();
+            for (ProductoMiembro productoMiembroListProductoMiembro : productoMiembroList) {
+                productoMiembroListProductoMiembro.setIdProducto(null);
+                productoMiembroListProductoMiembro = em.merge(productoMiembroListProductoMiembro);
             }
             List<CapituloLibro> capituloLibroList = producto.getCapituloLibroList();
             for (CapituloLibro capituloLibroListCapituloLibro : capituloLibroList) {

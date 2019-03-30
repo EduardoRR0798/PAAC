@@ -15,6 +15,7 @@ import entity.Pe;
 import entity.Participacion;
 import java.util.ArrayList;
 import java.util.List;
+import entity.Producto;
 import entity.ColaboradorCuerpoacademico;
 import entity.CuerpoAcademico;
 import javax.persistence.EntityManager;
@@ -41,6 +42,9 @@ public class CuerpoAcademicoJpaController implements Serializable {
         if (cuerpoAcademico.getParticipacionList() == null) {
             cuerpoAcademico.setParticipacionList(new ArrayList<Participacion>());
         }
+        if (cuerpoAcademico.getProductoList() == null) {
+            cuerpoAcademico.setProductoList(new ArrayList<Producto>());
+        }
         if (cuerpoAcademico.getColaboradorCuerpoacademicoList() == null) {
             cuerpoAcademico.setColaboradorCuerpoacademicoList(new ArrayList<ColaboradorCuerpoacademico>());
         }
@@ -64,6 +68,12 @@ public class CuerpoAcademicoJpaController implements Serializable {
                 attachedParticipacionList.add(participacionListParticipacionToAttach);
             }
             cuerpoAcademico.setParticipacionList(attachedParticipacionList);
+            List<Producto> attachedProductoList = new ArrayList<Producto>();
+            for (Producto productoListProductoToAttach : cuerpoAcademico.getProductoList()) {
+                productoListProductoToAttach = em.getReference(productoListProductoToAttach.getClass(), productoListProductoToAttach.getIdProducto());
+                attachedProductoList.add(productoListProductoToAttach);
+            }
+            cuerpoAcademico.setProductoList(attachedProductoList);
             List<ColaboradorCuerpoacademico> attachedColaboradorCuerpoacademicoList = new ArrayList<ColaboradorCuerpoacademico>();
             for (ColaboradorCuerpoacademico colaboradorCuerpoacademicoListColaboradorCuerpoacademicoToAttach : cuerpoAcademico.getColaboradorCuerpoacademicoList()) {
                 colaboradorCuerpoacademicoListColaboradorCuerpoacademicoToAttach = em.getReference(colaboradorCuerpoacademicoListColaboradorCuerpoacademicoToAttach.getClass(), colaboradorCuerpoacademicoListColaboradorCuerpoacademicoToAttach.getColaboradorCuerpoacademicoPK());
@@ -98,6 +108,15 @@ public class CuerpoAcademicoJpaController implements Serializable {
                     oldIdCAOfParticipacionListParticipacion = em.merge(oldIdCAOfParticipacionListParticipacion);
                 }
             }
+            for (Producto productoListProducto : cuerpoAcademico.getProductoList()) {
+                CuerpoAcademico oldIdCuerpoAcademicoOfProductoListProducto = productoListProducto.getIdCuerpoAcademico();
+                productoListProducto.setIdCuerpoAcademico(cuerpoAcademico);
+                productoListProducto = em.merge(productoListProducto);
+                if (oldIdCuerpoAcademicoOfProductoListProducto != null) {
+                    oldIdCuerpoAcademicoOfProductoListProducto.getProductoList().remove(productoListProducto);
+                    oldIdCuerpoAcademicoOfProductoListProducto = em.merge(oldIdCuerpoAcademicoOfProductoListProducto);
+                }
+            }
             for (ColaboradorCuerpoacademico colaboradorCuerpoacademicoListColaboradorCuerpoacademico : cuerpoAcademico.getColaboradorCuerpoacademicoList()) {
                 CuerpoAcademico oldCuerpoAcademicoOfColaboradorCuerpoacademicoListColaboradorCuerpoacademico = colaboradorCuerpoacademicoListColaboradorCuerpoacademico.getCuerpoAcademico();
                 colaboradorCuerpoacademicoListColaboradorCuerpoacademico.setCuerpoAcademico(cuerpoAcademico);
@@ -127,6 +146,8 @@ public class CuerpoAcademicoJpaController implements Serializable {
             Pe peNew = cuerpoAcademico.getPe();
             List<Participacion> participacionListOld = persistentCuerpoAcademico.getParticipacionList();
             List<Participacion> participacionListNew = cuerpoAcademico.getParticipacionList();
+            List<Producto> productoListOld = persistentCuerpoAcademico.getProductoList();
+            List<Producto> productoListNew = cuerpoAcademico.getProductoList();
             List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoListOld = persistentCuerpoAcademico.getColaboradorCuerpoacademicoList();
             List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoListNew = cuerpoAcademico.getColaboradorCuerpoacademicoList();
             List<String> illegalOrphanMessages = null;
@@ -168,6 +189,13 @@ public class CuerpoAcademicoJpaController implements Serializable {
             }
             participacionListNew = attachedParticipacionListNew;
             cuerpoAcademico.setParticipacionList(participacionListNew);
+            List<Producto> attachedProductoListNew = new ArrayList<Producto>();
+            for (Producto productoListNewProductoToAttach : productoListNew) {
+                productoListNewProductoToAttach = em.getReference(productoListNewProductoToAttach.getClass(), productoListNewProductoToAttach.getIdProducto());
+                attachedProductoListNew.add(productoListNewProductoToAttach);
+            }
+            productoListNew = attachedProductoListNew;
+            cuerpoAcademico.setProductoList(productoListNew);
             List<ColaboradorCuerpoacademico> attachedColaboradorCuerpoacademicoListNew = new ArrayList<ColaboradorCuerpoacademico>();
             for (ColaboradorCuerpoacademico colaboradorCuerpoacademicoListNewColaboradorCuerpoacademicoToAttach : colaboradorCuerpoacademicoListNew) {
                 colaboradorCuerpoacademicoListNewColaboradorCuerpoacademicoToAttach = em.getReference(colaboradorCuerpoacademicoListNewColaboradorCuerpoacademicoToAttach.getClass(), colaboradorCuerpoacademicoListNewColaboradorCuerpoacademicoToAttach.getColaboradorCuerpoacademicoPK());
@@ -208,6 +236,23 @@ public class CuerpoAcademicoJpaController implements Serializable {
                     if (oldIdCAOfParticipacionListNewParticipacion != null && !oldIdCAOfParticipacionListNewParticipacion.equals(cuerpoAcademico)) {
                         oldIdCAOfParticipacionListNewParticipacion.getParticipacionList().remove(participacionListNewParticipacion);
                         oldIdCAOfParticipacionListNewParticipacion = em.merge(oldIdCAOfParticipacionListNewParticipacion);
+                    }
+                }
+            }
+            for (Producto productoListOldProducto : productoListOld) {
+                if (!productoListNew.contains(productoListOldProducto)) {
+                    productoListOldProducto.setIdCuerpoAcademico(null);
+                    productoListOldProducto = em.merge(productoListOldProducto);
+                }
+            }
+            for (Producto productoListNewProducto : productoListNew) {
+                if (!productoListOld.contains(productoListNewProducto)) {
+                    CuerpoAcademico oldIdCuerpoAcademicoOfProductoListNewProducto = productoListNewProducto.getIdCuerpoAcademico();
+                    productoListNewProducto.setIdCuerpoAcademico(cuerpoAcademico);
+                    productoListNewProducto = em.merge(productoListNewProducto);
+                    if (oldIdCuerpoAcademicoOfProductoListNewProducto != null && !oldIdCuerpoAcademicoOfProductoListNewProducto.equals(cuerpoAcademico)) {
+                        oldIdCuerpoAcademicoOfProductoListNewProducto.getProductoList().remove(productoListNewProducto);
+                        oldIdCuerpoAcademicoOfProductoListNewProducto = em.merge(oldIdCuerpoAcademicoOfProductoListNewProducto);
                     }
                 }
             }
@@ -280,6 +325,11 @@ public class CuerpoAcademicoJpaController implements Serializable {
             for (Participacion participacionListParticipacion : participacionList) {
                 participacionListParticipacion.setIdCA(null);
                 participacionListParticipacion = em.merge(participacionListParticipacion);
+            }
+            List<Producto> productoList = cuerpoAcademico.getProductoList();
+            for (Producto productoListProducto : productoList) {
+                productoListProducto.setIdCuerpoAcademico(null);
+                productoListProducto = em.merge(productoListProducto);
             }
             em.remove(cuerpoAcademico);
             em.getTransaction().commit();

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package persistence;
 
 import entity.Colaborador;
@@ -28,7 +23,7 @@ import persistence.exceptions.NonexistentEntityException;
 public class ColaboradorJpaController implements Serializable {
 
     public ColaboradorJpaController() {
-        this.emf = this.emf = Persistence.createEntityManagerFactory("PAACPU");
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -233,6 +228,13 @@ public class ColaboradorJpaController implements Serializable {
         }
     }
 
+    public List<Colaborador> findAll() {
+        EntityManager em = getEntityManager();
+        Query q = em.createNamedQuery("Colaborador.findAll", Colaborador.class);
+        List<Colaborador> cs = q.getResultList();
+        return cs;
+    }
+    
     public Colaborador findColaborador(Integer id) {
         EntityManager em = getEntityManager();
         try {

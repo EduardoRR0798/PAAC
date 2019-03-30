@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package persistence;
 
 import java.io.Serializable;
@@ -11,13 +6,15 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import entity.Gradoacademico;
-import entity.DatosLaborales;
-import entity.Miembro;
+import entity.ProductoMiembro;
 import java.util.ArrayList;
 import java.util.List;
+import entity.DatosLaborales;
+import entity.Miembro;
 import entity.MiembroLgac;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.IllegalOrphanException;
 import persistence.exceptions.NonexistentEntityException;
 
@@ -27,8 +24,8 @@ import persistence.exceptions.NonexistentEntityException;
  */
 public class MiembroJpaController implements Serializable {
 
-    public MiembroJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public MiembroJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -37,6 +34,9 @@ public class MiembroJpaController implements Serializable {
     }
 
     public void create(Miembro miembro) {
+        if (miembro.getProductoMiembroList() == null) {
+            miembro.setProductoMiembroList(new ArrayList<ProductoMiembro>());
+        }
         if (miembro.getDatosLaboralesList() == null) {
             miembro.setDatosLaboralesList(new ArrayList<DatosLaborales>());
         }
@@ -52,6 +52,12 @@ public class MiembroJpaController implements Serializable {
                 gradoacademico = em.getReference(gradoacademico.getClass(), gradoacademico.getIdGradoAcademico());
                 miembro.setGradoacademico(gradoacademico);
             }
+            List<ProductoMiembro> attachedProductoMiembroList = new ArrayList<ProductoMiembro>();
+            for (ProductoMiembro productoMiembroListProductoMiembroToAttach : miembro.getProductoMiembroList()) {
+                productoMiembroListProductoMiembroToAttach = em.getReference(productoMiembroListProductoMiembroToAttach.getClass(), productoMiembroListProductoMiembroToAttach.getIdMiembroProducto());
+                attachedProductoMiembroList.add(productoMiembroListProductoMiembroToAttach);
+            }
+            miembro.setProductoMiembroList(attachedProductoMiembroList);
             List<DatosLaborales> attachedDatosLaboralesList = new ArrayList<DatosLaborales>();
             for (DatosLaborales datosLaboralesListDatosLaboralesToAttach : miembro.getDatosLaboralesList()) {
                 datosLaboralesListDatosLaboralesToAttach = em.getReference(datosLaboralesListDatosLaboralesToAttach.getClass(), datosLaboralesListDatosLaboralesToAttach.getIdDatosLaborales());
@@ -73,6 +79,15 @@ public class MiembroJpaController implements Serializable {
                 }
                 gradoacademico.setMiembro(miembro);
                 gradoacademico = em.merge(gradoacademico);
+            }
+            for (ProductoMiembro productoMiembroListProductoMiembro : miembro.getProductoMiembroList()) {
+                Miembro oldIdMiembroOfProductoMiembroListProductoMiembro = productoMiembroListProductoMiembro.getIdMiembro();
+                productoMiembroListProductoMiembro.setIdMiembro(miembro);
+                productoMiembroListProductoMiembro = em.merge(productoMiembroListProductoMiembro);
+                if (oldIdMiembroOfProductoMiembroListProductoMiembro != null) {
+                    oldIdMiembroOfProductoMiembroListProductoMiembro.getProductoMiembroList().remove(productoMiembroListProductoMiembro);
+                    oldIdMiembroOfProductoMiembroListProductoMiembro = em.merge(oldIdMiembroOfProductoMiembroListProductoMiembro);
+                }
             }
             for (DatosLaborales datosLaboralesListDatosLaborales : miembro.getDatosLaboralesList()) {
                 Miembro oldIdMiembroOfDatosLaboralesListDatosLaborales = datosLaboralesListDatosLaborales.getIdMiembro();
@@ -108,6 +123,8 @@ public class MiembroJpaController implements Serializable {
             Miembro persistentMiembro = em.find(Miembro.class, miembro.getIdMiembro());
             Gradoacademico gradoacademicoOld = persistentMiembro.getGradoacademico();
             Gradoacademico gradoacademicoNew = miembro.getGradoacademico();
+            List<ProductoMiembro> productoMiembroListOld = persistentMiembro.getProductoMiembroList();
+            List<ProductoMiembro> productoMiembroListNew = miembro.getProductoMiembroList();
             List<DatosLaborales> datosLaboralesListOld = persistentMiembro.getDatosLaboralesList();
             List<DatosLaborales> datosLaboralesListNew = miembro.getDatosLaboralesList();
             List<MiembroLgac> miembroLgacListOld = persistentMiembro.getMiembroLgacList();
@@ -134,6 +151,13 @@ public class MiembroJpaController implements Serializable {
                 gradoacademicoNew = em.getReference(gradoacademicoNew.getClass(), gradoacademicoNew.getIdGradoAcademico());
                 miembro.setGradoacademico(gradoacademicoNew);
             }
+            List<ProductoMiembro> attachedProductoMiembroListNew = new ArrayList<ProductoMiembro>();
+            for (ProductoMiembro productoMiembroListNewProductoMiembroToAttach : productoMiembroListNew) {
+                productoMiembroListNewProductoMiembroToAttach = em.getReference(productoMiembroListNewProductoMiembroToAttach.getClass(), productoMiembroListNewProductoMiembroToAttach.getIdMiembroProducto());
+                attachedProductoMiembroListNew.add(productoMiembroListNewProductoMiembroToAttach);
+            }
+            productoMiembroListNew = attachedProductoMiembroListNew;
+            miembro.setProductoMiembroList(productoMiembroListNew);
             List<DatosLaborales> attachedDatosLaboralesListNew = new ArrayList<DatosLaborales>();
             for (DatosLaborales datosLaboralesListNewDatosLaboralesToAttach : datosLaboralesListNew) {
                 datosLaboralesListNewDatosLaboralesToAttach = em.getReference(datosLaboralesListNewDatosLaboralesToAttach.getClass(), datosLaboralesListNewDatosLaboralesToAttach.getIdDatosLaborales());
@@ -157,6 +181,23 @@ public class MiembroJpaController implements Serializable {
                 }
                 gradoacademicoNew.setMiembro(miembro);
                 gradoacademicoNew = em.merge(gradoacademicoNew);
+            }
+            for (ProductoMiembro productoMiembroListOldProductoMiembro : productoMiembroListOld) {
+                if (!productoMiembroListNew.contains(productoMiembroListOldProductoMiembro)) {
+                    productoMiembroListOldProductoMiembro.setIdMiembro(null);
+                    productoMiembroListOldProductoMiembro = em.merge(productoMiembroListOldProductoMiembro);
+                }
+            }
+            for (ProductoMiembro productoMiembroListNewProductoMiembro : productoMiembroListNew) {
+                if (!productoMiembroListOld.contains(productoMiembroListNewProductoMiembro)) {
+                    Miembro oldIdMiembroOfProductoMiembroListNewProductoMiembro = productoMiembroListNewProductoMiembro.getIdMiembro();
+                    productoMiembroListNewProductoMiembro.setIdMiembro(miembro);
+                    productoMiembroListNewProductoMiembro = em.merge(productoMiembroListNewProductoMiembro);
+                    if (oldIdMiembroOfProductoMiembroListNewProductoMiembro != null && !oldIdMiembroOfProductoMiembroListNewProductoMiembro.equals(miembro)) {
+                        oldIdMiembroOfProductoMiembroListNewProductoMiembro.getProductoMiembroList().remove(productoMiembroListNewProductoMiembro);
+                        oldIdMiembroOfProductoMiembroListNewProductoMiembro = em.merge(oldIdMiembroOfProductoMiembroListNewProductoMiembro);
+                    }
+                }
             }
             for (DatosLaborales datosLaboralesListOldDatosLaborales : datosLaboralesListOld) {
                 if (!datosLaboralesListNew.contains(datosLaboralesListOldDatosLaborales)) {
@@ -233,6 +274,11 @@ public class MiembroJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
+            List<ProductoMiembro> productoMiembroList = miembro.getProductoMiembroList();
+            for (ProductoMiembro productoMiembroListProductoMiembro : productoMiembroList) {
+                productoMiembroListProductoMiembro.setIdMiembro(null);
+                productoMiembroListProductoMiembro = em.merge(productoMiembroListProductoMiembro);
+            }
             List<DatosLaborales> datosLaboralesList = miembro.getDatosLaboralesList();
             for (DatosLaborales datosLaboralesListDatosLaborales : datosLaboralesList) {
                 datosLaboralesListDatosLaborales.setIdMiembro(null);
@@ -247,6 +293,13 @@ public class MiembroJpaController implements Serializable {
         }
     }
 
+    public List<Miembro> findAll() {
+        EntityManager em = getEntityManager();
+        Query q = em.createNamedQuery("Miembro.findAll", Miembro.class);
+        List<Miembro> ms = q.getResultList();
+        return ms;
+    }
+    
     public List<Miembro> findMiembroEntities() {
         return findMiembroEntities(true, -1, -1);
     }

@@ -17,6 +17,7 @@ import entity.ProductoColaboradorPK;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.NonexistentEntityException;
 import persistence.exceptions.PreexistingEntityException;
 
@@ -26,8 +27,8 @@ import persistence.exceptions.PreexistingEntityException;
  */
 public class ProductoColaboradorJpaController implements Serializable {
 
-    public ProductoColaboradorJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public ProductoColaboradorJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -39,8 +40,8 @@ public class ProductoColaboradorJpaController implements Serializable {
         if (productoColaborador.getProductoColaboradorPK() == null) {
             productoColaborador.setProductoColaboradorPK(new ProductoColaboradorPK());
         }
-        productoColaborador.getProductoColaboradorPK().setIdProducto(productoColaborador.getProducto().getIdProducto());
         productoColaborador.getProductoColaboradorPK().setIdColaborador(productoColaborador.getColaborador().getIdColaborador());
+        productoColaborador.getProductoColaboradorPK().setIdProducto(productoColaborador.getProducto().getIdProducto());
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -78,8 +79,8 @@ public class ProductoColaboradorJpaController implements Serializable {
     }
 
     public void edit(ProductoColaborador productoColaborador) throws NonexistentEntityException, Exception {
-        productoColaborador.getProductoColaboradorPK().setIdProducto(productoColaborador.getProducto().getIdProducto());
         productoColaborador.getProductoColaboradorPK().setIdColaborador(productoColaborador.getColaborador().getIdColaborador());
+        productoColaborador.getProductoColaboradorPK().setIdProducto(productoColaborador.getProducto().getIdProducto());
         EntityManager em = null;
         try {
             em = getEntityManager();

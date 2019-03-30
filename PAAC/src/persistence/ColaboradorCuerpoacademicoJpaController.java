@@ -39,8 +39,8 @@ public class ColaboradorCuerpoacademicoJpaController implements Serializable {
         if (colaboradorCuerpoacademico.getColaboradorCuerpoacademicoPK() == null) {
             colaboradorCuerpoacademico.setColaboradorCuerpoacademicoPK(new ColaboradorCuerpoacademicoPK());
         }
-        colaboradorCuerpoacademico.getColaboradorCuerpoacademicoPK().setIdCA(colaboradorCuerpoacademico.getCuerpoAcademico().getIdCuerpoAcademico());
         colaboradorCuerpoacademico.getColaboradorCuerpoacademicoPK().setIdColaborador(colaboradorCuerpoacademico.getColaborador().getIdColaborador());
+        colaboradorCuerpoacademico.getColaboradorCuerpoacademicoPK().setIdCA(colaboradorCuerpoacademico.getCuerpoAcademico().getIdCuerpoAcademico());
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -78,8 +78,8 @@ public class ColaboradorCuerpoacademicoJpaController implements Serializable {
     }
 
     public void edit(ColaboradorCuerpoacademico colaboradorCuerpoacademico) throws NonexistentEntityException, Exception {
-        colaboradorCuerpoacademico.getColaboradorCuerpoacademicoPK().setIdCA(colaboradorCuerpoacademico.getCuerpoAcademico().getIdCuerpoAcademico());
         colaboradorCuerpoacademico.getColaboradorCuerpoacademicoPK().setIdColaborador(colaboradorCuerpoacademico.getColaborador().getIdColaborador());
+        colaboradorCuerpoacademico.getColaboradorCuerpoacademicoPK().setIdCA(colaboradorCuerpoacademico.getCuerpoAcademico().getIdCuerpoAcademico());
         EntityManager em = null;
         try {
             em = getEntityManager();
