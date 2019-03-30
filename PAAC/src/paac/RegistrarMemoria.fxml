@@ -16,6 +16,7 @@
       <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
     <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
@@ -23,155 +24,165 @@
       <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label text="Titulo:">
+      <Label text="Titulo:" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="País:" GridPane.rowIndex="1">
+      <Label text="País:" GridPane.rowIndex="2">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Año:" GridPane.rowIndex="2">
+      <Label text="Año:" GridPane.rowIndex="3">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Proposito:" GridPane.rowIndex="3">
+      <Label text="Proposito:" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Congreso:" GridPane.rowIndex="4">
+      <Label text="Congreso:" GridPane.rowIndex="5">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Ciudad:" GridPane.rowIndex="5">
+      <Label text="Ciudad:" GridPane.rowIndex="6">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Estado:" GridPane.rowIndex="6">
+      <Label text="Estado:" GridPane.rowIndex="7">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Rango de Paginas:" GridPane.rowIndex="7">
+      <Label text="Rango de Paginas:" GridPane.rowIndex="8">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Fecha de Publicacion:" GridPane.rowIndex="8">
+      <Label text="Fecha de Publicacion:" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <TextField fx:id="tfTitulo" prefHeight="25.0" prefWidth="304.0">
+      <TextField fx:id="tfTitulo" prefHeight="25.0" prefWidth="304.0" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfPropsito" GridPane.rowIndex="3">
+      <TextField fx:id="tfPropsito" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfAnio" GridPane.rowIndex="2">
+      <TextField fx:id="tfAnio" GridPane.rowIndex="3">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfCongreso" GridPane.rowIndex="4">
+      <TextField fx:id="tfCongreso" GridPane.rowIndex="5">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfCiudad" GridPane.rowIndex="5">
+      <TextField fx:id="tfCiudad" GridPane.rowIndex="6">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfEstado" GridPane.rowIndex="6">
+      <TextField fx:id="tfEstado" GridPane.rowIndex="7">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfRango" GridPane.rowIndex="7">
+      <TextField fx:id="tfRango" GridPane.rowIndex="8">
          <GridPane.margin>
             <Insets left="125.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <Label text="Autor(es):" GridPane.columnIndex="1">
+      <Label text="Autor(es):" GridPane.columnIndex="1" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets left="20.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Colaborador(es):" GridPane.columnIndex="1" GridPane.rowIndex="3">
+      <Label text="Colaborador(es):" GridPane.columnIndex="1" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets left="20.0" />
          </GridPane.margin>
       </Label>
-      <ComboBox fx:id="cbAutores" prefHeight="25.0" prefWidth="279.0" GridPane.columnIndex="1">
-         <GridPane.margin>
-            <Insets left="75.0" right="25.0" />
-         </GridPane.margin>
-      </ComboBox>
-      <ComboBox fx:id="cbColaboradores" prefHeight="25.0" prefWidth="239.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-         <GridPane.margin>
-            <Insets left="110.0" right="25.0" />
-         </GridPane.margin>
-      </ComboBox>
-      <ListView fx:id="lstAutores" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.rowSpan="2">
-         <GridPane.margin>
-            <Insets left="25.0" right="20.0" />
-         </GridPane.margin>
-      </ListView>
-      <ListView fx:id="lstColaboradores" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.rowSpan="2">
+      <ListView fx:id="lstAutores" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.rowSpan="2">
          <GridPane.margin>
             <Insets left="25.0" right="25.0" />
          </GridPane.margin>
       </ListView>
-      <Button fx:id="btnAceptar" mnemonicParsing="false" onAction="#aceptar" text="Aceptar" GridPane.columnIndex="1" GridPane.rowIndex="9">
+      <ListView fx:id="lstColaboradores" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.rowSpan="2">
+         <GridPane.margin>
+            <Insets left="25.0" right="25.0" />
+         </GridPane.margin>
+      </ListView>
+      <Button fx:id="btnAceptar" mnemonicParsing="false" onAction="#aceptar" text="Aceptar" GridPane.columnIndex="1" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets left="110.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" text="Cancelar" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="9">
+      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" text="Cancelar" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets right="110.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="btnAgregarColaborador" mnemonicParsing="false" onAction="#mostrarCampoColaborador" text="Agregar Colaborador:" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
+      <Button fx:id="btnAgregarColaborador" mnemonicParsing="false" onAction="#mostrarCampoColaborador" text="Agregar Colaborador:" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
          <GridPane.margin>
             <Insets right="25.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="btnAgregar" disable="true" mnemonicParsing="false" onAction="#agregarALista" text="+" visible="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
+      <Button fx:id="btnAgregar" disable="true" mnemonicParsing="false" onAction="#agregarALista" text="+" visible="false" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
          <GridPane.margin>
             <Insets right="25.0" />
          </GridPane.margin>
       </Button>
-      <TextField fx:id="tfColaborador" disable="true" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="7">
+      <TextField fx:id="tfColaborador" disable="true" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="8">
          <GridPane.margin>
             <Insets left="25.0" right="55.0" />
          </GridPane.margin>
       </TextField>
-      <ComboBox fx:id="cbPais" prefHeight="25.0" prefWidth="307.0" GridPane.rowIndex="1">
+      <ComboBox fx:id="cbPais" prefHeight="25.0" prefWidth="307.0" promptText="Seleccione un pais" GridPane.rowIndex="2">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </ComboBox>
-      <DatePicker fx:id="dpFecha" prefHeight="25.0" prefWidth="248.0" GridPane.rowIndex="8">
+      <DatePicker fx:id="dpFecha" prefHeight="25.0" prefWidth="239.0" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets left="140.0" right="20.0" />
          </GridPane.margin>
       </DatePicker>
-      <Label fx:id="lblMensaje" prefHeight="17.0" prefWidth="354.0" GridPane.rowIndex="9">
+      <Label fx:id="lblMensaje" contentDisplay="CENTER" onMouseClicked="#ocultarMensaje" prefHeight="17.0" prefWidth="710.0" textAlignment="CENTER" textFill="RED" textOverrun="CENTER_ELLIPSIS" wrapText="true" GridPane.columnSpan="2">
          <GridPane.margin>
-            <Insets left="25.0" right="25.0" />
+            <Insets left="100.0" right="100.0" />
          </GridPane.margin>
       </Label>
+      <MenuButton fx:id="mbMiembros" mnemonicParsing="false" prefHeight="25.0" prefWidth="280.0" text="Seleccione los autores" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets left="80.0" right="25.0" />
+         </GridPane.margin>
+      </MenuButton>
+      <MenuButton fx:id="mbColaboradores" mnemonicParsing="false" prefHeight="25.0" prefWidth="293.0" text="Seleccione los colaboradores" GridPane.columnIndex="1" GridPane.rowIndex="4">
+         <GridPane.margin>
+            <Insets left="110.0" right="25.0" />
+         </GridPane.margin>
+      </MenuButton>
+      <Label text="Estado actual:" GridPane.rowIndex="9">
+         <GridPane.margin>
+            <Insets left="25.0" />
+         </GridPane.margin>
+      </Label>
+      <TextField fx:id="tfEstadoActual" GridPane.rowIndex="9">
+         <GridPane.margin>
+            <Insets left="100.0" right="20.0" />
+         </GridPane.margin>
+      </TextField>
    </children>
 </GridPane>
