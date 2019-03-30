@@ -54,6 +54,8 @@ public class CuerpoAcademico implements Serializable {
     private String nombre;
     @OneToMany(mappedBy = "idCA")
     private List<Participacion> participacionList;
+    @OneToMany(mappedBy = "idCuerpoAcademico")
+    private List<Producto> productoList;
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "cuerpoAcademico")
     private ProyectoInvestigacionconjunto proyectoInvestigacionconjunto;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "cuerpoAcademico")
@@ -115,6 +117,15 @@ public class CuerpoAcademico implements Serializable {
 
     public void setParticipacionList(List<Participacion> participacionList) {
         this.participacionList = participacionList;
+    }
+
+    @XmlTransient
+    public List<Producto> getProductoList() {
+        return productoList;
+    }
+
+    public void setProductoList(List<Producto> productoList) {
+        this.productoList = productoList;
     }
 
     public ProyectoInvestigacionconjunto getProyectoInvestigacionconjunto() {

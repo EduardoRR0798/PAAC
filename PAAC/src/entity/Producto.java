@@ -55,9 +55,14 @@ public class Producto implements Serializable {
     private String titulo;
     @OneToMany(mappedBy = "idProducto")
     private List<Memoria> memoriaList;
+    @OneToMany(mappedBy = "idProducto")
+    private List<ProductoMiembro> productoMiembroList;
     @JoinColumn(name = "idPais", referencedColumnName = "idPais")
     @ManyToOne
     private Pais idPais;
+    @JoinColumn(name = "idCuerpoAcademico", referencedColumnName = "idCuerpoAcademico")
+    @ManyToOne
+    private CuerpoAcademico idCuerpoAcademico;
     @OneToMany(mappedBy = "idProducto")
     private List<CapituloLibro> capituloLibroList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "producto")
@@ -131,12 +136,29 @@ public class Producto implements Serializable {
         this.memoriaList = memoriaList;
     }
 
+    @XmlTransient
+    public List<ProductoMiembro> getProductoMiembroList() {
+        return productoMiembroList;
+    }
+
+    public void setProductoMiembroList(List<ProductoMiembro> productoMiembroList) {
+        this.productoMiembroList = productoMiembroList;
+    }
+
     public Pais getIdPais() {
         return idPais;
     }
 
     public void setIdPais(Pais idPais) {
         this.idPais = idPais;
+    }
+
+    public CuerpoAcademico getIdCuerpoAcademico() {
+        return idCuerpoAcademico;
+    }
+
+    public void setIdCuerpoAcademico(CuerpoAcademico idCuerpoAcademico) {
+        this.idCuerpoAcademico = idCuerpoAcademico;
     }
 
     @XmlTransient

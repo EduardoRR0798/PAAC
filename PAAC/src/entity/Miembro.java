@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -64,6 +59,8 @@ public class Miembro implements Serializable {
     private String usuario;
     @Column(name = "contrasenia")
     private String contrasenia;
+    @OneToMany(mappedBy = "idMiembro")
+    private List<ProductoMiembro> productoMiembroList;
     @OneToMany(mappedBy = "idMiembro")
     private List<DatosLaborales> datosLaboralesList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "miembro")
@@ -148,6 +145,15 @@ public class Miembro implements Serializable {
 
     public void setContrasenia(String contrasenia) {
         this.contrasenia = contrasenia;
+    }
+
+    @XmlTransient
+    public List<ProductoMiembro> getProductoMiembroList() {
+        return productoMiembroList;
+    }
+
+    public void setProductoMiembroList(List<ProductoMiembro> productoMiembroList) {
+        this.productoMiembroList = productoMiembroList;
     }
 
     @XmlTransient
