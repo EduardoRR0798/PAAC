@@ -720,5 +720,12 @@ public class ProductoJpaController implements Serializable {
             em.close();
         }
     }
+
+    public List<Producto> findAll() {
+        EntityManager em = getEntityManager();
+        Query q = em.createNamedQuery("Miembro.findAll", Producto.class);
+        List<Producto> ms = q.getResultList();
+        return ms;
+    }
     
 }

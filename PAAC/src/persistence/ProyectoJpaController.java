@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.IllegalOrphanException;
 import persistence.exceptions.NonexistentEntityException;
 
@@ -26,8 +27,8 @@ import persistence.exceptions.NonexistentEntityException;
  */
 public class ProyectoJpaController implements Serializable {
 
-    public ProyectoJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public ProyectoJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
