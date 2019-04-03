@@ -110,7 +110,7 @@ public class Lgac implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Lgac[ idlgac=" + idlgac + " ]";
+        return nombre;
     }
     
 }
