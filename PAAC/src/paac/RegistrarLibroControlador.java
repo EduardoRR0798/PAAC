@@ -78,7 +78,7 @@ public class RegistrarLibroControlador implements Initializable {
     @FXML
     private TextArea propositotxt;
     @FXML
-    private ComboBox cbPaises;
+    private ComboBox<Pais> cbPaises;
     @FXML
     private MenuButton mbMiembros = new MenuButton();
     @FXML
@@ -97,7 +97,6 @@ public class RegistrarLibroControlador implements Initializable {
     private TextField tfColaborador;
     @FXML
     private Label lblMensaje;
-    private Object tfEstadoActual;
     
     
     @FXML
@@ -122,6 +121,7 @@ public class RegistrarLibroControlador implements Initializable {
         }else{
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
+            registrarProducto();
         }
     }
     
@@ -178,15 +178,16 @@ public class RegistrarLibroControlador implements Initializable {
         if(titulotxt.getText().isEmpty() || aniotxt.getText().isEmpty() 
                 || propositotxt.getText().isEmpty() || isbntxt.getText().isEmpty() 
                 || editorialtxt.getText().isEmpty() || paginastxt.getText().isEmpty()
-                || ediciontxt.getText().isEmpty() || ejemplarestxt.getText().isEmpty()){
+                || ediciontxt.getText().isEmpty() || ejemplarestxt.getText().isEmpty()
+                || cbPaises.getValue()==null){
             r.setError(true);
             r.setMensaje("No puede haber campos vacíos");
             r.setErrorcode(1);
             return r;
         }
-        if(titulotxt.getText().length()>10){
+        if(titulotxt.getText().length()>255){
             r.setError(true);
-            r.setMensaje("El titulo no puede tener mas de 10 caracteres");
+            r.setMensaje("El titulo no puede tener mas de 255` caracteres");
             r.setErrorcode(1);
             return r;
         }
@@ -196,9 +197,9 @@ public class RegistrarLibroControlador implements Initializable {
             r.setErrorcode(2);
             return r;
         }
-        if(propositotxt.getText().length()>10){
+        if(propositotxt.getText().length()>255){
             r.setError(true);
-            r.setMensaje("El proposito no puede tener mas de 10 caracteres");
+            r.setMensaje("El proposito no puede tener mas de 255 caracteres");
             r.setErrorcode(3);
             return r;
         }
@@ -208,27 +209,27 @@ public class RegistrarLibroControlador implements Initializable {
             r.setErrorcode(4);
             return r;
         }
-        if(editorialtxt.getText().length()>10){
+        if(editorialtxt.getText().length()>255){
             r.setError(true);
-            r.setMensaje("El nombre de la editorial no puede ser mayor a 10 caracteres y no permite caracteres especiales");
+            r.setMensaje("El nombre de la editorial no puede ser mayor a 255 caracteres");
             r.setErrorcode(5);
             return r;
         }
-        if(!paginastxt.getText().matches("^[+]?\\d*$") && paginastxt.getText().length()<10){
+        if(!paginastxt.getText().matches("^[+]?\\d*$") || paginastxt.getText().length()<10){
             r.setError(true);
-            r.setMensaje("Solo se permite números en Páginas");
+            r.setMensaje("Solo se permite números en Páginas menores a 10 digitos");
             r.setErrorcode(6);
             return r;
         }
-        if(!ediciontxt.getText().matches("^[+]?\\d*$") && ediciontxt.getText().length()<10){
+        if(!ediciontxt.getText().matches("^[+]?\\d*$") || ediciontxt.getText().length()<10){
             r.setError(true);
-            r.setMensaje("Solo se permite números en Edición");
+            r.setMensaje("Solo se permite números en Edición menores a 10 digitos");
             r.setErrorcode(7);
             return r;
         }
-        if(!ejemplarestxt.getText().matches("^[+]?\\d*$") && ejemplarestxt.getText().length()<10){
+        if(!ejemplarestxt.getText().matches("^[+]?\\d*$") || ejemplarestxt.getText().length()<10){
             r.setError(true);
-            r.setMensaje("Solo se permite números en Ejemplares");
+            r.setMensaje("Solo se permite números en Ejemplares menores a 10 digitos");
             r.setErrorcode(8);
             return r;
         }
@@ -238,14 +239,14 @@ public class RegistrarLibroControlador implements Initializable {
     }
     
     public void registrarProducto(){
-        ///memoria
+        ///Libro
         ///producto
         ///colaborador
         ///
-        //datos de la memoria///
+        //datos del libro///
         Libro libro = new Libro();
         libro.setIsbn(isbntxt.getText());
-        libro.setEditorial(isbntxt.getText());
+        libro.setEditorial(editorialtxt.getText());
         libro.setNumPaginas(Integer.valueOf(paginastxt.getText()));
         libro.setEdicion(Integer.valueOf(ediciontxt.getText()));
         libro.setTiraje(Integer.valueOf(ejemplarestxt.getText()));
@@ -269,7 +270,7 @@ public class RegistrarLibroControlador implements Initializable {
         }
         System.out.println(producto.getIdProducto());
         ///datos del producto-colaborador///
-        ObservableList<Colaborador> colas = lstColaboradores.getSelectionModel().getSelectedItems();
+        ObservableList<Colaborador> colas = lstColaboradores.getItems();
         ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
         
         ProductoColaborador pc;
@@ -284,11 +285,11 @@ public class RegistrarLibroControlador implements Initializable {
             }
         }
         ///datos del producto-Miembro
-        ObservableList<Miembro> mis = lstAutores.getSelectionModel().getSelectedItems();
+        ObservableList<Miembro> mis = lstAutores.getItems();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
         
         ProductoMiembro pm;
-        for (int i = 0; i < colas.size(); i++) {
+        for (int i = 0; i < mis.size(); i++) {
             pm = new ProductoMiembro();
             pm.setIdMiembro(mis.get(i));
             pm.setIdProducto(producto);

@@ -29,7 +29,7 @@
             </BorderPane>
          </right>
          <left>
-            <Label fx:id="errorlbl" text="Error de datos" visible="false" BorderPane.alignment="CENTER">
+            <Label fx:id="lbl_error" text="Error de datos" visible="false" BorderPane.alignment="CENTER">
                <BorderPane.margin>
                   <Insets left="10.0" />
                </BorderPane.margin>
@@ -54,7 +54,7 @@
             <Label text="Nombre" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="TOP" />
             <Label text="Fin" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="BOTTOM" />
             <Label text="Inicio" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-            <TextField fx:id="nombretxt" prefHeight="23.0" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="TOP">
+            <TextField fx:id="txt_nombre" prefHeight="23.0" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="TOP">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
@@ -64,7 +64,7 @@
                   <Insets top="10.0" />
                </GridPane.margin>
             </Label>
-            <TextArea fx:id="propositotxt" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <TextArea fx:id="txt_descripcion" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <GridPane.margin>
                   <Insets bottom="8.0" left="10.0" top="5.0" />
                </GridPane.margin>
@@ -95,17 +95,17 @@
                   <Insets left="10.0" />
                </GridPane.margin>
             </DatePicker>
-            <ComboBox fx:id="ldgaccb" prefHeight="31.0" prefWidth="217.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="TOP">
+            <ComboBox fx:id="cb_ldgac" prefHeight="31.0" prefWidth="217.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="TOP">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
             </ComboBox>
-            <TextField GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+            <TextField fx:id="txt_tipo" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
             </TextField>
-            <TextField GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="TOP">
+            <TextField fx:id="txt_cantidad" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="TOP">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
@@ -128,18 +128,6 @@
                      <BorderPane.margin>
                         <Insets left="50.0" />
                      </BorderPane.margin>
-                     <children>
-                        <Label text="Cuerpo Academico">
-                           <GridPane.margin>
-                              <Insets left="90.0" top="40.0" />
-                           </GridPane.margin>
-                        </Label>
-                        <ComboBox fx:id="cacb" prefWidth="150.0" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
-                           <GridPane.margin>
-                              <Insets right="10.0" top="50.0" />
-                           </GridPane.margin>
-                        </ComboBox>
-                     </children>
                   </GridPane>
                </top>
             </BorderPane>
@@ -155,21 +143,25 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <ComboBox fx:id="productoscb" prefWidth="150.0" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
-                           <GridPane.margin>
-                              <Insets right="10.0" />
-                           </GridPane.margin>
-                        </ComboBox>
                         <Label text="Añadir productos" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
                            <GridPane.margin>
                               <Insets left="50.0" />
                            </GridPane.margin>
                         </Label>
+                        <MenuButton fx:id="mb_productos" mnemonicParsing="false" text="Productos" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
+                          <items>
+                            <MenuItem mnemonicParsing="false" text="Action 1" />
+                            <MenuItem mnemonicParsing="false" text="Action 2" />
+                          </items>
+                           <GridPane.margin>
+                              <Insets right="10.0" />
+                           </GridPane.margin>
+                        </MenuButton>
                      </children>
                   </GridPane>
                </top>
                <center>
-                  <ListView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                  <ListView fx:id="lv_productos" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets bottom="10.0" left="50.0" right="10.0" top="10.0" />
                      </BorderPane.margin>

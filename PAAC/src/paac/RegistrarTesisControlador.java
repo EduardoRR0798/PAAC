@@ -186,9 +186,9 @@ public class RegistrarTesisControlador implements Initializable {
             r.setErrorcode(1);
             return r;
         }
-        if(titulotxt.getText().length()>10){
+        if(titulotxt.getText().length()>100){
             r.setError(true);
-            r.setMensaje("El titulo no puede tener mas de 10 caracteres");
+            r.setMensaje("El titulo no puede tener mas de 100 caracteres");
             r.setErrorcode(1);
             return r;
         }
