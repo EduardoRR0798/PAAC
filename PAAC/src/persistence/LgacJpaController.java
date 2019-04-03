@@ -17,6 +17,7 @@ import java.util.List;
 import entity.MiembroLgac;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.IllegalOrphanException;
 import persistence.exceptions.NonexistentEntityException;
 
@@ -26,8 +27,8 @@ import persistence.exceptions.NonexistentEntityException;
  */
 public class LgacJpaController implements Serializable {
 
-    public LgacJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public LgacJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -248,6 +249,13 @@ public class LgacJpaController implements Serializable {
         } finally {
             em.close();
         }
+    }
+
+    public List<Lgac> findAll() {
+        EntityManager em = getEntityManager();
+        Query q = em.createNamedQuery("Lgac.findAll", Lgac.class);
+        List<Lgac> ms = q.getResultList();
+        return ms;
     }
     
 }
