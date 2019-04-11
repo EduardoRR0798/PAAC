@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package persistence;
 
 import java.io.Serializable;
@@ -33,7 +28,7 @@ import persistence.exceptions.NonexistentEntityException;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 public class ProductoJpaController implements Serializable {
 
@@ -47,6 +42,7 @@ public class ProductoJpaController implements Serializable {
     }
 
     public boolean create(Producto producto) {
+        boolean permiso = true;
         if (producto.getMemoriaList() == null) {
             producto.setMemoriaList(new ArrayList<Memoria>());
         }
@@ -251,15 +247,14 @@ public class ProductoJpaController implements Serializable {
                 }
             }
             em.getTransaction().commit();
-        } catch(Exception e) {
-            e.printStackTrace();
-            return false;
+        } catch (Exception ex) {
+            permiso = false;
         }finally {
             if (em != null) {
                 em.close();
             }
         }
-        return true;
+        return permiso;
     }
 
     public void edit(Producto producto) throws IllegalOrphanException, NonexistentEntityException, Exception {
@@ -299,14 +294,6 @@ public class ProductoJpaController implements Serializable {
                         illegalOrphanMessages = new ArrayList<String>();
                     }
                     illegalOrphanMessages.add("You must retain ProductoProyecto " + productoProyectoListOldProductoProyecto + " since its producto field is not nullable.");
-                }
-            }
-            for (Prototipo prototipoListOldPrototipo : prototipoListOld) {
-                if (!prototipoListNew.contains(prototipoListOldPrototipo)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Prototipo " + prototipoListOldPrototipo + " since its idProducto field is not nullable.");
                 }
             }
             for (ProductoColaborador productoColaboradorListOldProductoColaborador : productoColaboradorListOld) {
@@ -477,6 +464,12 @@ public class ProductoJpaController implements Serializable {
                     }
                 }
             }
+            for (Prototipo prototipoListOldPrototipo : prototipoListOld) {
+                if (!prototipoListNew.contains(prototipoListOldPrototipo)) {
+                    prototipoListOldPrototipo.setIdProducto(null);
+                    prototipoListOldPrototipo = em.merge(prototipoListOldPrototipo);
+                }
+            }
             for (Prototipo prototipoListNewPrototipo : prototipoListNew) {
                 if (!prototipoListOld.contains(prototipoListNewPrototipo)) {
                     Producto oldIdProductoOfPrototipoListNewPrototipo = prototipoListNewPrototipo.getIdProducto();
@@ -604,13 +597,6 @@ public class ProductoJpaController implements Serializable {
                 }
                 illegalOrphanMessages.add("This Producto (" + producto + ") cannot be destroyed since the ProductoProyecto " + productoProyectoListOrphanCheckProductoProyecto + " in its productoProyectoList field has a non-nullable producto field.");
             }
-            List<Prototipo> prototipoListOrphanCheck = producto.getPrototipoList();
-            for (Prototipo prototipoListOrphanCheckPrototipo : prototipoListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Producto (" + producto + ") cannot be destroyed since the Prototipo " + prototipoListOrphanCheckPrototipo + " in its prototipoList field has a non-nullable idProducto field.");
-            }
             List<ProductoColaborador> productoColaboradorListOrphanCheck = producto.getProductoColaboradorList();
             for (ProductoColaborador productoColaboradorListOrphanCheckProductoColaborador : productoColaboradorListOrphanCheck) {
                 if (illegalOrphanMessages == null) {
@@ -645,6 +631,11 @@ public class ProductoJpaController implements Serializable {
             for (CapituloLibro capituloLibroListCapituloLibro : capituloLibroList) {
                 capituloLibroListCapituloLibro.setIdProducto(null);
                 capituloLibroListCapituloLibro = em.merge(capituloLibroListCapituloLibro);
+            }
+            List<Prototipo> prototipoList = producto.getPrototipoList();
+            for (Prototipo prototipoListPrototipo : prototipoList) {
+                prototipoListPrototipo.setIdProducto(null);
+                prototipoListPrototipo = em.merge(prototipoListPrototipo);
             }
             List<Articulo> articuloList = producto.getArticuloList();
             for (Articulo articuloListArticulo : articuloList) {
@@ -720,12 +711,49 @@ public class ProductoJpaController implements Serializable {
             em.close();
         }
     }
-
+    
+    /**
+     * Busca si existe algun Producto con el titulo buscado.
+     * @param titulo nombre del producto.
+     * @return true si no existe ningun producto bajo ese nombre, false si lo existe.
+     */
+    public boolean verificarNombre(String titulo) {
+        boolean permiso = false;
+        try {
+            EntityManager em = getEntityManager();
+            Query q = em.createNamedQuery("Producto.findByTitulo", Producto.class).setParameter("titulo", titulo);
+            Producto p = (Producto) q.getSingleResult();
+        } catch (Exception e) {
+            permiso = true;
+        }
+        return permiso;
+    }
+    
+    /**
+     * Encuentra un producto por su id.
+     * @param id (int) id del producto.
+     * @return el Producto.
+     */
+    public Producto findById(int id) {
+        Producto p;
+        try {
+            EntityManager em = getEntityManager();
+            p = (Producto) em.createNamedQuery("Producto.findByIdProducto", Producto.class).setParameter("idProducto", id);
+        } catch (Exception ex) {
+            p = null;
+        }
+        
+        return p;
+    }
+    
+    /**
+     * Recupera TODOS los productos de la base de datos.
+     * @return una lista con todos los productos de la base de datos.
+     */
     public List<Producto> findAll() {
         EntityManager em = getEntityManager();
         Query q = em.createNamedQuery("Miembro.findAll", Producto.class);
         List<Producto> ms = q.getResultList();
         return ms;
-    }
-    
+    }    
 }

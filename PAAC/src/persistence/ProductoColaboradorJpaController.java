@@ -209,4 +209,16 @@ public class ProductoColaboradorJpaController implements Serializable {
         }
     }
     
+    /**
+     * Recupera TODOS los ProductoColaborador de un mismo producto.
+     * @param id (int) id de un producto en particular.
+     * @return lista de ProductoColaborador de un mismo producto.
+     */
+    public List<ProductoColaborador> findByIdProducto(int id) {
+        EntityManager em = getEntityManager();
+        List<ProductoColaborador> cs;
+        Query q = em.createNamedQuery("ProductoColaborador.findByIdProducto").setParameter("idProducto", id);
+        cs = q.getResultList();
+        return cs;
+    }
 }

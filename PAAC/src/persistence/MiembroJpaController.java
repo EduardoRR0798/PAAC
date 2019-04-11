@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package persistence;
 
 import java.io.Serializable;
@@ -5,13 +10,13 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import entity.Gradoacademico;
 import entity.ProductoMiembro;
 import java.util.ArrayList;
 import java.util.List;
 import entity.DatosLaborales;
-import entity.Miembro;
 import entity.MiembroLgac;
+import entity.Gradoacademico;
+import entity.Miembro;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -43,15 +48,13 @@ public class MiembroJpaController implements Serializable {
         if (miembro.getMiembroLgacList() == null) {
             miembro.setMiembroLgacList(new ArrayList<MiembroLgac>());
         }
+        if (miembro.getGradoacademicoList() == null) {
+            miembro.setGradoacademicoList(new ArrayList<Gradoacademico>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Gradoacademico gradoacademico = miembro.getGradoacademico();
-            if (gradoacademico != null) {
-                gradoacademico = em.getReference(gradoacademico.getClass(), gradoacademico.getIdGradoAcademico());
-                miembro.setGradoacademico(gradoacademico);
-            }
             List<ProductoMiembro> attachedProductoMiembroList = new ArrayList<ProductoMiembro>();
             for (ProductoMiembro productoMiembroListProductoMiembroToAttach : miembro.getProductoMiembroList()) {
                 productoMiembroListProductoMiembroToAttach = em.getReference(productoMiembroListProductoMiembroToAttach.getClass(), productoMiembroListProductoMiembroToAttach.getIdMiembroProducto());
@@ -70,16 +73,13 @@ public class MiembroJpaController implements Serializable {
                 attachedMiembroLgacList.add(miembroLgacListMiembroLgacToAttach);
             }
             miembro.setMiembroLgacList(attachedMiembroLgacList);
-            em.persist(miembro);
-            if (gradoacademico != null) {
-                Miembro oldMiembroOfGradoacademico = gradoacademico.getMiembro();
-                if (oldMiembroOfGradoacademico != null) {
-                    oldMiembroOfGradoacademico.setGradoacademico(null);
-                    oldMiembroOfGradoacademico = em.merge(oldMiembroOfGradoacademico);
-                }
-                gradoacademico.setMiembro(miembro);
-                gradoacademico = em.merge(gradoacademico);
+            List<Gradoacademico> attachedGradoacademicoList = new ArrayList<Gradoacademico>();
+            for (Gradoacademico gradoacademicoListGradoacademicoToAttach : miembro.getGradoacademicoList()) {
+                gradoacademicoListGradoacademicoToAttach = em.getReference(gradoacademicoListGradoacademicoToAttach.getClass(), gradoacademicoListGradoacademicoToAttach.getIdGradoAcademico());
+                attachedGradoacademicoList.add(gradoacademicoListGradoacademicoToAttach);
             }
+            miembro.setGradoacademicoList(attachedGradoacademicoList);
+            em.persist(miembro);
             for (ProductoMiembro productoMiembroListProductoMiembro : miembro.getProductoMiembroList()) {
                 Miembro oldIdMiembroOfProductoMiembroListProductoMiembro = productoMiembroListProductoMiembro.getIdMiembro();
                 productoMiembroListProductoMiembro.setIdMiembro(miembro);
@@ -107,6 +107,15 @@ public class MiembroJpaController implements Serializable {
                     oldMiembroOfMiembroLgacListMiembroLgac = em.merge(oldMiembroOfMiembroLgacListMiembroLgac);
                 }
             }
+            for (Gradoacademico gradoacademicoListGradoacademico : miembro.getGradoacademicoList()) {
+                Miembro oldIdMiembroOfGradoacademicoListGradoacademico = gradoacademicoListGradoacademico.getIdMiembro();
+                gradoacademicoListGradoacademico.setIdMiembro(miembro);
+                gradoacademicoListGradoacademico = em.merge(gradoacademicoListGradoacademico);
+                if (oldIdMiembroOfGradoacademicoListGradoacademico != null) {
+                    oldIdMiembroOfGradoacademicoListGradoacademico.getGradoacademicoList().remove(gradoacademicoListGradoacademico);
+                    oldIdMiembroOfGradoacademicoListGradoacademico = em.merge(oldIdMiembroOfGradoacademicoListGradoacademico);
+                }
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -121,21 +130,15 @@ public class MiembroJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Miembro persistentMiembro = em.find(Miembro.class, miembro.getIdMiembro());
-            Gradoacademico gradoacademicoOld = persistentMiembro.getGradoacademico();
-            Gradoacademico gradoacademicoNew = miembro.getGradoacademico();
             List<ProductoMiembro> productoMiembroListOld = persistentMiembro.getProductoMiembroList();
             List<ProductoMiembro> productoMiembroListNew = miembro.getProductoMiembroList();
             List<DatosLaborales> datosLaboralesListOld = persistentMiembro.getDatosLaboralesList();
             List<DatosLaborales> datosLaboralesListNew = miembro.getDatosLaboralesList();
             List<MiembroLgac> miembroLgacListOld = persistentMiembro.getMiembroLgacList();
             List<MiembroLgac> miembroLgacListNew = miembro.getMiembroLgacList();
+            List<Gradoacademico> gradoacademicoListOld = persistentMiembro.getGradoacademicoList();
+            List<Gradoacademico> gradoacademicoListNew = miembro.getGradoacademicoList();
             List<String> illegalOrphanMessages = null;
-            if (gradoacademicoOld != null && !gradoacademicoOld.equals(gradoacademicoNew)) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("You must retain Gradoacademico " + gradoacademicoOld + " since its miembro field is not nullable.");
-            }
             for (MiembroLgac miembroLgacListOldMiembroLgac : miembroLgacListOld) {
                 if (!miembroLgacListNew.contains(miembroLgacListOldMiembroLgac)) {
                     if (illegalOrphanMessages == null) {
@@ -144,12 +147,16 @@ public class MiembroJpaController implements Serializable {
                     illegalOrphanMessages.add("You must retain MiembroLgac " + miembroLgacListOldMiembroLgac + " since its miembro field is not nullable.");
                 }
             }
+            for (Gradoacademico gradoacademicoListOldGradoacademico : gradoacademicoListOld) {
+                if (!gradoacademicoListNew.contains(gradoacademicoListOldGradoacademico)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Gradoacademico " + gradoacademicoListOldGradoacademico + " since its idMiembro field is not nullable.");
+                }
+            }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
-            }
-            if (gradoacademicoNew != null) {
-                gradoacademicoNew = em.getReference(gradoacademicoNew.getClass(), gradoacademicoNew.getIdGradoAcademico());
-                miembro.setGradoacademico(gradoacademicoNew);
             }
             List<ProductoMiembro> attachedProductoMiembroListNew = new ArrayList<ProductoMiembro>();
             for (ProductoMiembro productoMiembroListNewProductoMiembroToAttach : productoMiembroListNew) {
@@ -172,16 +179,14 @@ public class MiembroJpaController implements Serializable {
             }
             miembroLgacListNew = attachedMiembroLgacListNew;
             miembro.setMiembroLgacList(miembroLgacListNew);
-            miembro = em.merge(miembro);
-            if (gradoacademicoNew != null && !gradoacademicoNew.equals(gradoacademicoOld)) {
-                Miembro oldMiembroOfGradoacademico = gradoacademicoNew.getMiembro();
-                if (oldMiembroOfGradoacademico != null) {
-                    oldMiembroOfGradoacademico.setGradoacademico(null);
-                    oldMiembroOfGradoacademico = em.merge(oldMiembroOfGradoacademico);
-                }
-                gradoacademicoNew.setMiembro(miembro);
-                gradoacademicoNew = em.merge(gradoacademicoNew);
+            List<Gradoacademico> attachedGradoacademicoListNew = new ArrayList<Gradoacademico>();
+            for (Gradoacademico gradoacademicoListNewGradoacademicoToAttach : gradoacademicoListNew) {
+                gradoacademicoListNewGradoacademicoToAttach = em.getReference(gradoacademicoListNewGradoacademicoToAttach.getClass(), gradoacademicoListNewGradoacademicoToAttach.getIdGradoAcademico());
+                attachedGradoacademicoListNew.add(gradoacademicoListNewGradoacademicoToAttach);
             }
+            gradoacademicoListNew = attachedGradoacademicoListNew;
+            miembro.setGradoacademicoList(gradoacademicoListNew);
+            miembro = em.merge(miembro);
             for (ProductoMiembro productoMiembroListOldProductoMiembro : productoMiembroListOld) {
                 if (!productoMiembroListNew.contains(productoMiembroListOldProductoMiembro)) {
                     productoMiembroListOldProductoMiembro.setIdMiembro(null);
@@ -227,6 +232,17 @@ public class MiembroJpaController implements Serializable {
                     }
                 }
             }
+            for (Gradoacademico gradoacademicoListNewGradoacademico : gradoacademicoListNew) {
+                if (!gradoacademicoListOld.contains(gradoacademicoListNewGradoacademico)) {
+                    Miembro oldIdMiembroOfGradoacademicoListNewGradoacademico = gradoacademicoListNewGradoacademico.getIdMiembro();
+                    gradoacademicoListNewGradoacademico.setIdMiembro(miembro);
+                    gradoacademicoListNewGradoacademico = em.merge(gradoacademicoListNewGradoacademico);
+                    if (oldIdMiembroOfGradoacademicoListNewGradoacademico != null && !oldIdMiembroOfGradoacademicoListNewGradoacademico.equals(miembro)) {
+                        oldIdMiembroOfGradoacademicoListNewGradoacademico.getGradoacademicoList().remove(gradoacademicoListNewGradoacademico);
+                        oldIdMiembroOfGradoacademicoListNewGradoacademico = em.merge(oldIdMiembroOfGradoacademicoListNewGradoacademico);
+                    }
+                }
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -257,19 +273,19 @@ public class MiembroJpaController implements Serializable {
                 throw new NonexistentEntityException("The miembro with id " + id + " no longer exists.", enfe);
             }
             List<String> illegalOrphanMessages = null;
-            Gradoacademico gradoacademicoOrphanCheck = miembro.getGradoacademico();
-            if (gradoacademicoOrphanCheck != null) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Miembro (" + miembro + ") cannot be destroyed since the Gradoacademico " + gradoacademicoOrphanCheck + " in its gradoacademico field has a non-nullable miembro field.");
-            }
             List<MiembroLgac> miembroLgacListOrphanCheck = miembro.getMiembroLgacList();
             for (MiembroLgac miembroLgacListOrphanCheckMiembroLgac : miembroLgacListOrphanCheck) {
                 if (illegalOrphanMessages == null) {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
                 illegalOrphanMessages.add("This Miembro (" + miembro + ") cannot be destroyed since the MiembroLgac " + miembroLgacListOrphanCheckMiembroLgac + " in its miembroLgacList field has a non-nullable miembro field.");
+            }
+            List<Gradoacademico> gradoacademicoListOrphanCheck = miembro.getGradoacademicoList();
+            for (Gradoacademico gradoacademicoListOrphanCheckGradoacademico : gradoacademicoListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Miembro (" + miembro + ") cannot be destroyed since the Gradoacademico " + gradoacademicoListOrphanCheckGradoacademico + " in its gradoacademicoList field has a non-nullable idMiembro field.");
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
@@ -293,13 +309,6 @@ public class MiembroJpaController implements Serializable {
         }
     }
 
-    public List<Miembro> findAll() {
-        EntityManager em = getEntityManager();
-        Query q = em.createNamedQuery("Miembro.findAll", Miembro.class);
-        List<Miembro> ms = q.getResultList();
-        return ms;
-    }
-    
     public List<Miembro> findMiembroEntities() {
         return findMiembroEntities(true, -1, -1);
     }
@@ -346,4 +355,14 @@ public class MiembroJpaController implements Serializable {
         }
     }
     
+    /**
+     * Recupera todos los miembros de la base de datos.
+     * @return una lista de miembros registrados en la base de datos.
+     */
+    public List<Miembro> findAll() {
+        EntityManager em = getEntityManager();
+        Query q = em.createNamedQuery("Miembro.findAll", Miembro.class);
+        List<Miembro> ms = q.getResultList();
+        return ms;
+    }
 }

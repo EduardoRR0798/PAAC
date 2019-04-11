@@ -17,7 +17,6 @@ import entity.Proyecto;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import persistence.exceptions.NonexistentEntityException;
 import persistence.exceptions.PreexistingEntityException;
 
@@ -27,8 +26,8 @@ import persistence.exceptions.PreexistingEntityException;
  */
 public class ProductoProyectoJpaController implements Serializable {
 
-    public ProductoProyectoJpaController() {
-        this.emf = Persistence.createEntityManagerFactory("PAACPU");
+    public ProductoProyectoJpaController(EntityManagerFactory emf) {
+        this.emf = emf;
     }
     private EntityManagerFactory emf = null;
 
@@ -40,8 +39,8 @@ public class ProductoProyectoJpaController implements Serializable {
         if (productoProyecto.getProductoProyectoPK() == null) {
             productoProyecto.setProductoProyectoPK(new ProductoProyectoPK());
         }
-        productoProyecto.getProductoProyectoPK().setIdProyecto(productoProyecto.getProyecto().getIdProyecto());
         productoProyecto.getProductoProyectoPK().setIdProducto(productoProyecto.getProducto().getIdProducto());
+        productoProyecto.getProductoProyectoPK().setIdProyecto(productoProyecto.getProyecto().getIdProyecto());
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -79,8 +78,8 @@ public class ProductoProyectoJpaController implements Serializable {
     }
 
     public void edit(ProductoProyecto productoProyecto) throws NonexistentEntityException, Exception {
-        productoProyecto.getProductoProyectoPK().setIdProyecto(productoProyecto.getProyecto().getIdProyecto());
         productoProyecto.getProductoProyectoPK().setIdProducto(productoProyecto.getProducto().getIdProducto());
+        productoProyecto.getProductoProyectoPK().setIdProyecto(productoProyecto.getProyecto().getIdProyecto());
         EntityManager em = null;
         try {
             em = getEntityManager();

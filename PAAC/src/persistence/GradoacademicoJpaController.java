@@ -13,11 +13,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import entity.Pais;
 import entity.Miembro;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import persistence.exceptions.IllegalOrphanException;
 import persistence.exceptions.NonexistentEntityException;
 
 /**
@@ -35,21 +33,7 @@ public class GradoacademicoJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
-    public void create(Gradoacademico gradoacademico) throws IllegalOrphanException {
-        List<String> illegalOrphanMessages = null;
-        Miembro miembroOrphanCheck = gradoacademico.getMiembro();
-        if (miembroOrphanCheck != null) {
-            Gradoacademico oldGradoacademicoOfMiembro = miembroOrphanCheck.getGradoacademico();
-            if (oldGradoacademicoOfMiembro != null) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("The Miembro " + miembroOrphanCheck + " already has an item of type Gradoacademico whose miembro column cannot be null. Please make another selection for the miembro field.");
-            }
-        }
-        if (illegalOrphanMessages != null) {
-            throw new IllegalOrphanException(illegalOrphanMessages);
-        }
+    public void create(Gradoacademico gradoacademico) {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -59,19 +43,19 @@ public class GradoacademicoJpaController implements Serializable {
                 idPais = em.getReference(idPais.getClass(), idPais.getIdPais());
                 gradoacademico.setIdPais(idPais);
             }
-            Miembro miembro = gradoacademico.getMiembro();
-            if (miembro != null) {
-                miembro = em.getReference(miembro.getClass(), miembro.getIdMiembro());
-                gradoacademico.setMiembro(miembro);
+            Miembro idMiembro = gradoacademico.getIdMiembro();
+            if (idMiembro != null) {
+                idMiembro = em.getReference(idMiembro.getClass(), idMiembro.getIdMiembro());
+                gradoacademico.setIdMiembro(idMiembro);
             }
             em.persist(gradoacademico);
             if (idPais != null) {
                 idPais.getGradoacademicoList().add(gradoacademico);
                 idPais = em.merge(idPais);
             }
-            if (miembro != null) {
-                miembro.setGradoacademico(gradoacademico);
-                miembro = em.merge(miembro);
+            if (idMiembro != null) {
+                idMiembro.getGradoacademicoList().add(gradoacademico);
+                idMiembro = em.merge(idMiembro);
             }
             em.getTransaction().commit();
         } finally {
@@ -81,7 +65,7 @@ public class GradoacademicoJpaController implements Serializable {
         }
     }
 
-    public void edit(Gradoacademico gradoacademico) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(Gradoacademico gradoacademico) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -89,28 +73,15 @@ public class GradoacademicoJpaController implements Serializable {
             Gradoacademico persistentGradoacademico = em.find(Gradoacademico.class, gradoacademico.getIdGradoAcademico());
             Pais idPaisOld = persistentGradoacademico.getIdPais();
             Pais idPaisNew = gradoacademico.getIdPais();
-            Miembro miembroOld = persistentGradoacademico.getMiembro();
-            Miembro miembroNew = gradoacademico.getMiembro();
-            List<String> illegalOrphanMessages = null;
-            if (miembroNew != null && !miembroNew.equals(miembroOld)) {
-                Gradoacademico oldGradoacademicoOfMiembro = miembroNew.getGradoacademico();
-                if (oldGradoacademicoOfMiembro != null) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("The Miembro " + miembroNew + " already has an item of type Gradoacademico whose miembro column cannot be null. Please make another selection for the miembro field.");
-                }
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
+            Miembro idMiembroOld = persistentGradoacademico.getIdMiembro();
+            Miembro idMiembroNew = gradoacademico.getIdMiembro();
             if (idPaisNew != null) {
                 idPaisNew = em.getReference(idPaisNew.getClass(), idPaisNew.getIdPais());
                 gradoacademico.setIdPais(idPaisNew);
             }
-            if (miembroNew != null) {
-                miembroNew = em.getReference(miembroNew.getClass(), miembroNew.getIdMiembro());
-                gradoacademico.setMiembro(miembroNew);
+            if (idMiembroNew != null) {
+                idMiembroNew = em.getReference(idMiembroNew.getClass(), idMiembroNew.getIdMiembro());
+                gradoacademico.setIdMiembro(idMiembroNew);
             }
             gradoacademico = em.merge(gradoacademico);
             if (idPaisOld != null && !idPaisOld.equals(idPaisNew)) {
@@ -121,13 +92,13 @@ public class GradoacademicoJpaController implements Serializable {
                 idPaisNew.getGradoacademicoList().add(gradoacademico);
                 idPaisNew = em.merge(idPaisNew);
             }
-            if (miembroOld != null && !miembroOld.equals(miembroNew)) {
-                miembroOld.setGradoacademico(null);
-                miembroOld = em.merge(miembroOld);
+            if (idMiembroOld != null && !idMiembroOld.equals(idMiembroNew)) {
+                idMiembroOld.getGradoacademicoList().remove(gradoacademico);
+                idMiembroOld = em.merge(idMiembroOld);
             }
-            if (miembroNew != null && !miembroNew.equals(miembroOld)) {
-                miembroNew.setGradoacademico(gradoacademico);
-                miembroNew = em.merge(miembroNew);
+            if (idMiembroNew != null && !idMiembroNew.equals(idMiembroOld)) {
+                idMiembroNew.getGradoacademicoList().add(gradoacademico);
+                idMiembroNew = em.merge(idMiembroNew);
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -163,10 +134,10 @@ public class GradoacademicoJpaController implements Serializable {
                 idPais.getGradoacademicoList().remove(gradoacademico);
                 idPais = em.merge(idPais);
             }
-            Miembro miembro = gradoacademico.getMiembro();
-            if (miembro != null) {
-                miembro.setGradoacademico(null);
-                miembro = em.merge(miembro);
+            Miembro idMiembro = gradoacademico.getIdMiembro();
+            if (idMiembro != null) {
+                idMiembro.getGradoacademicoList().remove(gradoacademico);
+                idMiembro = em.merge(idMiembro);
             }
             em.remove(gradoacademico);
             em.getTransaction().commit();

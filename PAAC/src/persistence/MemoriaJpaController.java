@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package persistence;
 
 import entity.Memoria;
@@ -161,4 +166,26 @@ public class MemoriaJpaController implements Serializable {
         }
     }
     
+    public Memoria findByIdProducto(Producto p) {
+        EntityManager em = getEntityManager();
+        Memoria m = em.createNamedQuery("Memoria.findByIdProducto", Memoria.class).setParameter("idProducto", p).getSingleResult();
+        return m;
+    }
+    
+    /**
+     * Recupera una memoria por el id del producto.
+     * @param id (int) id del producto.
+     * @return Memoria correspondiente al id del producto.
+     */
+    public Memoria encontrarMemoriaPorIdProducto(Producto id) {
+        Memoria memo;
+        try {
+            EntityManager em = getEntityManager();
+            Query q = em.createNamedQuery("Memoria.findByIdProducto", Memoria.class).setParameter("idProducto", id);
+            memo = (Memoria) q.getSingleResult();
+        } catch (Exception e) {
+            memo = null;
+        }
+        return memo;
+    }
 }

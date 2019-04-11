@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package persistence;
 
 import java.io.Serializable;
@@ -254,14 +249,7 @@ public class PaisJpaController implements Serializable {
             }
         }
     }
-    
-    public List<Pais> findAll() {
-        EntityManager em = getEntityManager();
-        Query q = em.createNamedQuery("Pais.findAll", Pais.class);
-        List<Pais> ps = q.getResultList();
-        return ps;
-    }
-    
+
     public List<Pais> findPaisEntities() {
         return findPaisEntities(true, -1, -1);
     }
@@ -308,4 +296,14 @@ public class PaisJpaController implements Serializable {
         }
     }
     
+    /**
+     * Recupera TODOS los paises de la base de datos.
+     * @return una lista con todos los paises registrados en la base de datos.
+     */
+    public List<Pais> findAll() {
+        EntityManager em = getEntityManager();
+        Query q = em.createNamedQuery("Pais.findAll", Pais.class);
+        List<Pais> ps = q.getResultList();
+        return ps;
+    }
 }

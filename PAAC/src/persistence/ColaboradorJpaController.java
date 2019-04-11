@@ -18,7 +18,7 @@ import persistence.exceptions.NonexistentEntityException;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 public class ColaboradorJpaController implements Serializable {
 
@@ -228,13 +228,6 @@ public class ColaboradorJpaController implements Serializable {
         }
     }
 
-    public List<Colaborador> findAll() {
-        EntityManager em = getEntityManager();
-        Query q = em.createNamedQuery("Colaborador.findAll", Colaborador.class);
-        List<Colaborador> cs = q.getResultList();
-        return cs;
-    }
-    
     public Colaborador findColaborador(Integer id) {
         EntityManager em = getEntityManager();
         try {
@@ -257,4 +250,14 @@ public class ColaboradorJpaController implements Serializable {
         }
     }
     
+    /**
+     * Recupera a todos los colaboradores de la base de datos.
+     * @return una lista de todos los colaboradores.
+     */
+    public List<Colaborador> findAll() {
+        EntityManager em = getEntityManager();
+        Query q = em.createNamedQuery("Colaborador.findAll", Colaborador.class);
+        List<Colaborador> cs = q.getResultList();
+        return cs;
+    }
 }

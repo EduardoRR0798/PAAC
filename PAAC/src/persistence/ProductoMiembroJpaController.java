@@ -190,4 +190,29 @@ public class ProductoMiembroJpaController implements Serializable {
         }
     }
     
+    /**
+     * Recupera una lista de ProductoMiembro correspondientes a 
+     * @param id
+     * @return 
+     */
+    public List<ProductoMiembro> findByIdMiembro(Integer id) {
+        List<ProductoMiembro> ls;
+        EntityManager em = getEntityManager();
+        Query q = em.createNamedQuery("ProductoMiembro.findByIdMiembroProducto", ProductoMiembro.class).setParameter("idMiembroProducto", id);
+        ls = q.getResultList();
+        return ls;
+    }
+    
+    /**
+     * Recupera TODOS los ProductoMiembro que correspondan a un mismo producto.
+     * @param pro Producto.
+     * @return Lista de ProductoMiembro de un mismo Producto.
+     */
+    public List<ProductoMiembro> findByIdProducto(Producto pro) {
+        List<ProductoMiembro> ls;
+        EntityManager em = getEntityManager();
+        Query q = em.createNamedQuery("ProductoMiembro.findByIdProducto", ProductoMiembro.class).setParameter("IdProducto", pro);
+        ls = q.getResultList();
+        return ls;
+    }
 }

@@ -39,8 +39,8 @@ public class MiembroLgacJpaController implements Serializable {
         if (miembroLgac.getMiembroLgacPK() == null) {
             miembroLgac.setMiembroLgacPK(new MiembroLgacPK());
         }
-        miembroLgac.getMiembroLgacPK().setIdLGAC(miembroLgac.getLgac().getIdlgac());
         miembroLgac.getMiembroLgacPK().setIdMiembro(miembroLgac.getMiembro().getIdMiembro());
+        miembroLgac.getMiembroLgacPK().setIdLGAC(miembroLgac.getLgac().getIdlgac());
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -78,8 +78,8 @@ public class MiembroLgacJpaController implements Serializable {
     }
 
     public void edit(MiembroLgac miembroLgac) throws NonexistentEntityException, Exception {
-        miembroLgac.getMiembroLgacPK().setIdLGAC(miembroLgac.getLgac().getIdlgac());
         miembroLgac.getMiembroLgacPK().setIdMiembro(miembroLgac.getMiembro().getIdMiembro());
+        miembroLgac.getMiembroLgacPK().setIdLGAC(miembroLgac.getLgac().getIdlgac());
         EntityManager em = null;
         try {
             em = getEntityManager();
