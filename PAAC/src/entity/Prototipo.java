@@ -13,7 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -30,11 +29,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
     @NamedQuery(name = "Prototipo.findAll", query = "SELECT p FROM Prototipo p")
     , @NamedQuery(name = "Prototipo.findByIdprototipo", query = "SELECT p FROM Prototipo p WHERE p.idprototipo = :idprototipo")
-    , @NamedQuery(name = "Prototipo.findByAutores", query = "SELECT p FROM Prototipo p WHERE p.autores = :autores")
     , @NamedQuery(name = "Prototipo.findByCaracteristicas", query = "SELECT p FROM Prototipo p WHERE p.caracteristicas = :caracteristicas")
-    , @NamedQuery(name = "Prototipo.findByInstitucionCreacion", query = "SELECT p FROM Prototipo p WHERE p.institucionCreacion = :institucionCreacion")
-    , @NamedQuery(name = "Prototipo.findByObjetivo", query = "SELECT p FROM Prototipo p WHERE p.objetivo = :objetivo")
-    , @NamedQuery(name = "Prototipo.findByNombrePDF", query = "SELECT p FROM Prototipo p WHERE p.nombrePDF = :nombrePDF")})
+    , @NamedQuery(name = "Prototipo.findByInstitucionCreacion", query = "SELECT p FROM Prototipo p WHERE p.institucionCreacion = :institucionCreacion")})
 public class Prototipo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -43,21 +39,12 @@ public class Prototipo implements Serializable {
     @Basic(optional = false)
     @Column(name = "idprototipo")
     private Integer idprototipo;
-    @Lob
-    @Column(name = "archivoPDF")
-    private byte[] archivoPDF;
-    @Column(name = "autores")
-    private String autores;
     @Column(name = "caracteristicas")
     private String caracteristicas;
     @Column(name = "institucionCreacion")
     private String institucionCreacion;
-    @Column(name = "objetivo")
-    private String objetivo;
-    @Column(name = "nombrePDF")
-    private String nombrePDF;
     @JoinColumn(name = "idProducto", referencedColumnName = "idProducto")
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Producto idProducto;
 
     public Prototipo() {
@@ -75,22 +62,6 @@ public class Prototipo implements Serializable {
         this.idprototipo = idprototipo;
     }
 
-    public byte[] getArchivoPDF() {
-        return archivoPDF;
-    }
-
-    public void setArchivoPDF(byte[] archivoPDF) {
-        this.archivoPDF = archivoPDF;
-    }
-
-    public String getAutores() {
-        return autores;
-    }
-
-    public void setAutores(String autores) {
-        this.autores = autores;
-    }
-
     public String getCaracteristicas() {
         return caracteristicas;
     }
@@ -105,22 +76,6 @@ public class Prototipo implements Serializable {
 
     public void setInstitucionCreacion(String institucionCreacion) {
         this.institucionCreacion = institucionCreacion;
-    }
-
-    public String getObjetivo() {
-        return objetivo;
-    }
-
-    public void setObjetivo(String objetivo) {
-        this.objetivo = objetivo;
-    }
-
-    public String getNombrePDF() {
-        return nombrePDF;
-    }
-
-    public void setNombrePDF(String nombrePDF) {
-        this.nombrePDF = nombrePDF;
     }
 
     public Producto getIdProducto() {

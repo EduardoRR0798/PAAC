@@ -14,7 +14,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -46,9 +45,6 @@ public class Articulo implements Serializable {
     @Basic(optional = false)
     @Column(name = "idArticulo")
     private Integer idArticulo;
-    @Lob
-    @Column(name = "autores")
-    private String autores;
     @Column(name = "editorial")
     private String editorial;
     @Column(name = "issn")
@@ -78,14 +74,6 @@ public class Articulo implements Serializable {
 
     public void setIdArticulo(Integer idArticulo) {
         this.idArticulo = idArticulo;
-    }
-
-    public String getAutores() {
-        return autores;
-    }
-
-    public void setAutores(String autores) {
-        this.autores = autores;
     }
 
     public String getEditorial() {

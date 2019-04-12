@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -15,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -36,7 +32,8 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Producto.findByAnio", query = "SELECT p FROM Producto p WHERE p.anio = :anio")
     , @NamedQuery(name = "Producto.findByEstadoActual", query = "SELECT p FROM Producto p WHERE p.estadoActual = :estadoActual")
     , @NamedQuery(name = "Producto.findByProposito", query = "SELECT p FROM Producto p WHERE p.proposito = :proposito")
-    , @NamedQuery(name = "Producto.findByTitulo", query = "SELECT p FROM Producto p WHERE p.titulo = :titulo")})
+    , @NamedQuery(name = "Producto.findByTitulo", query = "SELECT p FROM Producto p WHERE p.titulo = :titulo")
+    , @NamedQuery(name = "Producto.findByNombrePDF", query = "SELECT p FROM Producto p WHERE p.nombrePDF = :nombrePDF")})
 public class Producto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -53,6 +50,11 @@ public class Producto implements Serializable {
     private String proposito;
     @Column(name = "titulo")
     private String titulo;
+    @Lob
+    @Column(name = "archivoPDF")
+    private byte[] archivoPDF;
+    @Column(name = "nombrePDF")
+    private String nombrePDF;
     @OneToMany(mappedBy = "idProducto")
     private List<Memoria> memoriaList;
     @OneToMany(mappedBy = "idProducto")
@@ -67,7 +69,7 @@ public class Producto implements Serializable {
     private List<CapituloLibro> capituloLibroList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "producto")
     private List<ProductoProyecto> productoProyectoList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idProducto")
+    @OneToMany(mappedBy = "idProducto")
     private List<Prototipo> prototipoList;
     @OneToMany(mappedBy = "idProducto")
     private List<Articulo> articuloList;
@@ -125,6 +127,22 @@ public class Producto implements Serializable {
 
     public void setTitulo(String titulo) {
         this.titulo = titulo;
+    }
+
+    public byte[] getArchivoPDF() {
+        return archivoPDF;
+    }
+
+    public void setArchivoPDF(byte[] archivoPDF) {
+        this.archivoPDF = archivoPDF;
+    }
+
+    public String getNombrePDF() {
+        return nombrePDF;
+    }
+
+    public void setNombrePDF(String nombrePDF) {
+        this.nombrePDF = nombrePDF;
     }
 
     @XmlTransient
@@ -255,7 +273,7 @@ public class Producto implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Producto[ idProducto=" + idProducto + " ]";
+        return titulo;
     }
     
 }

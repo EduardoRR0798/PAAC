@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,8 +12,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -34,7 +26,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Memoria.findByIdMemoria", query = "SELECT m FROM Memoria m WHERE m.idMemoria = :idMemoria")
     , @NamedQuery(name = "Memoria.findByCiudad", query = "SELECT m FROM Memoria m WHERE m.ciudad = :ciudad")
     , @NamedQuery(name = "Memoria.findByEstado", query = "SELECT m FROM Memoria m WHERE m.estado = :estado")
-    , @NamedQuery(name = "Memoria.findByFechaPublicacion", query = "SELECT m FROM Memoria m WHERE m.fechaPublicacion = :fechaPublicacion")
     , @NamedQuery(name = "Memoria.findByRangoPaginas", query = "SELECT m FROM Memoria m WHERE m.rangoPaginas = :rangoPaginas")
     , @NamedQuery(name = "Memoria.findByNombreCongreso", query = "SELECT m FROM Memoria m WHERE m.nombreCongreso = :nombreCongreso")})
 public class Memoria implements Serializable {
@@ -49,9 +40,6 @@ public class Memoria implements Serializable {
     private String ciudad;
     @Column(name = "estado")
     private String estado;
-    @Column(name = "fechaPublicacion")
-    @Temporal(TemporalType.DATE)
-    private Date fechaPublicacion;
     @Column(name = "rangoPaginas")
     private String rangoPaginas;
     @Column(name = "nombreCongreso")
@@ -89,14 +77,6 @@ public class Memoria implements Serializable {
 
     public void setEstado(String estado) {
         this.estado = estado;
-    }
-
-    public Date getFechaPublicacion() {
-        return fechaPublicacion;
-    }
-
-    public void setFechaPublicacion(Date fechaPublicacion) {
-        this.fechaPublicacion = fechaPublicacion;
     }
 
     public String getRangoPaginas() {

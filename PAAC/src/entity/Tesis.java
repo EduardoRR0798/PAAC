@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Tesis.findAll", query = "SELECT t FROM Tesis t")
     , @NamedQuery(name = "Tesis.findByIdTesis", query = "SELECT t FROM Tesis t WHERE t.idTesis = :idTesis")
     , @NamedQuery(name = "Tesis.findByGrado", query = "SELECT t FROM Tesis t WHERE t.grado = :grado")
-    , @NamedQuery(name = "Tesis.findByNoHojas", query = "SELECT t FROM Tesis t WHERE t.noHojas = :noHojas")
     , @NamedQuery(name = "Tesis.findByNumRegistro", query = "SELECT t FROM Tesis t WHERE t.numRegistro = :numRegistro")
     , @NamedQuery(name = "Tesis.findByClasificacionInter", query = "SELECT t FROM Tesis t WHERE t.clasificacionInter = :clasificacionInter")
     , @NamedQuery(name = "Tesis.findByDescripcion", query = "SELECT t FROM Tesis t WHERE t.descripcion = :descripcion")
@@ -46,8 +45,6 @@ public class Tesis implements Serializable {
     private Integer idTesis;
     @Column(name = "grado")
     private String grado;
-    @Column(name = "no_hojas")
-    private Integer noHojas;
     @Column(name = "numRegistro")
     private Integer numRegistro;
     @Column(name = "clasificacionInter")
@@ -83,14 +80,6 @@ public class Tesis implements Serializable {
 
     public void setGrado(String grado) {
         this.grado = grado;
-    }
-
-    public Integer getNoHojas() {
-        return noHojas;
-    }
-
-    public void setNoHojas(Integer noHojas) {
-        this.noHojas = noHojas;
     }
 
     public Integer getNumRegistro() {

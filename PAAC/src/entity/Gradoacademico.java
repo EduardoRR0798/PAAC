@@ -17,7 +17,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -67,9 +66,9 @@ public class Gradoacademico implements Serializable {
     @JoinColumn(name = "idPais", referencedColumnName = "idPais")
     @ManyToOne(optional = false)
     private Pais idPais;
-    @JoinColumn(name = "idGradoAcademico", referencedColumnName = "idMiembro", insertable = false, updatable = false)
-    @OneToOne(optional = false)
-    private Miembro miembro;
+    @JoinColumn(name = "idMiembro", referencedColumnName = "idMiembro")
+    @ManyToOne(optional = false)
+    private Miembro idMiembro;
 
     public Gradoacademico() {
     }
@@ -150,12 +149,12 @@ public class Gradoacademico implements Serializable {
         this.idPais = idPais;
     }
 
-    public Miembro getMiembro() {
-        return miembro;
+    public Miembro getIdMiembro() {
+        return idMiembro;
     }
 
-    public void setMiembro(Miembro miembro) {
-        this.miembro = miembro;
+    public void setIdMiembro(Miembro idMiembro) {
+        this.idMiembro = idMiembro;
     }
 
     @Override

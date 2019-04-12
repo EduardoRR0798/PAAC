@@ -12,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -65,8 +64,8 @@ public class Miembro implements Serializable {
     private List<DatosLaborales> datosLaboralesList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "miembro")
     private List<MiembroLgac> miembroLgacList;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "miembro")
-    private Gradoacademico gradoacademico;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idMiembro")
+    private List<Gradoacademico> gradoacademicoList;
 
     public Miembro() {
     }
@@ -174,12 +173,13 @@ public class Miembro implements Serializable {
         this.miembroLgacList = miembroLgacList;
     }
 
-    public Gradoacademico getGradoacademico() {
-        return gradoacademico;
+    @XmlTransient
+    public List<Gradoacademico> getGradoacademicoList() {
+        return gradoacademicoList;
     }
 
-    public void setGradoacademico(Gradoacademico gradoacademico) {
-        this.gradoacademico = gradoacademico;
+    public void setGradoacademicoList(List<Gradoacademico> gradoacademicoList) {
+        this.gradoacademicoList = gradoacademicoList;
     }
 
     @Override

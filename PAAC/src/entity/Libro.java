@@ -29,7 +29,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
     @NamedQuery(name = "Libro.findAll", query = "SELECT l FROM Libro l")
     , @NamedQuery(name = "Libro.findByIdLibro", query = "SELECT l FROM Libro l WHERE l.idLibro = :idLibro")
-    , @NamedQuery(name = "Libro.findByAutores", query = "SELECT l FROM Libro l WHERE l.autores = :autores")
     , @NamedQuery(name = "Libro.findByEdicion", query = "SELECT l FROM Libro l WHERE l.edicion = :edicion")
     , @NamedQuery(name = "Libro.findByEditorial", query = "SELECT l FROM Libro l WHERE l.editorial = :editorial")
     , @NamedQuery(name = "Libro.findByIsbn", query = "SELECT l FROM Libro l WHERE l.isbn = :isbn")
@@ -43,8 +42,6 @@ public class Libro implements Serializable {
     @Basic(optional = false)
     @Column(name = "idLibro")
     private Integer idLibro;
-    @Column(name = "autores")
-    private String autores;
     @Column(name = "edicion")
     private Integer edicion;
     @Column(name = "editorial")
@@ -72,14 +69,6 @@ public class Libro implements Serializable {
 
     public void setIdLibro(Integer idLibro) {
         this.idLibro = idLibro;
-    }
-
-    public String getAutores() {
-        return autores;
-    }
-
-    public void setAutores(String autores) {
-        this.autores = autores;
     }
 
     public Integer getEdicion() {
