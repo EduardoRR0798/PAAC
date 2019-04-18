@@ -1,7 +1,6 @@
 package paac;
 
 import entity.Colaborador;
-import persistence.ColaboradorJpaController;
 import entity.Memoria;
 import entity.Miembro;
 import entity.Pais;
@@ -14,6 +13,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -23,9 +23,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
@@ -37,10 +40,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import persistence.ColaboradorJpaController;
 import persistence.MemoriaJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
+import persistence.exceptions.NonexistentEntityException;
 import utilidades.UtilidadCadenas;
 
 /**
@@ -48,7 +53,7 @@ import utilidades.UtilidadCadenas;
  *
  * @author Eduardo Rosas Rivera
  */
-public class ControladorRegistrarMemoria extends ControladorProductos implements Initializable {
+public class ControladorActualizarMemoria extends ControladorProductos implements Initializable {
 
     @FXML
     private TextField tfTitulo;
@@ -64,14 +69,6 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     private TextField tfEstado;
     @FXML
     private TextField tfRango;
-    @FXML
-    private TextField tfEstadoActual;
-    @FXML
-    private Label lblMensaje;
-    @FXML
-    private MenuButton mbMiembros = new MenuButton();
-    @FXML
-    private MenuButton mbColaboradores = new MenuButton();
     @FXML
     private ListView<Miembro> lstAutores;
     @FXML
@@ -89,13 +86,23 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     @FXML
     private ComboBox<Pais> cbPais;
     @FXML
+    private Label lblMensaje;
+    @FXML
+    private MenuButton mbMiembros;
+    @FXML
+    private MenuButton mbColaboradores;
+    @FXML
+    private TextField tfEstadoActual;
+    @FXML
     private TextField tfPDF;
     @FXML
     private Button btnCargar;
-    // atributos necesarios
+    
+    private Producto p;
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
-    private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
+    private ArrayList<Miembro> mInvolucrados = new ArrayList<>();
+    private ArrayList<Colaborador> cInvolucrados = new ArrayList<>();
     private File file;
     
     /**
@@ -105,11 +112,9 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        colaboradores = super.recuperarColaboradores();
-        miembros = super.recuperarMiembros();
-        cbPais.setItems(recuperarPaises());
-        iniciarMiembros();
-        iniciarColaboradores();
+        colaboradores = recuperarColaboradores();
+        miembros = recuperarMiembros();
+        cbPais.setItems((ObservableList<Pais>) recuperarPaises());
         UtilidadCadenas uc = new UtilidadCadenas();
         uc.limitarCampos(tfTitulo, 140);
         uc.limitarCampos(tfProposito, 140);
@@ -120,25 +125,11 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         uc.limitarCampos(tfRango, 20);
         uc.limitarCampos(tfColaborador, 100);
     }    
-
-    /**
-     * Registra la Memoria tras validar que los datos introducidos por el usuario.
-     * @param event Clic en el boton Aceptar
-     */
-    @FXML
-    private void aceptar(ActionEvent event) {
+    
+    public ControladorActualizarMemoria() {
         
-        Respuesta r = validarCampos();
-        if (r.isError()) {
-            lblMensaje.setText(r.getMensaje());
-            lblMensaje.setVisible(true);
-        } else {
-            lblMensaje.setText(r.getMensaje());
-            lblMensaje.setVisible(true);
-            registrarProducto();
-        }
     }
-
+    
     /**
      * Abre un cuadro de dialogo para seleccionar un archivo PDF para cargarlo
      * en la base de datos.
@@ -163,19 +154,53 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     }
     
     /**
-     * Muestra el cuadro de dialogo de confirmacion para cancelar la operacion.
-     * @param event clic en el boton Cancelar
+     * Recibe el id del producto seleccionado anteriormente.
+     * @param pro id del producto.
+     */
+    public void recibirParametros(Producto pro) {
+        Producto producto;
+        ProductoJpaController pJpaC = new ProductoJpaController();
+        producto = pJpaC.findProducto(pro.getIdProducto());
+        p = producto;
+        cInvolucrados = recuperarColaboradoresInvolucrados(p);
+        mInvolucrados = recuperarMiembrosInvolucrados(p);
+        iniciarMiembros();
+        iniciarColaboradores();
+        iniciarPantalla();
+    }
+    
+    /**
+     * Valida que todos los datos sean correctos y registra la memoria.
+     * @param event Clic en el boton Aceptar.
+     */
+    @FXML
+    private void aceptar(ActionEvent event) {
+        Respuesta r = validarCampos();
+        if (r.isError()) {
+            lblMensaje.setText(r.getMensaje());
+            lblMensaje.setVisible(true);
+        } else {
+            lblMensaje.setText(r.getMensaje());
+            lblMensaje.setVisible(true);
+        }
+        
+        actualizarProducto();
+    }
+
+    /**
+     * Cancela el proceso de registro, devolviendo a la pantalla anterior.
+     * @param event Clic en el boton cancelar.
      */
     @FXML
     private void cancelar(ActionEvent event) {
-        Alert cancelar = new Alert(AlertType.CONFIRMATION);
+        Alert cancelar = new Alert(Alert.AlertType.CONFIRMATION);
         cancelar.setTitle("Cancelar proceso");
         cancelar.setHeaderText(null);
         cancelar.initStyle(StageStyle.UTILITY);
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
-            System.exit(0);
+            regresarAVentanaAnterior();
         }
     }
 
@@ -199,8 +224,8 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     }
 
     /**
-     * Registra un colaborador en la base de datos.
-     * @param event Clic en el boton +.
+     * Sirve para agregar a un colaborador a la base de datos y a la lista.
+     * @param event clic en el boton +
      */
     @FXML
     private void agregarALista(ActionEvent event) {
@@ -218,7 +243,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
             }
         }
     }
-    
+
     /**
      * Este metodo valida que todos los campos cumplan con sus restricciones 
      * y que no sean nulos.
@@ -234,14 +259,14 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
                 || tfEstado.getText().isEmpty()
                 || tfRango.getText().isEmpty() 
                 || cbPais.getSelectionModel().isEmpty()
-                || tfEstadoActual.getText().isEmpty()){
+                ||tfEstadoActual.getText().isEmpty()){
             r.setMensaje("No puede haber campos vacíos");
             r.setError(true);
             return r;
         }
-        if(!validarTitulo(tfTitulo.getText().trim())){
+        if (!validarTituloActualizar(tfTitulo.getText().trim(), p.getIdProducto())) {
             r.setError(true);
-            r.setMensaje("El titulo de esta memoria ya se encuentra registrado.");
+            r.setMensaje("Este titulo ya se encuentra registrado");
             r.setErrorcode(1);
             return r;
         }
@@ -251,7 +276,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
             r.setErrorcode(2);
             return r;
         }
-        if (!verificarAnio(tfAnio.getText())) {
+        if (!super.verificarAnio(tfAnio.getText())) {
             r.setError(true);
             r.setMensaje("El año no puede ser mayor al año actual o menor a 1900.");
             r.setErrorcode(3);
@@ -281,69 +306,117 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
             r.setErrorcode(8);
             return r;
         }
-        if(Objects.equals(file, null)) {
-            r.setError(true);
-            r.setMensaje("Seleccione un archivo PDF como evidencia.");
-            r.setErrorcode(9);
-        }
-        r.setMensaje("Memoria registrada exitosamente");
+        r.setMensaje("Memoria actualizada exitosamente");
         r.setError(false);
         return r;
     }
     
-    private void registrarProducto() {
-        Memoria memoria = new Memoria();
+    /**
+     * Registra el producto, la memoria y todas sus relaciones.
+     */
+    private void actualizarProducto() {
+        ///memoria
+        MemoriaJpaController mJpaC = new MemoriaJpaController();
+        Memoria memoria = mJpaC.findByIdProducto(p);
         memoria.setCiudad(tfCiudad.getText().trim());
         memoria.setEstado(tfEstado.getText().trim());
-        memoria.setNombreCongreso(tfCongreso.getText().trim());
-        memoria.setRangoPaginas(tfRango.getText().trim());
+        memoria.setNombreCongreso(tfCongreso.getText());
+        memoria.setRangoPaginas(tfRango.getText());
         List<Memoria> memos = new ArrayList<>();
         memos.add(memoria);
-        MemoriaJpaController mJpaC = new MemoriaJpaController();
-        mJpaC.create(memoria);
-        ///datos del Producto///
-        Producto producto = new Producto();
-        byte[] doc;
+        
         try {
-            doc = Files.readAllBytes(file.toPath());
-            producto.setArchivoPDF(doc);
-            producto.setNombrePDF(file.getName());
-        } catch(IOException ex) {
-            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+            mJpaC.edit(memoria);
+        } catch (Exception ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
         }
-        producto.setAnio(Integer.parseInt(tfAnio.getText()));
-        producto.setTitulo(tfTitulo.getText().trim());
-        producto.setProposito(tfProposito.getText().trim());
-        producto.setIdPais(cbPais.getSelectionModel().getSelectedItem());
-        producto.setEstadoActual(tfEstadoActual.getText().trim());
-        producto.setMemoriaList(memos);
-        ProductoJpaController prJpaC = new ProductoJpaController();
-        if (!prJpaC.create(producto)) {
-           lblMensaje.setText("Error al conectar con la base de datos...");
-        }
-        ///datos del producto-colaborador///
-        ObservableList<Colaborador> colas = lstColaboradores.getItems();
-        ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
-        ProductoColaborador pc;
-        for (int i = 0; i < colas.size(); i++) {
-            pc = new ProductoColaborador();
-            pc.setProducto(producto);
-            pc.setColaborador(colas.get(i));
+        
+        p.setAnio(Integer.parseInt(tfAnio.getText()));
+        p.setTitulo(tfTitulo.getText());
+        p.setProposito(tfProposito.getText());
+        p.setIdPais(cbPais.getSelectionModel().getSelectedItem());
+        p.setEstadoActual(tfEstadoActual.getText());
+        p.setMemoriaList(memos);
+        if (!Objects.equals(file, null)) {
+            byte[] doc;
             try {
-                pcJpaC.create(pc);
-            } catch (Exception ex) {
-                Logger.getLogger(ControladorRegistrarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                doc = Files.readAllBytes(file.toPath());
+                p.setArchivoPDF(doc);
+                p.setNombrePDF(file.getName());
+            } catch (IOException ex) {
+                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        ///datos del producto-Miembro
-        ObservableList<Miembro> mis = lstAutores.getItems();
+        
+        ProductoJpaController prJpaC = new ProductoJpaController();
+        try {
+            prJpaC.edit(p);
+        } catch (NonexistentEntityException ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+            lblMensaje.setText("Error al conectar con la base de datos");
+        } catch (Exception ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+            lblMensaje.setText("Error al conectar con la base de datos");
+        }
+        ///datos del producto-colaborador///
+        
+        List<Colaborador> colas = lstColaboradores.getItems();
+        ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
+        List<ProductoColaborador> pcs = pcJpaC.findByIdProducto(p.getIdProducto());
+        ProductoColaborador productCol;
+        for (int j = 0; j < colas.size(); j++) {
+            if (!cInvolucrados.contains(colas.get(j))) {
+                productCol =  new ProductoColaborador();
+                productCol.setColaborador(colas.get(j));
+                productCol.setProducto(p);
+                try {
+                    pcJpaC.create(productCol);
+                } catch (Exception ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                cInvolucrados.remove(colas.get(j));
+            }
+        }
+        if (cInvolucrados.size() > 0) {           
+            for (int i = 0; i < cInvolucrados.size(); i++) {
+                productCol = pcJpaC.findByIdPC(cInvolucrados.get(i).getIdColaborador(), p.getIdProducto());
+                try {
+                    pcJpaC.destroy(productCol.getProductoColaboradorPK());
+                } catch (NonexistentEntityException ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        
+        //datos del producto-Miembro
+        List<Miembro> miems = lstAutores.getItems();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
-        ProductoMiembro pm;
-        for (int i = 0; i < mis.size(); i++) {
-            pm = new ProductoMiembro();
-            pm.setIdMiembro(mis.get(i));
-            pm.setIdProducto(producto);
-            pmJpaC.create(pm);
+        List<ProductoMiembro> pms = pmJpaC.findByIdProducto(p);
+        ProductoMiembro productMiem;
+        for (int j = 0; j < miems.size(); j++) {
+            if (!mInvolucrados.contains(miems.get(j))) {
+                productMiem =  new ProductoMiembro();
+                productMiem.setIdMiembro(miems.get(j));
+                productMiem.setIdProducto(p);
+                try {
+                    pmJpaC.create(productMiem);
+                } catch (Exception ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                mInvolucrados.remove(miems.get(j));
+            }
+        }
+        if (mInvolucrados.size() > 0) {           
+            for (int i = 0; i < mInvolucrados.size(); i++) {
+                productMiem = pmJpaC.findByIdPM(mInvolucrados.get(i).getIdMiembro(), p.getIdProducto());
+                try {
+                    pmJpaC.destroy(productMiem.getIdMiembroProducto());
+                } catch (NonexistentEntityException ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
     }
     
@@ -370,6 +443,13 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
                 }
             });
         }
+        for (int i = 0; i < cInvolucrados.size(); i++) {
+            for (int j = 0; j < items.size(); j++) {
+                if (cInvolucrados.get(i).equals(items.get(j).getUserData())) {
+                    items.get(j).setSelected(true);
+                }
+            }
+        }
     }
     
     /**
@@ -384,25 +464,79 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
             items.add(cmi);
         }
         mbMiembros.getItems().setAll(items);
+        
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
                 
             if (newValue) {
                     lstAutores.getItems().add((Miembro) item.getUserData());
-                } else { 
+                } else {
                     lstAutores.getItems().remove((Miembro) item.getUserData());
                 }
             });
         }
+        for (int i = 0; i < mInvolucrados.size(); i++) {
+            for (int j = 0; j < items.size(); j++) {
+                if (mInvolucrados.get(i).equals(items.get(j).getUserData())) {
+                    items.get(j).setSelected(true);
+                }
+            }
+        }
     }
     
     /**
-     * Oculta el label del mensaje despies de darle clic.
+     * Oculta el mensaje al darle clic.
      */
     @FXML
     private void ocultarMensaje() {
         lblMensaje.setText("");
         lblMensaje.setVisible(false);
+    }
+    
+    /**
+     * LLena los campos con los datos del producto seleccionado.
+     */
+    private void iniciarPantalla() {
+        Memoria memo = new Memoria();
+        MemoriaJpaController mJpaC = new MemoriaJpaController();
+        List<Memoria> ms = mJpaC.findMemoriaEntities();
+        for (int i = 0; i < ms.size(); i++) {
+            if (Objects.equals(p.getIdProducto(), ms.get(i).getIdProducto().getIdProducto())) {
+                memo = ms.get(i);
+            }
+        }
+        tfTitulo.setText(p.getTitulo());
+        tfAnio.setText(p.getAnio().toString());
+        tfProposito.setText(p.getProposito());
+        tfCongreso.setText(memo.getNombreCongreso());
+        tfEstado.setText(memo.getEstado());
+        tfEstadoActual.setText(p.getEstadoActual());
+        tfCiudad.setText(memo.getCiudad());
+        tfRango.setText(memo.getRangoPaginas());
+        tfPDF.setText(p.getNombrePDF());
+        cbPais.getSelectionModel().select(p.getIdPais());
+    }
+    
+    /**
+     * Regresa a la ventana Seleccion de Memoria.
+     */
+    private void regresarAVentanaAnterior() {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource(
+                    "SeleccionarMemoria.fxml"));
+            
+            Parent seleccion = loader.load();
+            Scene scene = new Scene(seleccion);
+            Stage stage = new Stage();
+            stage.fullScreenProperty();
+            stage.setScene(scene);
+            stage.show();
+             ((Node) (btnCancelar)).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
 }
