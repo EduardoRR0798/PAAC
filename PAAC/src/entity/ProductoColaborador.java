@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -17,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 @Entity
 @Table(name = "producto_colaborador")
@@ -26,7 +21,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "ProductoColaborador.findAll", query = "SELECT p FROM ProductoColaborador p")
     , @NamedQuery(name = "ProductoColaborador.findByIdProductoColaborador", query = "SELECT p FROM ProductoColaborador p WHERE p.productoColaboradorPK.idProductoColaborador = :idProductoColaborador")
     , @NamedQuery(name = "ProductoColaborador.findByIdProducto", query = "SELECT p FROM ProductoColaborador p WHERE p.productoColaboradorPK.idProducto = :idProducto")
-    , @NamedQuery(name = "ProductoColaborador.findByIdColaborador", query = "SELECT p FROM ProductoColaborador p WHERE p.productoColaboradorPK.idColaborador = :idColaborador")})
+    , @NamedQuery(name = "ProductoColaborador.findByIdColaborador", query = "SELECT p FROM ProductoColaborador p WHERE p.productoColaboradorPK.idColaborador = :idColaborador")
+    , @NamedQuery(name =  "ProductoColaborador.findByProductoAndColaborador", query = "SELECT p FROM ProductoColaborador p WHERE p.productoColaboradorPK.idColaborador = :idColaborador AND p.producto.idProducto = :idProducto")})
 public class ProductoColaborador implements Serializable {
 
     private static final long serialVersionUID = 1L;

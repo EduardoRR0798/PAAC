@@ -27,7 +27,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Memoria.findByCiudad", query = "SELECT m FROM Memoria m WHERE m.ciudad = :ciudad")
     , @NamedQuery(name = "Memoria.findByEstado", query = "SELECT m FROM Memoria m WHERE m.estado = :estado")
     , @NamedQuery(name = "Memoria.findByRangoPaginas", query = "SELECT m FROM Memoria m WHERE m.rangoPaginas = :rangoPaginas")
-    , @NamedQuery(name = "Memoria.findByNombreCongreso", query = "SELECT m FROM Memoria m WHERE m.nombreCongreso = :nombreCongreso")})
+    , @NamedQuery(name = "Memoria.findByNombreCongreso", query = "SELECT m FROM Memoria m WHERE m.nombreCongreso = :nombreCongreso")
+    , @NamedQuery(name = "Memoria.findByIdProducto", query = "SELECT m FROM Memoria m WHERE m.idProducto = :idProducto")})
 public class Memoria implements Serializable {
 
     private static final long serialVersionUID = 1L;
