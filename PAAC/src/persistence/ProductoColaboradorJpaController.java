@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package persistence;
 
 import java.io.Serializable;
@@ -23,7 +18,7 @@ import persistence.exceptions.PreexistingEntityException;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera.
  */
 public class ProductoColaboradorJpaController implements Serializable {
 
@@ -220,5 +215,19 @@ public class ProductoColaboradorJpaController implements Serializable {
         Query q = em.createNamedQuery("ProductoColaborador.findByIdProducto").setParameter("idProducto", id);
         cs = q.getResultList();
         return cs;
+    }
+    
+    /**
+     * Recupera un ProductoColaborador en especifico.
+     * @param c id del colaborador.
+     * @param p id del producto.
+     * @return El ProductoColaborador esperado.
+     */
+    public ProductoColaborador findByIdPC(Integer c, Integer p) {
+        EntityManager em = getEntityManager();
+        ProductoColaborador pc;
+        Query q = em.createNamedQuery("ProductoColaborador.findByProductoAndColaborador", ProductoColaborador.class).setParameter("idColaborador", c).setParameter("idProducto", p);
+        pc = (ProductoColaborador) q.getSingleResult();
+        return pc;
     }
 }

@@ -16,7 +16,7 @@ import persistence.exceptions.NonexistentEntityException;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera.
  */
 public class ProductoMiembroJpaController implements Serializable {
 
@@ -211,8 +211,22 @@ public class ProductoMiembroJpaController implements Serializable {
     public List<ProductoMiembro> findByIdProducto(Producto pro) {
         List<ProductoMiembro> ls;
         EntityManager em = getEntityManager();
-        Query q = em.createNamedQuery("ProductoMiembro.findByIdProducto", ProductoMiembro.class).setParameter("IdProducto", pro);
+        Query q = em.createNamedQuery("ProductoMiembro.findByIdProducto", ProductoMiembro.class).setParameter("idProducto", pro);
         ls = q.getResultList();
         return ls;
+    }
+    
+    /**
+     * Recupera un ProductoMiembro en especifico.
+     * @param m id del Miembro.
+     * @param p id del producto.
+     * @return El ProductoMiembro esperado.
+     */
+    public ProductoMiembro findByIdPM(Integer m, Integer p) {
+        EntityManager em = getEntityManager();
+        ProductoMiembro pm;
+        Query q = em.createNamedQuery("ProductoMiembro.findByProductoAndMiembro", ProductoMiembro.class).setParameter("idMiembro", m).setParameter("idProducto", p);
+        pm = (ProductoMiembro) q.getSingleResult();
+        return pm;
     }
 }

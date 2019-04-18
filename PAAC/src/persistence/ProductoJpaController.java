@@ -723,6 +723,7 @@ public class ProductoJpaController implements Serializable {
             EntityManager em = getEntityManager();
             Query q = em.createNamedQuery("Producto.findByTitulo", Producto.class).setParameter("titulo", titulo);
             Producto p = (Producto) q.getSingleResult();
+            System.out.println(p.getTitulo());
         } catch (Exception e) {
             permiso = true;
         }
@@ -731,15 +732,18 @@ public class ProductoJpaController implements Serializable {
     
     /**
      * Encuentra un producto por su id.
-     * @param id (int) id del producto.
+     * @param pro id del producto.
      * @return el Producto.
      */
-    public Producto findById(int id) {
+    public Producto findById(Integer pro) {
         Producto p;
         try {
             EntityManager em = getEntityManager();
-            p = (Producto) em.createNamedQuery("Producto.findByIdProducto", Producto.class).setParameter("idProducto", id);
+            Query q = em.createNamedQuery("Producto.findByIdProducto", Producto.class).setParameter("idProducto", pro);
+            p = (Producto) q;
         } catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println("Producto vacio");
             p = null;
         }
         
@@ -755,5 +759,23 @@ public class ProductoJpaController implements Serializable {
         Query q = em.createNamedQuery("Miembro.findAll", Producto.class);
         List<Producto> ms = q.getResultList();
         return ms;
-    }    
+    }
+    
+    /**
+     * Verifica que no exista un producto con el mismo nombre.
+     * 
+     * @param titulo Titulo del producto.
+     * @param p id del producto.
+     * @return verdadero si no existe un producto con ese titulo, false si existe.
+     */
+    public boolean verificarTitulo(String titulo, Integer p) {
+        EntityManager em = getEntityManager();
+        boolean permiso = false;
+        try {
+            Query q = em.createNamedQuery("Producto.findByTituloAndId", Producto.class).setParameter("titulo", titulo).setParameter("idProducto", p);
+        } catch (Exception e) {
+            permiso = true;
+        }
+        return permiso;
+    }
 }
