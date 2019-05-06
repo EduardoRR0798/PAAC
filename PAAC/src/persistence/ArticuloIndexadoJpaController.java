@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package persistence;
 
 import java.io.Serializable;
@@ -15,16 +10,17 @@ import entity.ArticuloIndexado;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.NonexistentEntityException;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 public class ArticuloIndexadoJpaController implements Serializable {
 
-    public ArticuloIndexadoJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public ArticuloIndexadoJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 

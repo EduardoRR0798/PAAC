@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package persistence;
 
 import entity.Articulo;
@@ -17,16 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.NonexistentEntityException;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 public class ArticuloJpaController implements Serializable {
 
-    public ArticuloJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public ArticuloJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -214,6 +210,23 @@ public class ArticuloJpaController implements Serializable {
         } finally {
             em.close();
         }
+    }
+    
+    /**
+     * Recupera un articulo por el id del producto.
+     * @param id (int) id del producto.
+     * @return Articulo correspondiente al id del producto.
+     */
+    public Articulo encontrarArticuloPorIdProducto(Producto id) {
+        Articulo art;
+        try {
+            EntityManager em = getEntityManager();
+            Query q = em.createNamedQuery("Articulo.findByIdProducto", Articulo.class).setParameter("idProducto", id);
+            art = (Articulo) q.getSingleResult();
+        } catch (Exception e) {
+            art = null;
+        }
+        return art;
     }
     
 }

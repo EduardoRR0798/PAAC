@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package persistence;
 
 import java.io.Serializable;
@@ -25,7 +20,7 @@ import persistence.exceptions.NonexistentEntityException;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 public class MiembroJpaController implements Serializable {
 
@@ -364,5 +359,91 @@ public class MiembroJpaController implements Serializable {
         Query q = em.createNamedQuery("Miembro.findAll", Miembro.class);
         List<Miembro> ms = q.getResultList();
         return ms;
+    }
+    
+    /**
+     * Busca a los miembros por su nombre, si existe alguno con ese nombre
+     * significa que no puede registrarlo.
+     * @param nombre nombre del miembro.
+     * @return false si no puede registrarlo, true si si.
+     */
+    public boolean comprobarNombre(String nombre) {
+        EntityManager em = getEntityManager();
+        List<Miembro> ms;
+        try {
+            Query q = em.createNamedQuery("Miembro.findByNombre", Miembro.class).setParameter("nombre", nombre);
+            ms = q.getResultList();
+            if (ms.isEmpty()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Busca a los miembros por su usuario, si existe alguno con ese nombre
+     * significa que no puede registrarlo.
+     * @param usuario usuario del miembro.
+     * @return false si no puede registrarlo, true si si.
+     */
+    public boolean comprobarUsuario(String usuario) {
+        EntityManager em = getEntityManager();
+        List<Miembro> ms;
+        try {
+            Query q = em.createNamedQuery("Miembro.findByUsuario", Miembro.class).setParameter("usuario", usuario);
+            ms = q.getResultList();
+            if (ms.isEmpty()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Busca a los miembros por su sni, si existe alguno con ese sni
+     * significa que no puede registrarlo.
+     * @param sni isn del miembro.
+     * @return false si no puede registrarlo, true si si.
+     */
+    public boolean comprobarISN(String sni) {
+        EntityManager em = getEntityManager();
+        List<Miembro> ms;
+        try {
+            Query q = em.createNamedQuery("Miembro.findBySni", Miembro.class).setParameter("usuario", sni);
+            ms = q.getResultList();
+            if (ms.isEmpty()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Busca en la base de datos un miembro con el usuario y contrasenia indicados.
+     * @param usuario nombre de usuario
+     * @param contrasenia contrasenia
+     * @return el id del miembro, 0 si no existe.
+     */
+    public int comprobarLog(String usuario, String contrasenia) {
+        EntityManager em  = getEntityManager();
+        List<Miembro> ms;
+        int id = 0;
+        try {
+            Query q = em.createNamedQuery("Miembro.Login", Miembro.class)
+                    .setParameter("usuario", usuario)
+                    .setParameter("contrasenia", contrasenia);
+            ms = q.getResultList();
+            if (!ms.isEmpty()) {
+                id = ms.get(0).getIdMiembro();
+                return id;
+            }
+        } catch (Exception e) {}
+        return id;
     }
 }
