@@ -13,7 +13,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -23,11 +22,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -45,14 +40,15 @@ import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
 import persistence.PrototipoJpaController;
+import persistence.exceptions.NonexistentEntityException;
 import utilidades.UtilidadCadenas;
 
 /**
  * FXML Controller class
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
-public class RegistrarPrototipoController extends ControladorProductos implements Initializable {
+public class ActualizarPrototipoController extends ControladorProductos implements Initializable {
 
     @FXML
     private Label lblMensaje;
@@ -77,10 +73,6 @@ public class RegistrarPrototipoController extends ControladorProductos implement
     @FXML
     private ListView<Colaborador> lstColaboradores;
     @FXML
-    private MenuButton mbMiembros = new MenuButton();
-    @FXML
-    private MenuButton mbColaboradores = new MenuButton();
-    @FXML
     private ComboBox<Pais> cbPais;
     @FXML
     private Button btnAgregarColaborador;
@@ -92,10 +84,18 @@ public class RegistrarPrototipoController extends ControladorProductos implement
     private Button btnAgregar;
     @FXML
     private Button btnCargar;
+    @FXML
+    private MenuButton mbMiembros;
+    @FXML
+    private MenuButton mbColaboradores;
+
+    private Producto p;
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
-    private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
+    private ArrayList<Miembro> mInvolucrados = new ArrayList<>();
+    private ArrayList<Colaborador> cInvolucrados = new ArrayList<>();
     private File file;
+    
     /**
      * Initializes the controller class.
      * @param url
@@ -103,9 +103,9 @@ public class RegistrarPrototipoController extends ControladorProductos implement
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        colaboradores = recuperarColaboradores();
-        miembros = recuperarMiembros();
-        cbPais.setItems((ObservableList<Pais>) recuperarPaises());
+        colaboradores = super.recuperarColaboradores();
+        miembros = super.recuperarMiembros();
+        cbPais.setItems(recuperarPaises());
         UtilidadCadenas uc = new UtilidadCadenas();
         uc.limitarCampos(tfNombre, 140);
         uc.limitarCampos(tfProposito, 140);
@@ -117,6 +117,10 @@ public class RegistrarPrototipoController extends ControladorProductos implement
         uc.limitarCampos(tfEstado, 70);
     }    
 
+    /**
+     * Muestra un campo para agregar un nuevo colaborador.
+     * @param event Clic en el boton Agregar Colaborador
+     */
     @FXML
     private void mostrarCampoColaborador(ActionEvent event) {
         if (!tfColaborador.isVisible()) {
@@ -143,16 +147,14 @@ public class RegistrarPrototipoController extends ControladorProductos implement
             lblMensaje.setText(r.getMensaje());
             lblMensaje.setVisible(true);
         } else {
-            registrarPrototipo();
+            actualizarPrototipo();
             lblMensaje.setText(r.getMensaje());
             lblMensaje.setVisible(true);
         }
     }
 
     /**
-     * Cancela la operacion, muestra un mensaje de confirmacion para saber si el
-     * miembro desea cancelar la operacion. Si presiona Cancelar lo regresara a 
-     * la pagina de registro de productos.
+     * Cancela una operacion.
      * @param event Clic en el boton Cancelar.
      */
     @FXML
@@ -164,10 +166,26 @@ public class RegistrarPrototipoController extends ControladorProductos implement
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
-            abrirVentanaSeleccion();
+            System.exit(0);
         }
     }
 
+    /**
+     * Recibe el id del producto seleccionado anteriormente.
+     * @param pro id del producto.
+     */
+    public void recibirParametros(Producto pro) {
+        Producto producto;
+        ProductoJpaController pJpaC = new ProductoJpaController();
+        producto = pJpaC.findProducto(pro.getIdProducto());
+        p = producto;
+        cInvolucrados = recuperarColaboradoresInvolucrados(p);
+        mInvolucrados = recuperarMiembrosInvolucrados(p);
+        iniciarMiembros();
+        iniciarColaboradores();
+        iniciarPantalla();
+    }
+    
     /**
      * Sirve para agregar a un colaborador a la base de datos y a la lista.
      * @param event clic en el boton +
@@ -188,7 +206,7 @@ public class RegistrarPrototipoController extends ControladorProductos implement
             }
         }
     }
-    
+
     /**
      * Abre un cuadro de dialogo para seleccionar un archivo PDF para cargarlo
      * en la base de datos.
@@ -231,7 +249,7 @@ public class RegistrarPrototipoController extends ControladorProductos implement
             r.setErrorcode(1);
             return r;
         }
-        if(!validarTitulo(tfNombre.getText().trim())){
+        if(!validarTituloActualizar(tfNombre.getText().trim(), p.getIdProducto())){
             r.setError(true);
             r.setMensaje("El titulo de este producto ya se encuentra registrado");
             r.setErrorcode(1);
@@ -241,6 +259,12 @@ public class RegistrarPrototipoController extends ControladorProductos implement
             r.setError(true);
             r.setMensaje("Ingrese un año valido. Ejem 1984");
             r.setErrorcode(2);
+            return r;
+        }
+        if (!super.verificarAnio(tfAnio.getText())) {
+            r.setError(true);
+            r.setMensaje("El año no puede ser mayor al año actual o menor a 1900.");
+            r.setErrorcode(3);
             return r;
         }
         if(Objects.equals(tfProposito.getText().trim(), null)){
@@ -255,84 +279,46 @@ public class RegistrarPrototipoController extends ControladorProductos implement
             r.setErrorcode(4);
             return r;
         }
-        if(Objects.equals(tfEstado.getText().trim(), null)){
-            r.setError(true);
-            r.setMensaje("El estado actual no puede estar vacio.");
-            r.setErrorcode(5);
-            return r;
-        }
         if(cbPais.getSelectionModel().isEmpty()){
             r.setError(true);
             r.setMensaje("Seleccione un pais.");
             r.setErrorcode(8);
             return r;
         }
-        if(Objects.equals(file, null)) {
-            r.setError(true);
-            r.setMensaje("Seleccione un archivo PDF como evidencia.");
-            r.setErrorcode(9);
-        }
-        r.setMensaje("Prototipo registrado correctamente.");
+        r.setMensaje("Prototipo actualizado correctamente.");
         r.setError(false);
         return r;
     }
     
     /**
-     * Registra un prototipo en la base de datos junto con sus relaciones.
+     * Este metodo agrega los checkmenuitem al menubutton pata una multiple seleccion;
      */
-    private void registrarPrototipo() {
-        Prototipo proto = new Prototipo();
-        proto.setCaracteristicas(tfCaracteristicas.getText().trim());
-        proto.setInstitucionCreacion(tfInstitucion.getText().trim());
-        List<Prototipo> protos = new ArrayList<>();
+    public void iniciarMiembros() {
+        CheckMenuItem cmi;
+        ArrayList<CheckMenuItem> items = new ArrayList<>();
+        for (int i = 0; i < miembros.size(); i++) {
+            cmi = new CheckMenuItem(miembros.get(i).toString());
+            cmi.setUserData(miembros.get(i));
+            items.add(cmi);
+        }
+        mbMiembros.getItems().setAll(items);
         
-        PrototipoJpaController prJpaC = new PrototipoJpaController();
-        prJpaC.create(proto);
-        protos.add(proto);
-        ///datos del Producto///
-        Producto producto = new Producto();
-        byte[] doc;
-        try {
-            doc = Files.readAllBytes(file.toPath());
-            producto.setArchivoPDF(doc);
-            producto.setNombrePDF(file.getName());
-        } catch(IOException ex) {
-            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+        for (final CheckMenuItem item : items) {
+            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+                
+            if (newValue) {
+                    lstAutores.getItems().add((Miembro) item.getUserData());
+                } else {
+                    lstAutores.getItems().remove((Miembro) item.getUserData());
+                }
+            });
         }
-        producto.setAnio(Integer.parseInt(tfAnio.getText().trim()));
-        producto.setTitulo(tfNombre.getText().trim());
-        producto.setProposito(tfProposito.getText().trim());
-        producto.setIdPais(cbPais.getSelectionModel().getSelectedItem());
-        producto.setEstadoActual(tfEstado.getText().trim());
-        producto.setPrototipoList(protos);
-        ProductoJpaController pJpaC = new ProductoJpaController();
-        if (!pJpaC.create(producto)) {
-           lblMensaje.setText("Error al conectar con la base de datos...");
-        }
-        ///datos del producto-colaborador///
-        ObservableList<Colaborador> colas = lstColaboradores.getItems();
-        ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
-        ProductoColaborador pc;
-        for (int i = 0; i < colas.size(); i++) {
-            pc = new ProductoColaborador();
-            pc.setProducto(producto);
-            pc.setColaborador(colas.get(i));
-            try {
-                pcJpaC.create(pc);
-            } catch (Exception ex) {
-                Logger.getLogger(ControladorRegistrarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+        for (int i = 0; i < mInvolucrados.size(); i++) {
+            for (int j = 0; j < items.size(); j++) {
+                if (mInvolucrados.get(i).equals(items.get(j).getUserData())) {
+                    items.get(j).setSelected(true);
+                }
             }
-        }
-        ///datos del producto-Miembro
-        ObservableList<Miembro> mis = lstAutores.getItems();
-        ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
-        System.out.println(mis.size());
-        ProductoMiembro pm;
-        for (int i = 0; i < mis.size(); i++) {
-            pm = new ProductoMiembro();
-            pm.setIdMiembro(mis.get(i));
-            pm.setIdProducto(producto);
-            pmJpaC.create(pm);
         }
     }
     
@@ -359,60 +345,139 @@ public class RegistrarPrototipoController extends ControladorProductos implement
                 }
             });
         }
-    }
-    
-    /**
-     * Este metodo agrega los checkmenuitem al menubutton pata una multiple seleccion;
-     */
-    public void iniciarMiembros() {
-        CheckMenuItem cmi;
-        ArrayList<CheckMenuItem> items = new ArrayList<>();
-        for (int i = 0; i < miembros.size(); i++) {
-            cmi = new CheckMenuItem(miembros.get(i).toString());
-            cmi.setUserData(miembros.get(i));
-            items.add(cmi);
-        }
-        mbMiembros.getItems().setAll(items);
-        for (final CheckMenuItem item : items) {
-            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
-                
-            if (newValue) {
-                    lstAutores.getItems().add((Miembro) item.getUserData());
-                } else {
-                    lstAutores.getItems().remove((Miembro) item.getUserData());
+        for (int i = 0; i < cInvolucrados.size(); i++) {
+            for (int j = 0; j < items.size(); j++) {
+                if (cInvolucrados.get(i).equals(items.get(j).getUserData())) {
+                    items.get(j).setSelected(true);
                 }
-            });
+            }
         }
     }
     
     /**
-     * Oculta el label que muestra un mensaje dando un clic en el.
+     * Registra el producto, la memoria y todas sus relaciones.
      */
-    @FXML
-    private void ocultarMensaje() {
-        lblMensaje.setText("");
-        lblMensaje.setVisible(false);
-    }
-    
-    /**
-     * Abre la ventana de seleccion de productos a registrar.
-     */
-    private void abrirVentanaSeleccion() {
+    private void actualizarPrototipo() {
+        ///prototipo
+        PrototipoJpaController pJpaC = new PrototipoJpaController();
+        Prototipo prototipo = pJpaC.encontrarPrototipoPorIdProducto(p);
+        prototipo.setCaracteristicas(tfCaracteristicas.getText().trim());
+        prototipo.setInstitucionCreacion(tfInstitucion.getText().trim());
+        List<Prototipo> protos = new ArrayList<>();     
         try {
-            Locale.setDefault(new Locale("es"));
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("SeleccionProductos.fxml"));
-            
-            Parent responder = loader.load();
-            
-            Scene scene = new Scene(responder);
-            Stage stage = new Stage();
-            
-            stage.setScene(scene);
-            stage.show();
-            ((Node) (btnCancelar)).getScene().getWindow().hide();
-        } catch (IOException ex) {
-            Logger.getLogger(SeleccionProductosController.class.getName()).log(Level.SEVERE, null, ex);
+            pJpaC.edit(prototipo);
+        } catch (Exception ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
         }
+        protos.add(prototipo);
+        p.setAnio(Integer.parseInt(tfAnio.getText()));
+        p.setTitulo(tfNombre.getText());
+        p.setProposito(tfProposito.getText());
+        p.setIdPais(cbPais.getSelectionModel().getSelectedItem());
+        p.setEstadoActual(tfEstado.getText());
+        p.setPrototipoList(protos);
+        if (!Objects.equals(file, null)) {
+            byte[] doc;
+            try {
+                doc = Files.readAllBytes(file.toPath());
+                p.setArchivoPDF(doc);
+                p.setNombrePDF(file.getName());
+            } catch (IOException ex) {
+                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        ProductoJpaController prJpaC = new ProductoJpaController();
+        try {
+            prJpaC.edit(p);
+        } catch (NonexistentEntityException ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+            lblMensaje.setText("Error al conectar con la base de datos");
+        } catch (Exception ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+            lblMensaje.setText("Error al conectar con la base de datos");
+        }
+        ///datos del producto-colaborador///
+        
+        List<Colaborador> colas = lstColaboradores.getItems();
+        ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
+        List<ProductoColaborador> pcs = pcJpaC.findByIdProducto(p.getIdProducto());
+        ProductoColaborador productCol;
+        for (int j = 0; j < colas.size(); j++) {
+            if (!cInvolucrados.contains(colas.get(j))) {
+                productCol =  new ProductoColaborador();
+                productCol.setColaborador(colas.get(j));
+                productCol.setProducto(p);
+                try {
+                    pcJpaC.create(productCol);
+                } catch (Exception ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                cInvolucrados.remove(colas.get(j));
+            }
+        }
+        if (cInvolucrados.size() > 0) {           
+            for (int i = 0; i < cInvolucrados.size(); i++) {
+                productCol = pcJpaC.findByIdPC(cInvolucrados.get(i).getIdColaborador(), p.getIdProducto());
+                try {
+                    pcJpaC.destroy(productCol.getProductoColaboradorPK());
+                } catch (NonexistentEntityException ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        
+        //datos del producto-Miembro
+        List<Miembro> miems = lstAutores.getItems();
+        ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
+        List<ProductoMiembro> pms = pmJpaC.findByIdProducto(p);
+        ProductoMiembro productMiem;
+        for (int j = 0; j < miems.size(); j++) {
+            if (!mInvolucrados.contains(miems.get(j))) {
+                productMiem =  new ProductoMiembro();
+                productMiem.setIdMiembro(miems.get(j));
+                productMiem.setIdProducto(p);
+                try {
+                    pmJpaC.create(productMiem);
+                } catch (Exception ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                mInvolucrados.remove(miems.get(j));
+            }
+        }
+        if (mInvolucrados.size() > 0) {           
+            for (int i = 0; i < mInvolucrados.size(); i++) {
+                productMiem = pmJpaC.findByIdPM(mInvolucrados.get(i), p);
+                try {
+                    pmJpaC.destroy(productMiem.getIdMiembroProducto());
+                } catch (NonexistentEntityException ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+    
+    /**
+     * LLena los campos con los datos del producto seleccionado.
+     */
+    private void iniciarPantalla() {
+        Prototipo proto = new Prototipo();
+        PrototipoJpaController pJpaC = new PrototipoJpaController();
+        List<Prototipo> ps = pJpaC.findPrototipoEntities();
+        for (int i = 0; i < ps.size(); i++) {
+            if (Objects.equals(p.getIdProducto(), ps.get(i).getIdProducto().getIdProducto())) {
+                proto = ps.get(i);
+            }
+        }
+        tfNombre.setText(p.getTitulo());
+        tfAnio.setText(p.getAnio().toString());
+        tfProposito.setText(p.getProposito());
+        tfEstado.setText(p.getEstadoActual());
+        tfCaracteristicas.setText(proto.getCaracteristicas());
+        tfArchivo.setText(p.getNombrePDF());
+        tfInstitucion.setText(proto.getInstitucionCreacion());
+        cbPais.getSelectionModel().select(p.getIdPais());
     }
 }

@@ -87,6 +87,7 @@ public class SeleccionProductosController implements Initializable {
     private void aceptar(int seleccion) {
         switch (seleccion) {
             case 0:
+                abrirVentanaRegistro("RegistrarArticulo.fxml");
                 break;
             case 1:
                 break;

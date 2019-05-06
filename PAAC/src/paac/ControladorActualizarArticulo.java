@@ -1,7 +1,8 @@
 package paac;
 
+import entity.Articulo;
+import entity.ArticuloIndexado;
 import entity.Colaborador;
-import entity.Memoria;
 import entity.Miembro;
 import entity.Pais;
 import entity.Producto;
@@ -31,17 +32,20 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import persistence.ArticuloIndexadoJpaController;
+import persistence.ArticuloJpaController;
 import persistence.ColaboradorJpaController;
-import persistence.MemoriaJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
@@ -53,24 +57,22 @@ import utilidades.UtilidadCadenas;
  *
  * @author Eduardo Rosas Rivera
  */
-public class ControladorActualizarMemoria extends ControladorProductos implements Initializable {
+public class ControladorActualizarArticulo extends ControladorProductos implements Initializable {
 
     @FXML
     private TextField tfTitulo;
     @FXML
-    private TextField tfProposito;
+    private TextField tfRevista;
     @FXML
     private TextField tfAnio;
     @FXML
-    private TextField tfCongreso;
-    @FXML
-    private TextField tfCiudad;
-    @FXML
-    private TextField tfEstado;
-    @FXML
     private TextField tfInicio;
     @FXML
-    private TextField tfFin;
+    private TextField tfEditorial;
+    @FXML
+    private TextField tfVolumen;
+    @FXML
+    private TextField tfISSN;
     @FXML
     private ListView<Miembro> lstAutores;
     @FXML
@@ -99,14 +101,33 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
     private TextField tfPDF;
     @FXML
     private Button btnCargar;
-    
-    private Producto p;
+    @FXML
+    private TextField tfFin;
+    @FXML
+    private TextField tfProposito;
+    @FXML
+    private CheckBox chkIndexado;
+    @FXML
+    private Label lblDescripcion;
+    @FXML
+    private Label lblDireccion;
+    @FXML
+    private TextField tfDescripcion;
+    @FXML
+    private TextField tfDireccion;
+    @FXML
+    private Label lblIndice;
+    @FXML
+    private TextField tfIndice;
+
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
+    private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
     private ArrayList<Miembro> mInvolucrados = new ArrayList<>();
     private ArrayList<Colaborador> cInvolucrados = new ArrayList<>();
     private File file;
-    
+    private Producto p;
+    private Articulo a;
     /**
      * Initializes the controller class.
      * @param url
@@ -114,47 +135,31 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        colaboradores = recuperarColaboradores();
-        miembros = recuperarMiembros();
-        cbPais.setItems((ObservableList<Pais>) recuperarPaises());
+        colaboradores = super.recuperarColaboradores();
+        miembros = super.recuperarMiembros();
+        cbPais.setItems(recuperarPaises());
         UtilidadCadenas uc = new UtilidadCadenas();
         uc.limitarCampos(tfTitulo, 140);
         uc.limitarCampos(tfProposito, 140);
         uc.limitarCampos(tfAnio, 4);
-        uc.limitarCampos(tfCongreso, 150);
-        uc.limitarCampos(tfEstado, 150);
-        uc.limitarCampos(tfCiudad, 150);
+        uc.limitarCampos(tfEditorial, 150);
+        uc.limitarCampos(tfEstadoActual, 150);
+        uc.limitarCampos(tfISSN, 150);
+        uc.limitarCampos(tfRevista, 80);
         uc.limitarCampos(tfInicio, 4);
         uc.limitarCampos(tfFin, 4);
+        uc.limitarCampos(tfVolumen, 50);
+        uc.limitarCampos(tfDescripcion, 255);
+        uc.limitarCampos(tfDireccion, 255);
         uc.limitarCampos(tfColaborador, 100);
+        uc.limitarCampos(tfIndice, 255);
     }    
-    
-    public ControladorActualizarMemoria() {
-        
-    }
-    
+
     /**
-     * Abre un cuadro de dialogo para seleccionar un archivo PDF para cargarlo
-     * en la base de datos.
-     * @param event Clic en el boton Cargar.
+     * Constructor del controlador.
      */
-    @FXML
-    private void cargar(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter imageFilter = new FileChooser.
-                ExtensionFilter("Archivos PDF", "*.pdf");
-        fileChooser.getExtensionFilters().add(imageFilter);
-        fileChooser.setTitle("Selecciona un archivo PDF");
-        Stage stage = new Stage();
-        File fl = fileChooser.showOpenDialog(stage);
-        if(!Objects.equals(fl, null)) {
-            if (fl.length() <= 10000000) {
-                file = fl;
-                tfPDF.setText(file.getPath());
-            } else {
-                lblMensaje.setText("El archivo debe ser menor a 10 MB.");
-            }
-        }
+    public ControladorActualizarArticulo() {
+        
     }
     
     /**
@@ -173,10 +178,6 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         iniciarPantalla();
     }
     
-    /**
-     * Valida que todos los datos sean correctos y registra la memoria.
-     * @param event Clic en el boton Aceptar.
-     */
     @FXML
     private void aceptar(ActionEvent event) {
         Respuesta r = validarCampos();
@@ -186,15 +187,11 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         } else {
             lblMensaje.setText(r.getMensaje());
             lblMensaje.setVisible(true);
+            actualizarArticulo();
+            regresarAVentanaAnterior();
         }
-        
-        actualizarProducto();
     }
 
-    /**
-     * Cancela el proceso de registro, devolviendo a la pantalla anterior.
-     * @param event Clic en el boton cancelar.
-     */
     @FXML
     private void cancelar(ActionEvent event) {
         Alert cancelar = new Alert(Alert.AlertType.CONFIRMATION);
@@ -204,7 +201,7 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
-            regresarAVentanaAnterior();
+            System.exit(0);
         }
     }
 
@@ -228,8 +225,8 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
     }
 
     /**
-     * Sirve para agregar a un colaborador a la base de datos y a la lista.
-     * @param event clic en el boton +
+     * Registra un colaborador en la base de datos.
+     * @param event Clic en el boton +.
      */
     @FXML
     private void agregarALista(ActionEvent event) {
@@ -249,6 +246,58 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
     }
 
     /**
+     * Oculta el label del mensaje despies de darle clic.
+     */
+    @FXML
+    private void ocultarMensaje(MouseEvent event) {
+        lblMensaje.setText("");
+        lblMensaje.setVisible(false);
+    }
+
+    /**
+     * Abre un cuadro de dialogo para seleccionar un archivo PDF para cargarlo
+     * en la base de datos.
+     * @param event Clic en el boton Cargar.
+     */
+    @FXML
+    private void cargar(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter imageFilter = new FileChooser.
+                ExtensionFilter("Archivos PDF", "*.pdf");
+        fileChooser.getExtensionFilters().add(imageFilter);
+        fileChooser.setTitle("Selecciona un archivo PDF");
+        Stage stage = new Stage();
+        File fl = fileChooser.showOpenDialog(stage);
+        if(!Objects.equals(fl, null)) {
+            if (fl.length() <= 10000000) {
+                file = fl;
+                tfPDF.setText(file.getPath());
+            } else {
+                lblMensaje.setText("El archivo debe ser menor a 10 MB.");
+            }
+        }
+    }
+
+    @FXML
+    private void crearIndexado(ActionEvent event) {
+        if (chkIndexado.isSelected()) {
+            lblDescripcion.setVisible(true);
+            lblDireccion.setVisible(true);
+            lblIndice.setVisible(true);
+            tfDescripcion.setVisible(true);
+            tfDireccion.setVisible(true);
+            tfIndice.setVisible(true);
+        } else {
+            lblDescripcion.setVisible(false);
+            lblDireccion.setVisible(false);
+            lblIndice.setVisible(false);
+            tfDescripcion.setVisible(false);
+            tfDireccion.setVisible(false);
+            tfIndice.setVisible(false);
+        }
+    }
+    
+    /**
      * Este metodo valida que todos los campos cumplan con sus restricciones 
      * y que no sean nulos.
      * @return el mensaje en casi que haya un error.
@@ -258,20 +307,21 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         if(tfTitulo.getText().isEmpty() 
                 || tfAnio.getText().isEmpty() 
                 || tfProposito.getText().isEmpty() 
-                || tfCongreso.getText().isEmpty() 
-                || tfCiudad.getText().isEmpty() 
-                || tfEstado.getText().isEmpty()
-                || tfInicio.getText().isEmpty() 
-                || tfFin.getText().isEmpty() 
+                || tfEditorial.getText().isEmpty() 
+                || tfEstadoActual.getText().isEmpty() 
+                || tfISSN.getText().isEmpty()
+                || tfRevista.getText().isEmpty() 
                 || cbPais.getSelectionModel().isEmpty()
-                ||tfEstadoActual.getText().isEmpty()){
+                || tfInicio.getText().isEmpty()
+                || tfFin.getText().isEmpty()
+                || tfVolumen.getText().isEmpty()){
             r.setMensaje("No puede haber campos vacíos");
             r.setError(true);
             return r;
         }
-        if (!validarTituloActualizar(tfTitulo.getText().trim(), p.getIdProducto())) {
+        if(!validarTituloActualizar(tfTitulo.getText().trim(), p.getIdProducto())){
             r.setError(true);
-            r.setMensaje("Este titulo ya se encuentra registrado");
+            r.setMensaje("El titulo de esta memoria ya se encuentra registrado.");
             r.setErrorcode(1);
             return r;
         }
@@ -281,37 +331,10 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
             r.setErrorcode(2);
             return r;
         }
-        if (!super.verificarAnio(tfAnio.getText())) {
+        if (!verificarAnio(tfAnio.getText())) {
             r.setError(true);
             r.setMensaje("El año no puede ser mayor al año actual o menor a 1900.");
             r.setErrorcode(3);
-            return r;
-        }
-        if(!tfEstado.getText().trim().matches("^.*\\\\d.*$")){
-            r.setError(true);
-            r.setMensaje("El estado no puede contener numeros.");
-            r.setErrorcode(4);
-            return r;
-        }
-        if(!tfCiudad.getText().trim().matches("^.*\\\\d.*$")){
-            r.setError(true);
-            r.setMensaje("La ciudad no puede contener numeros.");
-            r.setErrorcode(4);
-            return r;
-        }
-        try {
-            Integer inicio = Integer.parseInt(tfInicio.getText().trim());
-            Integer fin = Integer.parseInt(tfFin.getText().trim());
-            if(!validarPaginas(inicio, fin)){
-                r.setError(true);
-                r.setMensaje("Las paginas de inicio deben ser menores o iguales a las de fin.");
-                r.setErrorcode(6);
-                return r;
-            }
-        } catch (Exception e) {
-            r.setError(true);
-            r.setMensaje("Ingrese solo numeros.");
-            r.setErrorcode(6);
             return r;
         }
         if(cbPais.getSelectionModel().isEmpty()){
@@ -319,31 +342,159 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
             r.setMensaje("Seleccione un pais.");
             r.setErrorcode(8);
             return r;
+        }//"^.*\\d.*$"
+        try{
+            Integer pag1 = Integer.parseInt(tfInicio.getText().trim());
+            Integer pag2 = Integer.parseInt(tfFin.getText().trim());
+            if (!validarPaginas(pag1, pag2)) {
+                r.setError(true);
+                r.setMensaje("Las paginas iniciales deben ser menores a las finales.");
+                r.setErrorcode(8);
+                return r;
+            }
+        } catch (Exception e) {
+            r.setError(true);
+            r.setMensaje("Ingrese un numero valido para las paginas.");
+            r.setErrorcode(8);
+            return r;
         }
-        r.setMensaje("Memoria actualizada exitosamente");
+        if (chkIndexado.isSelected()) {
+            if (tfIndice.getText().isEmpty()
+                    ||tfDireccion.getText().isEmpty()
+                    || tfDescripcion.getText().isEmpty()){  
+                r.setError(true);
+                r.setMensaje("Los datos del articulo indexado no pueden estar vacios.");
+                r.setErrorcode(10);
+                return r;
+            }
+            if (tfDireccion.getText().trim().matches("^((http:\\/\\/www\\.)|(www\\.)|(http:\\/\\/))[a-zA-Z0-9._-]+\\.[a-zA-Z.]{2,5}$")) {
+                r.setError(true);
+                r.setMensaje("Ingrese una direccion web valida.");
+                r.setErrorcode(10);
+                return r;
+            }
+        }
+        r.setMensaje("Articulo actualizado exitosamente");
         r.setError(false);
         return r;
     }
     
     /**
+     * Este metodo agregar los checkmenuitem al menubutton para una multiple seleccion.
+     */
+    public void iniciarColaboradores() {
+        CheckMenuItem cmi;
+        ArrayList<CheckMenuItem> items = new ArrayList<>();
+        for (int i = 0; i < colaboradores.size(); i++) {
+            cmi = new CheckMenuItem(colaboradores.get(i).toString());
+            cmi.setUserData(colaboradores.get(i));
+            items.add(cmi);
+        }
+        mbColaboradores.getItems().setAll(items);
+        
+        for (final CheckMenuItem item : items) {
+            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+                
+            if (newValue) {
+                    lstColaboradores.getItems().add((Colaborador) item.getUserData());
+                } else {
+                    lstColaboradores.getItems().remove((Colaborador) item.getUserData());
+                }
+            });
+        }
+        for (int i = 0; i < cInvolucrados.size(); i++) {
+            for (int j = 0; j < items.size(); j++) {
+                if (cInvolucrados.get(i).equals(items.get(j).getUserData())) {
+                    items.get(j).setSelected(true);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Este metodo agrega los checkmenuitem al menubutton pata una multiple seleccion;
+     */
+    public void iniciarMiembros() {
+        CheckMenuItem cmi;
+        ArrayList<CheckMenuItem> items = new ArrayList<>();
+        for (int i = 0; i < miembros.size(); i++) {
+            cmi = new CheckMenuItem(miembros.get(i).toString());
+            cmi.setUserData(miembros.get(i));
+            items.add(cmi);
+        }
+        mbMiembros.getItems().setAll(items);
+        
+        for (final CheckMenuItem item : items) {
+            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+                
+            if (newValue) {
+                    lstAutores.getItems().add((Miembro) item.getUserData());
+                } else {
+                    lstAutores.getItems().remove((Miembro) item.getUserData());
+                }
+            });
+        }
+        for (int i = 0; i < mInvolucrados.size(); i++) {
+            for (int j = 0; j < items.size(); j++) {
+                if (mInvolucrados.get(i).equals(items.get(j).getUserData())) {
+                    items.get(j).setSelected(true);
+                }
+            }
+        }
+    }
+    
+    /**
      * Registra el producto, la memoria y todas sus relaciones.
      */
-    private void actualizarProducto() {
-        ///memoria
-        MemoriaJpaController mJpaC = new MemoriaJpaController();
-        Memoria memoria = mJpaC.findByIdProducto(p);
-        memoria.setCiudad(tfCiudad.getText().trim());
-        memoria.setEstado(tfEstado.getText().trim());
-        memoria.setNombreCongreso(tfCongreso.getText());
-        String rango = tfInicio.getText() + "-" + tfFin.getText().trim();
-        memoria.setRangoPaginas(rango);
-        List<Memoria> memos = new ArrayList<>();
-        memos.add(memoria);
-        
+    private void actualizarArticulo() {
+        List<ArticuloIndexado> artsIn = new ArrayList<>();
+        ArticuloIndexadoJpaController aiJpaC = new ArticuloIndexadoJpaController();
+        if (a.getArticuloIndexadoList().size() > 0) {
+            if (chkIndexado.isSelected()) {
+                ArticuloIndexado ai = a.getArticuloIndexadoList().get(0);
+                ai.setDescripcion(tfDescripcion.getText().trim());
+                ai.setDireccionElectronica(tfDireccion.getText().trim());
+                ai.setIndice(tfIndice.getText().trim());
+                artsIn.add(ai);
+                try {
+                    aiJpaC.edit(ai);
+                } catch (Exception ex) {
+                    Logger.getLogger(ControladorActualizarArticulo.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } /*else {
+                try {
+                    aiJpaC.destroy(a.getArticuloIndexadoList().get(0).getIdArticuloIndexado());
+                } catch (NonexistentEntityException ex) {
+                    Logger.getLogger(ControladorActualizarArticulo.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }*/
+        } else {
+            if (chkIndexado.isSelected()) {
+                ArticuloIndexado ai = new ArticuloIndexado();
+                ai.setDescripcion(tfDescripcion.getText().trim());
+                ai.setDireccionElectronica(tfDireccion.getText().trim());
+                ai.setIndice(tfIndice.getText().trim());
+                artsIn.add(ai);
+                aiJpaC.create(ai);
+            }
+        }
+        Articulo articulo = a;
+        articulo.setEditorial(tfEditorial.getText().trim());
+        articulo.setIssn(tfISSN.getText().trim());
+        articulo.setNombreRevista(tfRevista.getText().trim());
+        String rango = tfInicio.getText().trim() + "-" + tfFin.getText().trim();
+        articulo.setRangoPaginas(rango);
+        articulo.setVolumen(tfVolumen.getText().trim());
+        if (artsIn.size() > 0) {
+            articulo.setArticuloIndexadoList(artsIn);
+        }
+        List<Articulo> artics = new ArrayList<>();
+        artics.add(articulo);
+        ArticuloJpaController aJpaC = new ArticuloJpaController();
         try {
-            mJpaC.edit(memoria);
+            aJpaC.edit(articulo);
         } catch (Exception ex) {
-            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ControladorActualizarArticulo.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         p.setAnio(Integer.parseInt(tfAnio.getText()));
@@ -351,7 +502,7 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         p.setProposito(tfProposito.getText());
         p.setIdPais(cbPais.getSelectionModel().getSelectedItem());
         p.setEstadoActual(tfEstadoActual.getText());
-        p.setMemoriaList(memos);
+        p.setArticuloList(artics);
         if (!Objects.equals(file, null)) {
             byte[] doc;
             try {
@@ -436,102 +587,44 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
     }
     
     /**
-     * Este metodo agregar los checkmenuitem al menubutton para una multiple seleccion.
-     */
-    public void iniciarColaboradores() {
-        CheckMenuItem cmi;
-        ArrayList<CheckMenuItem> items = new ArrayList<>();
-        for (int i = 0; i < colaboradores.size(); i++) {
-            cmi = new CheckMenuItem(colaboradores.get(i).toString());
-            cmi.setUserData(colaboradores.get(i));
-            items.add(cmi);
-        }
-        mbColaboradores.getItems().setAll(items);
-        
-        for (final CheckMenuItem item : items) {
-            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
-                
-            if (newValue) {
-                    lstColaboradores.getItems().add((Colaborador) item.getUserData());
-                } else {
-                    lstColaboradores.getItems().remove((Colaborador) item.getUserData());
-                }
-            });
-        }
-        for (int i = 0; i < cInvolucrados.size(); i++) {
-            for (int j = 0; j < items.size(); j++) {
-                if (cInvolucrados.get(i).equals(items.get(j).getUserData())) {
-                    items.get(j).setSelected(true);
-                }
-            }
-        }
-    }
-    
-    /**
-     * Este metodo agrega los checkmenuitem al menubutton pata una multiple seleccion;
-     */
-    public void iniciarMiembros() {
-        CheckMenuItem cmi;
-        ArrayList<CheckMenuItem> items = new ArrayList<>();
-        for (int i = 0; i < miembros.size(); i++) {
-            cmi = new CheckMenuItem(miembros.get(i).toString());
-            cmi.setUserData(miembros.get(i));
-            items.add(cmi);
-        }
-        mbMiembros.getItems().setAll(items);
-        
-        for (final CheckMenuItem item : items) {
-            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
-                
-            if (newValue) {
-                    lstAutores.getItems().add((Miembro) item.getUserData());
-                } else {
-                    lstAutores.getItems().remove((Miembro) item.getUserData());
-                }
-            });
-        }
-        for (int i = 0; i < mInvolucrados.size(); i++) {
-            for (int j = 0; j < items.size(); j++) {
-                if (mInvolucrados.get(i).equals(items.get(j).getUserData())) {
-                    items.get(j).setSelected(true);
-                }
-            }
-        }
-    }
-    
-    /**
-     * Oculta el mensaje al darle clic.
-     */
-    @FXML
-    private void ocultarMensaje() {
-        lblMensaje.setText("");
-        lblMensaje.setVisible(false);
-    }
-    
-    /**
      * LLena los campos con los datos del producto seleccionado.
      */
     private void iniciarPantalla() {
-        Memoria memo = new Memoria();
-        MemoriaJpaController mJpaC = new MemoriaJpaController();
-        List<Memoria> ms = mJpaC.findMemoriaEntities();
-        for (int i = 0; i < ms.size(); i++) {
-            if (Objects.equals(p.getIdProducto(), ms.get(i).getIdProducto().getIdProducto())) {
-                memo = ms.get(i);
+        Articulo articulo = new Articulo();
+        ArticuloJpaController aJpaC = new ArticuloJpaController();
+        List<Articulo> as = aJpaC.findArticuloEntities();
+        for (int i = 0; i < as.size(); i++) {
+            if (Objects.equals(p.getIdProducto(), as.get(i).getIdProducto().getIdProducto())) {
+                articulo = as.get(i);
             }
         }
+        a =  articulo;
+        tfEditorial.setText(articulo.getEditorial());
+        tfISSN.setText(articulo.getIssn());
         tfTitulo.setText(p.getTitulo());
         tfAnio.setText(p.getAnio().toString());
         tfProposito.setText(p.getProposito());
-        tfCongreso.setText(memo.getNombreCongreso());
-        tfEstado.setText(memo.getEstado());
+        tfVolumen.setText(articulo.getVolumen());
         tfEstadoActual.setText(p.getEstadoActual());
-        tfCiudad.setText(memo.getCiudad());
-        String[] pags = memo.getRangoPaginas().split("-");
+        String[] pags = articulo.getRangoPaginas().split("-");
         tfInicio.setText(pags[0]);
         tfFin.setText(pags[1]);
         tfPDF.setText(p.getNombrePDF());
+        tfRevista.setText(articulo.getNombreRevista());
         cbPais.getSelectionModel().select(p.getIdPais());
+        if (articulo.getArticuloIndexadoList().size() > 0) {
+            lblDescripcion.setVisible(true);
+            lblDireccion.setVisible(true);
+            lblIndice.setVisible(true);
+            tfDescripcion.setVisible(true);
+            tfDireccion.setVisible(true);
+            tfIndice.setVisible(true);
+            chkIndexado.setSelected(true);
+            ArticuloIndexado ai = articulo.getArticuloIndexadoList().get(0);
+            tfDescripcion.setText(ai.getDescripcion());
+            tfDireccion.setText(ai.getDireccionElectronica());
+            tfIndice.setText(ai.getIndice());
+        }
     }
     
     /**
@@ -542,7 +635,7 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
             Locale.setDefault(new Locale("es"));
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource(
-                    "SeleccionarMemoria.fxml"));
+                    "SeleccionarArticulo.fxml"));
             
             Parent seleccion = loader.load();
             Scene scene = new Scene(seleccion);
@@ -555,5 +648,4 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
             Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
 }
