@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -21,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 @Entity
 @Table(name = "prototipo")
@@ -30,7 +25,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Prototipo.findAll", query = "SELECT p FROM Prototipo p")
     , @NamedQuery(name = "Prototipo.findByIdprototipo", query = "SELECT p FROM Prototipo p WHERE p.idprototipo = :idprototipo")
     , @NamedQuery(name = "Prototipo.findByCaracteristicas", query = "SELECT p FROM Prototipo p WHERE p.caracteristicas = :caracteristicas")
-    , @NamedQuery(name = "Prototipo.findByInstitucionCreacion", query = "SELECT p FROM Prototipo p WHERE p.institucionCreacion = :institucionCreacion")})
+    , @NamedQuery(name = "Prototipo.findByInstitucionCreacion", query = "SELECT p FROM Prototipo p WHERE p.institucionCreacion = :institucionCreacion")
+    , @NamedQuery(name = "Prototipo.findByIdProducto", query = "SELECT p FROM Prototipo p WHERE p.idProducto = :idProducto")})
 public class Prototipo implements Serializable {
 
     private static final long serialVersionUID = 1L;

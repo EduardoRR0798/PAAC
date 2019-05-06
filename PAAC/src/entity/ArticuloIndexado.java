@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -21,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 @Entity
 @Table(name = "articulo_indexado")
@@ -45,7 +40,7 @@ public class ArticuloIndexado implements Serializable {
     @Column(name = "direccionElectronica")
     private String direccionElectronica;
     @Column(name = "indice")
-    private Integer indice;
+    private String indice;
     @JoinColumn(name = "idArticulo", referencedColumnName = "idArticulo")
     @ManyToOne
     private Articulo idArticulo;
@@ -81,11 +76,11 @@ public class ArticuloIndexado implements Serializable {
         this.direccionElectronica = direccionElectronica;
     }
 
-    public Integer getIndice() {
+    public String getIndice() {
         return indice;
     }
 
-    public void setIndice(Integer indice) {
+    public void setIndice(String indice) {
         this.indice = indice;
     }
 
