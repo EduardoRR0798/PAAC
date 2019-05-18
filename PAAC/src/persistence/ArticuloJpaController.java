@@ -224,6 +224,7 @@ public class ArticuloJpaController implements Serializable {
             Query q = em.createNamedQuery("Articulo.findByIdProducto", Articulo.class).setParameter("idProducto", id);
             art = (Articulo) q.getSingleResult();
         } catch (Exception e) {
+            
             art = null;
         }
         return art;

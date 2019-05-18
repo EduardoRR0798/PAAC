@@ -47,12 +47,12 @@
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Archivo PDF:" GridPane.rowIndex="5">
+      <Label text="Archivo PDF:" GridPane.rowIndex="6">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Estado actual:" GridPane.rowIndex="6">
+      <Label text="Estado actual:" GridPane.rowIndex="5">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
@@ -82,24 +82,14 @@
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfProposito" GridPane.rowIndex="3">
-         <GridPane.margin>
-            <Insets left="80.0" right="20.0" />
-         </GridPane.margin>
-      </TextField>
       <TextField fx:id="tfCaracteristicas" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets left="105.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfArchivo" editable="false" GridPane.rowIndex="5">
+      <TextField fx:id="tfArchivo" disable="true" editable="false" GridPane.rowIndex="6">
          <GridPane.margin>
             <Insets left="105.0" right="80.0" />
-         </GridPane.margin>
-      </TextField>
-      <TextField fx:id="tfEstado" prefHeight="25.0" prefWidth="249.0" GridPane.rowIndex="6">
-         <GridPane.margin>
-            <Insets left="105.0" right="20.0" />
          </GridPane.margin>
       </TextField>
       <TextField fx:id="tfInstitucion" GridPane.rowIndex="7">
@@ -127,7 +117,7 @@
             <Insets left="25.0" right="20.0" />
          </GridPane.margin>
       </ListView>
-      <ComboBox fx:id="cbPais" prefHeight="25.0" prefWidth="364.0" GridPane.rowIndex="1">
+      <ComboBox fx:id="cbPais" prefHeight="25.0" prefWidth="364.0" promptText="Seleccione un pais" GridPane.rowIndex="1">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
@@ -152,7 +142,7 @@
             <Insets right="25.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="btnCargar" mnemonicParsing="false" onAction="#cargar" text="Cargar" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+      <Button fx:id="btnCargar" disable="true" mnemonicParsing="false" onAction="#cargar" text="Cargar" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>
@@ -175,5 +165,15 @@
             <Insets left="115.0" right="20.0" />
          </GridPane.margin>
       </MenuButton>
+      <ComboBox fx:id="cbEstadoActual" onAction="#cambiarEstado" prefHeight="25.0" prefWidth="330.0" promptText="Seleccione un estado" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+         <GridPane.margin>
+            <Insets left="100.0" right="20.0" />
+         </GridPane.margin>
+      </ComboBox>
+      <ComboBox fx:id="cbProposito" prefHeight="25.0" prefWidth="318.0" promptText="Seleccione un proposito" GridPane.rowIndex="3">
+         <GridPane.margin>
+            <Insets left="80.0" right="20.0" />
+         </GridPane.margin>
+      </ComboBox>
    </children>
 </GridPane>

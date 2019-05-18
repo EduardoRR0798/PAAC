@@ -222,7 +222,7 @@ public class ProductoMiembroJpaController implements Serializable {
      * @param p id del producto.
      * @return El ProductoMiembro esperado.
      */
-    public ProductoMiembro findByIdPM(Integer m, Integer p) {
+    public ProductoMiembro findByIdPM(Miembro m, Producto p) {
         EntityManager em = getEntityManager();
         ProductoMiembro pm;
         Query q = em.createNamedQuery("ProductoMiembro.findByProductoAndMiembro", ProductoMiembro.class).setParameter("idMiembro", m).setParameter("idProducto", p);

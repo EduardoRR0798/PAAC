@@ -1,6 +1,7 @@
 package paac;
 
 import entity.Memoria;
+import entity.Miembro;
 import entity.Producto;
 import entity.ProductoMiembro;
 import java.io.IOException;
@@ -40,14 +41,14 @@ import persistence.ProductoMiembroJpaController;
  *
  * @author Eduardo Rosas Rivera
  */
-public class SeleccionarMemoriaController implements Initializable {
+public class SeleccionarMemoriaController extends ControladorProductos implements Initializable {
 
     @FXML
     private ListView<Producto> lst;
     @FXML
     private Button btnCancelar;
     private ObservableList<Producto> productos = FXCollections.observableArrayList();
-    
+    private Miembro miembro;
     /**
      * Initializes the controller class.
      * @param url
@@ -55,23 +56,31 @@ public class SeleccionarMemoriaController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        recuperarProductos();
-        
+
         lst.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                    if (mouseEvent.getClickCount() == 2) {
-                        if (!productos.isEmpty()) {
-                            Integer p = lst.getSelectionModel().getSelectedItems().get(0).getIdProducto();
-                            abrirVentanaEditarMemoria(lst.getSelectionModel().getSelectedItem());
-                        }
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() == 2) {
+                    if (!productos.isEmpty()) {
+                        Producto p = lst.getSelectionModel().getSelectedItem();
+                        actualizarMemoria(miembro, p);
+                        ((Node) btnCancelar).getScene().getWindow().hide();
                     }
                 }
             }
         });
-    }    
+    }   
 
+    /**
+     * Recibe el miembro de la ventana anterior.
+     * @param miembro 
+     */
+    public void recibirParametros(Miembro miembro) {
+        System.out.println(miembro.getIdMiembro());
+        this.miembro = miembro;
+        recuperarProductos();
+    }
+    
     /**
      * Cancela una operacion.
      * @param event Clic en el boton Cancelar.
@@ -85,7 +94,8 @@ public class SeleccionarMemoriaController implements Initializable {
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
-            System.exit(0);
+            abrirMenu(miembro);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
     
@@ -99,13 +109,12 @@ public class SeleccionarMemoriaController implements Initializable {
         //recupero todos los producto miembro que cuenten con el id del usuario.
         List<ProductoMiembro> pc = pmJpaC.findProductoMiembroEntities();
         for (int i = 0; i < pc.size(); i++) {
-            if (Objects.equals(pc.get(i).getIdMiembro().getIdMiembro(), 1)) {
+            if (Objects.equals(pc.get(i).getIdMiembro().getIdMiembro(), miembro.getIdMiembro())) {
                 pcss.add(pc.get(i));
             }
         }
         //recupero TODOS los productos que tengan que ver con ese miembro.
         Producto p;
-        ArrayList<Integer> nums = new ArrayList<>();
         ArrayList<Producto> productosTemp = new ArrayList<>();
         for (int i = 0; i < pcss.size(); i++) {
             p = pJpaC.findProducto(pcss.get(i).getIdProducto().getIdProducto());
@@ -122,33 +131,5 @@ public class SeleccionarMemoriaController implements Initializable {
             }
         }
         lst.getItems().setAll(productos);
-    }
-    
-    /**
-     * Este metodo abre una nueva ventana para editar la memoria seleccionada \
-     * por el miembro.
-     * @param p id del producto seleccionado.
-     */
-    private void abrirVentanaEditarMemoria(Producto p) {
-        try {
-            Locale.setDefault(new Locale("es"));
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource(
-                    "ActualizarMemoria.fxml"));
-            
-            Parent responder = loader.load();
-            ControladorActualizarMemoria controller = loader.getController();
-            
-            controller.recibirParametros(p);
-            
-            Scene scene = new Scene(responder);
-            Stage stage = new Stage();
-            
-            stage.setScene(scene);
-            stage.show();
-             ((Node) (btnCancelar)).getScene().getWindow().hide();
-        } catch (IOException ex) {
-            Logger.getLogger(SeleccionarMemoriaController.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package persistence;
 
 import entity.Gradoacademico;
@@ -16,6 +11,7 @@ import entity.Miembro;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.NonexistentEntityException;
 
 /**
@@ -24,8 +20,8 @@ import persistence.exceptions.NonexistentEntityException;
  */
 public class GradoacademicoJpaController implements Serializable {
 
-    public GradoacademicoJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public GradoacademicoJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -194,4 +190,20 @@ public class GradoacademicoJpaController implements Serializable {
         }
     }
     
+    /**
+     * Recupera todos los grados academicos de un mismo miembro.
+     * @param m miembro al que pertenecen los grados academicos.
+     * @return una lista de todos los grados academicos de un miembro.
+     */
+    public List<Gradoacademico> findByGradoAcademico(Miembro m) {
+        EntityManager em = getEntityManager();
+        List<Gradoacademico> grados;
+        try {
+            Query q = em.createNamedQuery("Gradoacademico.findByIdMiembro", Gradoacademico.class).setParameter("idMiembro", m);
+            grados = q.getResultList();
+        }catch (Exception e) {
+            grados = null;
+        }
+        return grados;
+    }
 }

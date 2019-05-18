@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera.
  */
 @Entity
 @Table(name = "miembro")
@@ -34,7 +34,8 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Miembro.findByNombre", query = "SELECT m FROM Miembro m WHERE m.nombre = :nombre")
     , @NamedQuery(name = "Miembro.findByUsuario", query = "SELECT m FROM Miembro m WHERE m.usuario = :usuario")
     , @NamedQuery(name = "Miembro.findByContrasenia", query = "SELECT m FROM Miembro m WHERE m.contrasenia = :contrasenia")
-    , @NamedQuery(name = "Miembro.Login", query = "SELECT m FROM Miembro m WHERE m.usuario = :usuario AND m.contrasenia = :contrasenia")})
+    , @NamedQuery(name = "Miembro.Login", query = "SELECT m FROM Miembro m WHERE m.usuario = :usuario AND m.contrasenia = :contrasenia")
+    , @NamedQuery(name = "Miembro.findByEmail", query = "SELECT m FROM Miembro m WHERE m.email = :email")})
 public class Miembro implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -59,6 +60,8 @@ public class Miembro implements Serializable {
     private String usuario;
     @Column(name = "contrasenia")
     private String contrasenia;
+    @Column(name = "email")
+    private String email;
     @OneToMany(mappedBy = "idMiembro")
     private List<ProductoMiembro> productoMiembroList;
     @OneToMany(mappedBy = "idMiembro")
@@ -115,6 +118,14 @@ public class Miembro implements Serializable {
         this.sni = sni;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
     public Integer getTipo() {
         return tipo;
     }

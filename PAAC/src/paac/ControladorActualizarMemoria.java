@@ -1,6 +1,8 @@
 package paac;
 
+import entity.CaMiembro;
 import entity.Colaborador;
+import entity.CuerpoAcademico;
 import entity.Memoria;
 import entity.Miembro;
 import entity.Pais;
@@ -13,7 +15,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -23,11 +24,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -40,7 +38,9 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import persistence.CaMiembroJpaController;
 import persistence.ColaboradorJpaController;
+import persistence.CuerpoAcademicoJpaController;
 import persistence.MemoriaJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
@@ -58,7 +58,7 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
     @FXML
     private TextField tfTitulo;
     @FXML
-    private TextField tfProposito;
+    private ComboBox<String> cbProposito;
     @FXML
     private TextField tfAnio;
     @FXML
@@ -94,7 +94,7 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
     @FXML
     private MenuButton mbColaboradores;
     @FXML
-    private TextField tfEstadoActual;
+    private ComboBox<String> cbEstadoActual;
     @FXML
     private TextField tfPDF;
     @FXML
@@ -106,6 +106,7 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
     private ArrayList<Miembro> mInvolucrados = new ArrayList<>();
     private ArrayList<Colaborador> cInvolucrados = new ArrayList<>();
     private File file;
+    private Miembro m;
     
     /**
      * Initializes the controller class.
@@ -117,9 +118,10 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         colaboradores = recuperarColaboradores();
         miembros = recuperarMiembros();
         cbPais.setItems((ObservableList<Pais>) recuperarPaises());
+        cbEstadoActual.setItems(estados);
+        cbProposito.setItems(propositos);
         UtilidadCadenas uc = new UtilidadCadenas();
         uc.limitarCampos(tfTitulo, 140);
-        uc.limitarCampos(tfProposito, 140);
         uc.limitarCampos(tfAnio, 4);
         uc.limitarCampos(tfCongreso, 150);
         uc.limitarCampos(tfEstado, 150);
@@ -129,8 +131,11 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         uc.limitarCampos(tfColaborador, 100);
     }    
     
+    /**
+     * Contructor vacio por defecto de la clase.
+     */
     public ControladorActualizarMemoria() {
-        
+        //Contructor vacio por defecto
     }
     
     /**
@@ -161,8 +166,9 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
      * Recibe el id del producto seleccionado anteriormente.
      * @param pro id del producto.
      */
-    public void recibirParametros(Producto pro) {
+    public void recibirParametros(Producto pro, Miembro m) {
         Producto producto;
+        this.m = m;
         ProductoJpaController pJpaC = new ProductoJpaController();
         producto = pJpaC.findProducto(pro.getIdProducto());
         p = producto;
@@ -184,11 +190,19 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
             lblMensaje.setText(r.getMensaje());
             lblMensaje.setVisible(true);
         } else {
-            lblMensaje.setText(r.getMensaje());
+            actualizarProducto();
+            lblMensaje.setText("Memoria actualizada exitosamente.");
             lblMensaje.setVisible(true);
+            try {
+                Thread.sleep(2000);
+            }catch (Exception e) {
+                //Nada
+            }
+            abrirMenu(m);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
         
-        actualizarProducto();
+        
     }
 
     /**
@@ -204,7 +218,8 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
-            regresarAVentanaAnterior();
+            seleccionarMemoria(m);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
 
@@ -257,14 +272,14 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         Respuesta r = new Respuesta();
         if(tfTitulo.getText().isEmpty() 
                 || tfAnio.getText().isEmpty() 
-                || tfProposito.getText().isEmpty() 
+                || cbProposito.getSelectionModel().isEmpty() 
                 || tfCongreso.getText().isEmpty() 
                 || tfCiudad.getText().isEmpty() 
                 || tfEstado.getText().isEmpty()
                 || tfInicio.getText().isEmpty() 
                 || tfFin.getText().isEmpty() 
                 || cbPais.getSelectionModel().isEmpty()
-                ||tfEstadoActual.getText().isEmpty()){
+                || cbEstadoActual.getSelectionModel().isEmpty()){
             r.setMensaje("No puede haber campos vacíos");
             r.setError(true);
             return r;
@@ -287,32 +302,34 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
             r.setErrorcode(3);
             return r;
         }
-        if(!tfEstado.getText().trim().matches("^.*\\\\d.*$")){
+        if(tfEstado.getText().trim().matches("^.*\\\\d.*$")){
             r.setError(true);
             r.setMensaje("El estado no puede contener numeros.");
             r.setErrorcode(4);
             return r;
         }
-        if(!tfCiudad.getText().trim().matches("^.*\\\\d.*$")){
+        if(tfCiudad.getText().trim().matches("^.*\\\\d.*$")){
             r.setError(true);
             r.setMensaje("La ciudad no puede contener numeros.");
             r.setErrorcode(4);
             return r;
         }
-        try {
-            Integer inicio = Integer.parseInt(tfInicio.getText().trim());
-            Integer fin = Integer.parseInt(tfFin.getText().trim());
-            if(!validarPaginas(inicio, fin)){
+        if (cbEstadoActual.getSelectionModel().isEmpty()) {
+            try {
+                Integer inicio = Integer.parseInt(tfInicio.getText().trim());
+                Integer fin = Integer.parseInt(tfFin.getText().trim());
+                if (!validarPaginas(inicio, fin)) {
+                    r.setError(true);
+                    r.setMensaje("Las paginas de inicio deben ser menores o iguales a las de fin.");
+                    r.setErrorcode(6);
+                    return r;
+                }
+            } catch (Exception e) {
                 r.setError(true);
-                r.setMensaje("Las paginas de inicio deben ser menores o iguales a las de fin.");
+                r.setMensaje("Ingrese solo numeros.");
                 r.setErrorcode(6);
                 return r;
             }
-        } catch (Exception e) {
-            r.setError(true);
-            r.setMensaje("Ingrese solo numeros.");
-            r.setErrorcode(6);
-            return r;
         }
         if(cbPais.getSelectionModel().isEmpty()){
             r.setError(true);
@@ -335,8 +352,10 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         memoria.setCiudad(tfCiudad.getText().trim());
         memoria.setEstado(tfEstado.getText().trim());
         memoria.setNombreCongreso(tfCongreso.getText());
-        String rango = tfInicio.getText() + "-" + tfFin.getText().trim();
-        memoria.setRangoPaginas(rango);
+        if (!btnCargar.isDisabled()) {
+            String rango = tfInicio.getText() + "-" + tfFin.getText().trim();
+            memoria.setRangoPaginas(rango);
+        }
         List<Memoria> memos = new ArrayList<>();
         memos.add(memoria);
         
@@ -348,27 +367,32 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         
         p.setAnio(Integer.parseInt(tfAnio.getText()));
         p.setTitulo(tfTitulo.getText());
-        p.setProposito(tfProposito.getText());
+        p.setProposito(cbProposito.getSelectionModel().getSelectedItem());
         p.setIdPais(cbPais.getSelectionModel().getSelectedItem());
-        p.setEstadoActual(tfEstadoActual.getText());
+        p.setEstadoActual(cbEstadoActual.getSelectionModel().getSelectedItem());
+        //Busco el CA del miembro que esta registrando el producto.
+        CaMiembroJpaController camJpaC = new CaMiembroJpaController();
+        CuerpoAcademicoJpaController caJpaC = new CuerpoAcademicoJpaController();
+        CaMiembro cam = camJpaC.findByMiembro(m.getIdMiembro());
+        CuerpoAcademico ca = caJpaC.findCuerpoAcademico(cam.getCaMiembroPK().getIdCuerpoAcademico());
+        //Fijo el CuerpoAcademico al producto.
+        p.setIdCuerpoAcademico(ca);
         p.setMemoriaList(memos);
-        if (!Objects.equals(file, null)) {
-            byte[] doc;
-            try {
-                doc = Files.readAllBytes(file.toPath());
-                p.setArchivoPDF(doc);
-                p.setNombrePDF(file.getName());
-            } catch (IOException ex) {
-                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+        if (!btnCargar.isDisabled()) {
+            if (!Objects.equals(file, null)) {
+                byte[] doc;
+                try {
+                    doc = Files.readAllBytes(file.toPath());
+                    p.setArchivoPDF(doc);
+                    p.setNombrePDF(file.getName());
+                } catch (IOException ex) {
+                    Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
-        
         ProductoJpaController prJpaC = new ProductoJpaController();
         try {
             prJpaC.edit(p);
-        } catch (NonexistentEntityException ex) {
-            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
-            lblMensaje.setText("Error al conectar con la base de datos");
         } catch (Exception ex) {
             Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
             lblMensaje.setText("Error al conectar con la base de datos");
@@ -377,7 +401,6 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         
         List<Colaborador> colas = lstColaboradores.getItems();
         ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
-        List<ProductoColaborador> pcs = pcJpaC.findByIdProducto(p.getIdProducto());
         ProductoColaborador productCol;
         for (int j = 0; j < colas.size(); j++) {
             if (!cInvolucrados.contains(colas.get(j))) {
@@ -393,7 +416,7 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
                 cInvolucrados.remove(colas.get(j));
             }
         }
-        if (cInvolucrados.size() > 0) {           
+        if (!cInvolucrados.isEmpty()) {           
             for (int i = 0; i < cInvolucrados.size(); i++) {
                 productCol = pcJpaC.findByIdPC(cInvolucrados.get(i).getIdColaborador(), p.getIdProducto());
                 try {
@@ -407,7 +430,6 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
         //datos del producto-Miembro
         List<Miembro> miems = lstAutores.getItems();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
-        List<ProductoMiembro> pms = pmJpaC.findByIdProducto(p);
         ProductoMiembro productMiem;
         for (int j = 0; j < miems.size(); j++) {
             if (!mInvolucrados.contains(miems.get(j))) {
@@ -423,7 +445,7 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
                 mInvolucrados.remove(miems.get(j));
             }
         }
-        if (mInvolucrados.size() > 0) {           
+        if (!mInvolucrados.isEmpty()) {           
             for (int i = 0; i < mInvolucrados.size(); i++) {
                 productMiem = pmJpaC.findByIdPM(mInvolucrados.get(i), p);
                 try {
@@ -512,48 +534,48 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
      * LLena los campos con los datos del producto seleccionado.
      */
     private void iniciarPantalla() {
-        Memoria memo = new Memoria();
+        Memoria memo;
         MemoriaJpaController mJpaC = new MemoriaJpaController();
-        List<Memoria> ms = mJpaC.findMemoriaEntities();
-        for (int i = 0; i < ms.size(); i++) {
-            if (Objects.equals(p.getIdProducto(), ms.get(i).getIdProducto().getIdProducto())) {
-                memo = ms.get(i);
-            }
-        }
+        memo = mJpaC.encontrarMemoriaPorIdProducto(p);
         tfTitulo.setText(p.getTitulo());
         tfAnio.setText(p.getAnio().toString());
-        tfProposito.setText(p.getProposito());
+        cbProposito.getSelectionModel().select(p.getProposito());
         tfCongreso.setText(memo.getNombreCongreso());
         tfEstado.setText(memo.getEstado());
-        tfEstadoActual.setText(p.getEstadoActual());
+        cbEstadoActual.getSelectionModel().select(p.getEstadoActual());
         tfCiudad.setText(memo.getCiudad());
-        String[] pags = memo.getRangoPaginas().split("-");
-        tfInicio.setText(pags[0]);
-        tfFin.setText(pags[1]);
-        tfPDF.setText(p.getNombrePDF());
+        if (!Objects.equals(memo.getRangoPaginas(), null)) {
+            String[] pags = memo.getRangoPaginas().split("-");
+            tfInicio.setText(pags[0]);
+            tfFin.setText(pags[1]);
+            tfPDF.setText(p.getNombrePDF());
+            tfInicio.setDisable(false);
+            tfFin.setDisable(false);
+            tfPDF.setDisable(false);
+            btnCargar.setDisable(false);
+        }
         cbPais.getSelectionModel().select(p.getIdPais());
     }
     
     /**
-     * Regresa a la ventana Seleccion de Memoria.
+     * Habilita los campos necesarios para que correspondan al estado actual.
+     * @param event Clic en el estado "Terminado"
      */
-    private void regresarAVentanaAnterior() {
-        try {
-            Locale.setDefault(new Locale("es"));
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource(
-                    "SeleccionarMemoria.fxml"));
-            
-            Parent seleccion = loader.load();
-            Scene scene = new Scene(seleccion);
-            Stage stage = new Stage();
-            stage.fullScreenProperty();
-            stage.setScene(scene);
-            stage.show();
-             ((Node) (btnCancelar)).getScene().getWindow().hide();
-        } catch (IOException ex) {
-            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+    @FXML
+    private void cambiarEstado(ActionEvent event) {
+        if (cbEstadoActual.getSelectionModel().getSelectedIndex() == 1) {
+            tfInicio.setDisable(false);
+            tfFin.setDisable(false);
+            btnCargar.setDisable(false);
+            tfPDF.setDisable(false);
+        } else {
+            tfInicio.setDisable(true);
+            tfFin.setDisable(true);
+            btnCargar.setDisable(true);
+            tfPDF.setDisable(true);
+            tfPDF.clear();
+            tfInicio.clear();
+            tfFin.clear();
         }
     }
-    
 }

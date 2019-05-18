@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<AnchorPane id="AnchorPane" prefHeight="595.0" prefWidth="872.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.ActualizarPatenteController">
+   <children>
+      <GridPane layoutX="21.0" layoutY="58.0" prefHeight="400.0" prefWidth="422.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="206.0" minWidth="10.0" prefWidth="151.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="308.0" minWidth="10.0" prefWidth="271.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <Label text="Titulo:" />
+            <Label text="Pais:" GridPane.rowIndex="1" />
+            <Label text="Año" GridPane.rowIndex="2" />
+            <Label text="Proposito:" GridPane.rowIndex="3" />
+            <Label text="Estado Actual:" GridPane.rowIndex="4" />
+            <Label text="Descripcion:" GridPane.rowIndex="5" />
+            <Label text="Tipo:" GridPane.rowIndex="6" />
+            <Label text="Clasificacion:;" GridPane.rowIndex="7" />
+            <Label text="Nombre Evidencia" GridPane.rowIndex="8" />
+            <ComboBox fx:id="cbPais" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="tfTitulo" GridPane.columnIndex="1" />
+            <TextField fx:id="tfAnio" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <TextField fx:id="tfEstadoActual" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <TextField fx:id="tfProposito" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField fx:id="tfDescripcion" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <TextField fx:id="tfClasificacion" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <TextField fx:id="tfTipo" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <TextField fx:id="tfPdf" prefWidth="215.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <Label text="Archivo:" GridPane.rowIndex="9" />
+            <TextField fx:id="tfNombreEvidencia" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+         </children>
+      </GridPane>
+      <Label fx:id="lblNotificacion" layoutX="217.0" layoutY="21.0" prefHeight="17.0" prefWidth="412.0" />
+      <ListView fx:id="lstAutores" layoutX="547.0" layoutY="104.0" prefHeight="142.0" prefWidth="250.0" />
+      <Label layoutX="470.0" layoutY="72.0" text="Autor (es)" />
+      <Label layoutX="457.0" layoutY="262.0" text="Colaboradores" />
+      <ListView fx:id="lstColaboradores" layoutX="556.0" layoutY="294.0" prefHeight="105.0" prefWidth="241.0" />
+      <Button layoutX="132.0" layoutY="501.0" mnemonicParsing="false" onAction="#aceptar" text="Aceptar" />
+      <Button layoutX="260.0" layoutY="501.0" mnemonicParsing="false" onAction="#cancelar" text="Cancelar" />
+      <TextField fx:id="tfColaborador" layoutX="654.0" layoutY="470.0" prefHeight="25.0" prefWidth="191.0" visible="false" />
+      <Label layoutX="591.0" layoutY="474.0" text="Nombre:" visible="false" />
+      <Button layoutX="677.0" layoutY="411.0" mnemonicParsing="false" onAction="#mostrarCampoColaborador" text="AgregarColaborador" />
+      <Button fx:id="btAgregar" layoutX="711.0" layoutY="526.0" mnemonicParsing="false" onAction="#agregarALista" text="Aceptar" visible="false" />
+      <Button layoutX="457.0" layoutY="424.0" mnemonicParsing="false" onAction="#cargar" text="Carga" />
+      <MenuButton fx:id="mbAutores" layoutX="542.0" layoutY="68.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="229.0" text="Selecciona Autor">
+         <items>
+            <MenuItem mnemonicParsing="false" text="Action 1" />
+            <MenuItem mnemonicParsing="false" text="Action 2" />
+         </items>
+      </MenuButton>
+      <MenuButton fx:id="mbColaboradores" layoutX="556.0" layoutY="258.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="206.0" text="Selecciona Colaboradores">
+         <items>
+            <MenuItem mnemonicParsing="false" text="Action 1" />
+            <MenuItem mnemonicParsing="false" text="Action 2" />
+         </items>
+      </MenuButton>
+   </children>
+</AnchorPane>

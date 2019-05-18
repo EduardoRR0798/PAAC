@@ -15,6 +15,7 @@ import entity.Producto;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.NonexistentEntityException;
 
 /**
@@ -23,8 +24,8 @@ import persistence.exceptions.NonexistentEntityException;
  */
 public class PatenteJpaController implements Serializable {
 
-    public PatenteJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public PatenteJpaController() {
+         this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -164,5 +165,21 @@ public class PatenteJpaController implements Serializable {
             em.close();
         }
     }
-    
+  public Patente findByIdProducto(Producto p) {
+        EntityManager em = getEntityManager();
+        Patente pa = em.createNamedQuery("Patente.findByIdProducto", Patente.class).setParameter("idProducto", p).getSingleResult();
+        return pa;
+    }
+       public Patente buscarPatenteByIdProducto(Producto id) {
+        Patente pati;
+        try {
+            EntityManager em = getEntityManager();
+            Query q = em.createNamedQuery("Patente.findByIdProducto", Patente.class).setParameter("idProducto", id);
+            pati = (Patente) q.getSingleResult();
+        } catch (Exception e) {
+            pati  = null;
+        
+        }
+        return pati;
+    }
 }

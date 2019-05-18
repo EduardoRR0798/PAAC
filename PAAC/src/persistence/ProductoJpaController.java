@@ -743,7 +743,6 @@ public class ProductoJpaController implements Serializable {
             Query q = em.createNamedQuery("Producto.findByIdProducto", Producto.class).setParameter("idProducto", pro);
             p = (Producto) q;
         } catch (Exception ex) {
-            ex.printStackTrace();
             System.out.println("Producto vacio");
             p = null;
         }

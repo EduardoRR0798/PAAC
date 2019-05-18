@@ -2,7 +2,9 @@ package paac;
 
 import entity.Articulo;
 import entity.ArticuloIndexado;
+import entity.CaMiembro;
 import entity.Colaborador;
+import entity.CuerpoAcademico;
 import entity.Miembro;
 import entity.Pais;
 import entity.Producto;
@@ -14,6 +16,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -23,7 +26,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -40,7 +47,9 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import persistence.ArticuloIndexadoJpaController;
 import persistence.ArticuloJpaController;
+import persistence.CaMiembroJpaController;
 import persistence.ColaboradorJpaController;
+import persistence.CuerpoAcademicoJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
@@ -90,7 +99,7 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
     @FXML
     private MenuButton mbColaboradores;
     @FXML
-    private TextField tfEstadoActual;
+    private ComboBox<String> cbEstadoActual;
     @FXML
     private TextField tfPDF;
     @FXML
@@ -98,7 +107,7 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
     @FXML
     private TextField tfFin;
     @FXML
-    private TextField tfProposito;
+    private ComboBox<String> cbProposito;
     @FXML
     private CheckBox chkIndexado;
     @FXML
@@ -114,25 +123,29 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
     @FXML
     private Label lblIndice;
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
-    private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
     private File file;
+    private Miembro m;
+    
     /**
      * Initializes the controller class.
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         colaboradores = super.recuperarColaboradores();
         miembros = super.recuperarMiembros();
         cbPais.setItems(recuperarPaises());
+        cbPais.getSelectionModel().select(116);
+        cbProposito.setItems(super.propositos);
+        cbEstadoActual.setItems(super.estados);
         iniciarMiembros();
         iniciarColaboradores();
         UtilidadCadenas uc = new UtilidadCadenas();
         uc.limitarCampos(tfTitulo, 140);
-        uc.limitarCampos(tfProposito, 140);
         uc.limitarCampos(tfAnio, 4);
         uc.limitarCampos(tfEditorial, 150);
-        uc.limitarCampos(tfEstadoActual, 150);
         uc.limitarCampos(tfISSN, 150);
         uc.limitarCampos(tfRevista, 80);
         uc.limitarCampos(tfInicio, 4);
@@ -144,6 +157,18 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
         uc.limitarCampos(tfIndice, 255);
     }    
 
+    /**
+     * Recibe el miembro de la ventana anterior.
+     * @param m Miembro que inicio sesion y hace uso del sistema.
+     */
+    public void recibirParametros(Miembro m) {
+        this.m = m;
+    }
+    
+    /**
+     * Verifica que no exita error con los datos y registra el producto.
+     * @param event 
+     */
     @FXML
     private void aceptar(ActionEvent event) {
         Respuesta r = validarCampos();
@@ -151,12 +176,23 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
             lblMensaje.setText(r.getMensaje());
             lblMensaje.setVisible(true);
         } else {
-            lblMensaje.setText(r.getMensaje());
-            lblMensaje.setVisible(true);
             registrarArticulo();
+            lblMensaje.setText("Articulo registrado exitosamente.");
+            lblMensaje.setVisible(true);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ControladorRegistrarArticulo.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            abrirMenu(m);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
 
+    /**
+     * Cancela el proceso de registro y vuelve a la ventana anterior.
+     * @param event Clic en el boton Cancelar.
+     */
     @FXML
     private void cancelar(ActionEvent event) {
         Alert cancelar = new Alert(Alert.AlertType.CONFIRMATION);
@@ -166,7 +202,8 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
-            System.exit(0);
+            super.abrirMenu(m);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
 
@@ -272,14 +309,16 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
         Respuesta r = new Respuesta();
         if(tfTitulo.getText().isEmpty() 
                 || tfAnio.getText().isEmpty() 
-                || tfProposito.getText().isEmpty() 
+                || cbProposito.getSelectionModel().isEmpty() 
                 || tfEditorial.getText().isEmpty() 
-                || tfEstadoActual.getText().isEmpty() 
-                || tfISSN.getText().isEmpty()
+                || cbEstadoActual.getSelectionModel().isEmpty() 
+                || (cbEstadoActual.getSelectionModel().getSelectedIndex() == 1 
+                && tfPDF.getText().isEmpty()
+                && tfInicio.getText().isEmpty()
+                && tfFin.getText().isEmpty()
+                && tfISSN.getText().isEmpty())
                 || tfRevista.getText().isEmpty() 
                 || cbPais.getSelectionModel().isEmpty()
-                || tfInicio.getText().isEmpty()
-                || tfFin.getText().isEmpty()
                 || tfVolumen.getText().isEmpty()){
             r.setMensaje("No puede haber campos vacíos");
             r.setError(true);
@@ -303,32 +342,30 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
             r.setErrorcode(3);
             return r;
         }
-        if(cbPais.getSelectionModel().isEmpty()){
-            r.setError(true);
-            r.setMensaje("Seleccione un pais.");
-            r.setErrorcode(8);
-            return r;
-        }//"^.*\\d.*$"
-        try{
-            Integer pag1 = Integer.parseInt(tfInicio.getText().trim());
-            Integer pag2 = Integer.parseInt(tfFin.getText().trim());
-            if (!validarPaginas(pag1, pag2)) {
+        if (!btnCargar.isDisabled()) {
+            try {
+                Integer pag1 = Integer.parseInt(tfInicio.getText().trim());
+                Integer pag2 = Integer.parseInt(tfFin.getText().trim());
+                if (!validarPaginas(pag1, pag2)) {
+                    r.setError(true);
+                    r.setMensaje("Las paginas iniciales deben ser menores a las finales.");
+                    r.setErrorcode(8);
+                    return r;
+                }
+            } catch (Exception e) {
                 r.setError(true);
-                r.setMensaje("Las paginas iniciales deben ser menores a las finales.");
+                r.setMensaje("Ingrese un numero valido para las paginas.");
                 r.setErrorcode(8);
                 return r;
             }
-        } catch (Exception e) {
-            r.setError(true);
-            r.setMensaje("Ingrese un numero valido para las paginas.");
-            r.setErrorcode(8);
-            return r;
-        }
-        if(Objects.equals(file, null)) {
-            r.setError(true);
-            r.setMensaje("Seleccione un archivo PDF como evidencia.");
-            r.setErrorcode(9);
-            return r;
+            if (!btnCargar.isDisabled()) {
+                if (Objects.equals(file, null)) {
+                    r.setError(true);
+                    r.setMensaje("Seleccione un archivo PDF como evidencia.");
+                    r.setErrorcode(9);
+                    return r;
+                }
+            }
         }
         if (chkIndexado.isSelected()) {
             if (tfIndice.getText().isEmpty()
@@ -367,12 +404,14 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
         }
         Articulo articulo = new Articulo();
         articulo.setEditorial(tfEditorial.getText().trim());
-        articulo.setIssn(tfISSN.getText().trim());
         articulo.setNombreRevista(tfRevista.getText().trim());
-        String rango = tfInicio.getText().trim() + "-" + tfFin.getText().trim();
-        articulo.setRangoPaginas(rango);
+        if (!btnCargar.isDisabled()) {
+            String rango = tfInicio.getText().trim() + "-" + tfFin.getText().trim();
+            articulo.setRangoPaginas(rango);
+            articulo.setIssn(tfISSN.getText().trim());
+        }
         articulo.setVolumen(tfVolumen.getText().trim());
-        if (artsIn.size() > 0) {
+        if (!artsIn.isEmpty()) {
             articulo.setArticuloIndexadoList(artsIn);
         }
         List<Articulo> artics = new ArrayList<>();
@@ -381,19 +420,31 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
         aJpaC.create(articulo);
         ///datos del Producto///
         Producto producto = new Producto();
-        byte[] doc;
-        try {
-            doc = Files.readAllBytes(file.toPath());
-            producto.setArchivoPDF(doc);
-            producto.setNombrePDF(file.getName());
-        } catch(IOException ex) {
-            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+        if (!btnCargar.isDisabled()) {
+            if (!Objects.equals(file, null)) {
+                byte[] doc;
+                try {
+                    doc = Files.readAllBytes(file.toPath());
+                    producto.setArchivoPDF(doc);
+                    producto.setNombrePDF(file.getName());
+                } catch (IOException ex) {
+                    Logger.getLogger(RegistrarPrototipoController.class
+                            .getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
         producto.setAnio(Integer.parseInt(tfAnio.getText()));
         producto.setTitulo(tfTitulo.getText().trim());
-        producto.setProposito(tfProposito.getText().trim());
+        producto.setProposito(cbProposito.getSelectionModel().getSelectedItem());
         producto.setIdPais(cbPais.getSelectionModel().getSelectedItem());
-        producto.setEstadoActual(tfEstadoActual.getText().trim());
+        producto.setEstadoActual(cbEstadoActual.getSelectionModel().getSelectedItem());
+        //Busco el CA del miembro que esta registrando el producto.
+        CaMiembroJpaController camJpaC = new CaMiembroJpaController();
+        CuerpoAcademicoJpaController caJpaC = new CuerpoAcademicoJpaController();
+        CaMiembro cam = camJpaC.findByMiembro(m.getIdMiembro());
+        CuerpoAcademico ca = caJpaC.findCuerpoAcademico(cam.getCaMiembroPK().getIdCuerpoAcademico());
+        //Fijo el CuerpoAcademico al producto.
+        producto.setIdCuerpoAcademico(ca);
         producto.setArticuloList(artics);
         ProductoJpaController prJpaC = new ProductoJpaController();
         if (!prJpaC.create(producto)) {
@@ -474,5 +525,46 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
         }
     }
     
+    /**
+     * Regresa a la ventana Seleccion de Memoria.
+     */
+    private void regresarAVentanaAnterior() {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource(
+                    "SeleccionProductos.fxml"));
+            
+            Parent seleccion = loader.load();
+            Scene scene = new Scene(seleccion);
+            Stage stage = new Stage();
+            stage.setTitle("Seleccion de productos");
+            stage.fullScreenProperty();
+            stage.setScene(scene);
+            stage.show();
+            ((Node) (btnCancelar)).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
+    /**
+     * Habilita el boton de carga de archivo.
+     * @param event Seleccion en el estado Terminado.
+     */
+    @FXML
+    private void cambiarEstado(ActionEvent event) {
+        if (cbEstadoActual.getSelectionModel().isSelected(1)) {
+            tfPDF.setDisable(false);
+            btnCargar.setDisable(false);
+            tfInicio.setDisable(false);
+            tfFin.setDisable(false);
+        } else {
+            tfPDF.setDisable(true);
+            btnCargar.setDisable(true);
+            tfInicio.setDisable(true);
+            tfFin.setDisable(true);
+            tfPDF.clear();
+        }
+    }
 }

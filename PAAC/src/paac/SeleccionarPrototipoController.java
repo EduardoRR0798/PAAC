@@ -1,5 +1,6 @@
 package paac;
 
+import entity.Miembro;
 import entity.Producto;
 import entity.ProductoMiembro;
 import entity.Prototipo;
@@ -40,35 +41,45 @@ import persistence.PrototipoJpaController;
  *
  * @author Eduardo Rosas Rivera
  */
-public class SeleccionarPrototipoController implements Initializable {
+public class SeleccionarPrototipoController extends ControladorProductos implements Initializable {
 
     @FXML
     private ListView<Producto> lst;
     @FXML
     private Button btnCancelar;
     private ObservableList<Producto> productos = FXCollections.observableArrayList();
+    private Miembro miembro;
     
     /**
      * Initializes the controller class.
+     * @param url
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        recuperarProductos();
+        
         lst.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                    if (mouseEvent.getClickCount() == 2) {
-                        if (!productos.isEmpty()) {
-                            Integer p = lst.getSelectionModel().getSelectedItems().get(0).getIdProducto();
-                            abrirVentanaEditarMemoria(lst.getSelectionModel().getSelectedItem());
-                        }
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() == 2) {
+                    if (!productos.isEmpty()) {
+                        Producto p = lst.getSelectionModel().getSelectedItem();
+                        actualizarPrototipo(miembro, p);
+                        ((Node) btnCancelar).getScene().getWindow().hide();
                     }
                 }
             }
         });
     }    
 
+    /**
+     * Recibe el miembro de la ventana anterior.
+     * @param miembro 
+     */
+    public void recibirParametros(Miembro miembro) {
+        this.miembro = miembro;
+        recuperarProductos();
+    }
+    
     /**
      * Cancela una operacion.
      * @param event Clic en el boton Cancelar.
@@ -82,7 +93,8 @@ public class SeleccionarPrototipoController implements Initializable {
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
-            System.exit(0);
+            abrirMenu(miembro);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
     
@@ -96,13 +108,12 @@ public class SeleccionarPrototipoController implements Initializable {
         //recupero todos los producto miembro que cuenten con el id del usuario.
         List<ProductoMiembro> pc = pmJpaC.findProductoMiembroEntities();
         for (int i = 0; i < pc.size(); i++) {
-            if (Objects.equals(pc.get(i).getIdMiembro().getIdMiembro(), 1)) {
+            if (Objects.equals(pc.get(i).getIdMiembro().getIdMiembro(), miembro.getIdMiembro())) {
                 pcss.add(pc.get(i));
             }
         }
         //recupero TODOS los productos que tengan que ver con ese miembro.
         Producto p;
-        ArrayList<Integer> nums = new ArrayList<>();
         ArrayList<Producto> productosTemp = new ArrayList<>();
         for (int i = 0; i < pcss.size(); i++) {
             p = pJpaC.findProducto(pcss.get(i).getIdProducto().getIdProducto());
@@ -136,7 +147,8 @@ public class SeleccionarPrototipoController implements Initializable {
             Parent responder = loader.load();
             ActualizarPrototipoController controller = loader.getController();
             
-            controller.recibirParametros(p);
+            Miembro m = new Miembro();
+            controller.recibirParametros(p, m);
             
             Scene scene = new Scene(responder);
             Stage stage = new Stage();
@@ -148,5 +160,4 @@ public class SeleccionarPrototipoController implements Initializable {
             Logger.getLogger(SeleccionarMemoriaController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
 }

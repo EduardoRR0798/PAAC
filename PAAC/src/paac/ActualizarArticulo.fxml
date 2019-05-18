@@ -44,7 +44,7 @@
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Nombre de Revista:" GridPane.rowIndex="4">
+      <Label text="Nombre de Revista:" GridPane.rowIndex="8">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
@@ -54,7 +54,7 @@
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Editorial:" GridPane.rowIndex="6">
+      <Label text="Editorial:" GridPane.rowIndex="11">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
@@ -74,7 +74,7 @@
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfRevista" GridPane.rowIndex="4">
+      <TextField fx:id="tfRevista" GridPane.rowIndex="8">
          <GridPane.margin>
             <Insets left="130.0" right="20.0" />
          </GridPane.margin>
@@ -84,12 +84,12 @@
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfInicio" prefHeight="25.0" prefWidth="108.0" GridPane.rowIndex="5">
+      <TextField fx:id="tfInicio" disable="true" prefHeight="25.0" prefWidth="108.0" GridPane.rowIndex="5">
          <GridPane.margin>
             <Insets left="85.0" right="190.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfEditorial" GridPane.rowIndex="6">
+      <TextField fx:id="tfEditorial" GridPane.rowIndex="11">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
@@ -99,9 +99,9 @@
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfISSN" GridPane.rowIndex="9">
+      <TextField fx:id="tfISSN" disable="true" GridPane.rowIndex="9">
          <GridPane.margin>
-            <Insets left="80.0" right="25.0" />
+            <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
       <Label text="Autor(es):" GridPane.columnIndex="1" GridPane.rowIndex="1">
@@ -169,22 +169,17 @@
             <Insets left="110.0" right="25.0" />
          </GridPane.margin>
       </MenuButton>
-      <Label text="Estado actual:" GridPane.rowIndex="8">
+      <Label text="Estado actual:" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <TextField fx:id="tfEstadoActual" GridPane.rowIndex="8">
-         <GridPane.margin>
-            <Insets left="100.0" right="20.0" />
-         </GridPane.margin>
-      </TextField>
-      <TextField fx:id="tfPDF" editable="false" prefHeight="25.0" prefWidth="172.0" GridPane.rowIndex="7">
+      <TextField fx:id="tfPDF" disable="true" editable="false" prefHeight="25.0" prefWidth="172.0" GridPane.rowIndex="7">
          <GridPane.margin>
             <Insets left="95.0" right="75.0" />
          </GridPane.margin>
       </TextField>
-      <Button fx:id="btnCargar" mnemonicParsing="false" onAction="#cargar" text="Cargar" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
+      <Button fx:id="btnCargar" disable="true" mnemonicParsing="false" onAction="#cargar" text="Cargar" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>
@@ -194,7 +189,7 @@
             <Insets left="190.0" right="90.0" />
          </GridPane.margin>
       </Label>
-      <TextField fx:id="tfFin" prefHeight="25.0" prefWidth="108.0" GridPane.rowIndex="5">
+      <TextField fx:id="tfFin" disable="true" prefHeight="25.0" prefWidth="108.0" GridPane.rowIndex="5">
          <GridPane.margin>
             <Insets left="250.0" right="25.0" />
          </GridPane.margin>
@@ -204,16 +199,11 @@
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Proposito:" GridPane.rowIndex="11">
+      <Label text="Proposito:" GridPane.rowIndex="6">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <TextField fx:id="tfProposito" GridPane.rowIndex="11">
-         <GridPane.margin>
-            <Insets left="80.0" right="25.0" />
-         </GridPane.margin>
-      </TextField>
       <CheckBox fx:id="chkIndexado" mnemonicParsing="false" onAction="#crearIndexado" text="Articulo Indexado" GridPane.rowIndex="12">
          <GridPane.margin>
             <Insets left="25.0" />
@@ -249,5 +239,15 @@
             <Insets left="80.0" right="25.0" />
          </GridPane.margin>
       </TextField>
+      <ComboBox fx:id="cbProposito" prefHeight="25.0" prefWidth="284.0" promptText="Selecciona un proposito" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
+         <GridPane.margin>
+            <Insets left="80.0" right="20.0" />
+         </GridPane.margin>
+      </ComboBox>
+      <ComboBox fx:id="cbEstadoActual" onAction="#cambiarEstado" prefHeight="25.0" prefWidth="265.0" promptText="Seleccione un estado" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+         <GridPane.margin>
+            <Insets left="100.0" right="20.0" />
+         </GridPane.margin>
+      </ComboBox>
    </children>
 </GridPane>

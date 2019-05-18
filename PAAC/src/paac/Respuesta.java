@@ -15,6 +15,7 @@ public class Respuesta {
     private String mensaje;
 
     public Respuesta() {
+        //Contructor vacio por defecto de la clase.
     }
     
     public boolean isError() {

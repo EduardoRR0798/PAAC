@@ -1,15 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package utilidades;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 public class UtilidadCadenas {
      /**
@@ -29,5 +29,45 @@ public class UtilidadCadenas {
                 tf.setText(s);
             }
         });
-    }   
+    }
+    
+    /**
+     * Este metodo convierte la contrasenia ingresada por el usuario en una 
+     * cadena hash.
+     * @param contrasenia contrasenia a hacer hash.
+     * @return el codigo hash de la contrasenia.
+     */
+    public String hacerHashAContrasenia(String contrasenia) {
+        String contraseniaHash = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            byte[] messageDigest = md.digest(contrasenia.getBytes());
+            BigInteger codigo = new BigInteger(1, messageDigest);
+            contraseniaHash = codigo.toString(16);
+            while (contraseniaHash.length() < 32) { 
+                contraseniaHash = new StringBuilder().append("0").
+                        append(contraseniaHash).toString();
+            }
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(UtilidadCadenas.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+        return contraseniaHash;
+    }
+    
+    /**
+     * Este metodo sirve para que los textField nieguen la entrada a espacios.
+     * @param tf textField a limitar
+     */
+    public void excluirEspacios(javafx.scene.control.TextField tf) {
+
+        tf.textProperty().addListener(
+                (observable, oldValue, newValue) -> {
+
+                    if (newValue.contains(" ")) {
+
+                        tf.setText(oldValue);
+                    }
+                });
+    }
 }

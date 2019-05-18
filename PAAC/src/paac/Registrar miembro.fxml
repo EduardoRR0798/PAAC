@@ -7,13 +7,15 @@
 
 <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.RegistrarMiembroController">
   <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="116.0" minWidth="116.0" prefWidth="116.0" />
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="602.0" minWidth="10.0" prefWidth="584.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="116.0" prefWidth="130.0" />
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="602.0" minWidth="10.0" prefWidth="570.0" />
   </columnConstraints>
   <rowConstraints>
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -39,42 +41,42 @@
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Contraseña:" GridPane.rowIndex="3">
+      <Label text="Contraseña:" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="SNI:" GridPane.rowIndex="4">
+      <Label text="SNI:" GridPane.rowIndex="5">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Tipo:" GridPane.rowIndex="5">
+      <Label text="Tipo:" GridPane.rowIndex="6">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="PROMEP:" GridPane.rowIndex="6">
+      <Label text="PROMEP:" GridPane.rowIndex="7">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Programa educatico en el que impacta:" GridPane.columnSpan="2" GridPane.rowIndex="7">
+      <Label text="Programa educatico en el que impacta:" GridPane.columnSpan="2" GridPane.rowIndex="8">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="LGAC:" GridPane.rowIndex="8">
+      <Label text="LGAC:" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Button fx:id="btnRegistrar" mnemonicParsing="false" onAction="#registrar" text="Registrar" GridPane.columnIndex="1" GridPane.rowIndex="10">
+      <Button fx:id="btnRegistrar" mnemonicParsing="false" onAction="#registrar" text="Registrar" GridPane.columnIndex="1" GridPane.rowIndex="12">
          <GridPane.margin>
             <Insets left="80.0" />
          </GridPane.margin>
       </Button>
-      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" text="Cancelar" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
+      <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" text="Cancelar" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="12">
          <GridPane.margin>
             <Insets right="80.0" />
          </GridPane.margin>
@@ -89,57 +91,69 @@
             <Insets left="30.0" right="30.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfContrasenia" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
-         <GridPane.margin>
-            <Insets left="30.0" right="90.0" />
-         </GridPane.margin>
-      </TextField>
-      <TextField fx:id="tfSNI" GridPane.columnIndex="1" GridPane.rowIndex="4">
+      <TextField fx:id="tfSNI" promptText="En caso de no tener uno dejar en blanco" GridPane.columnIndex="1" GridPane.rowIndex="5">
          <GridPane.margin>
             <Insets left="30.0" right="30.0" />
          </GridPane.margin>
       </TextField>
-      <Button fx:id="btnGenerar" mnemonicParsing="false" onAction="#generar" text="Generar" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+      <Button fx:id="btnGenerar" mnemonicParsing="false" onAction="#generar" text="Generar" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets right="30.0" />
          </GridPane.margin>
       </Button>
-      <ComboBox fx:id="cbTipo" prefHeight="25.0" prefWidth="288.0" promptText="Seleccione el tipo de usuario a registrar" GridPane.columnIndex="1" GridPane.rowIndex="5">
+      <ComboBox fx:id="cbTipo" prefHeight="25.0" prefWidth="288.0" promptText="Seleccione el tipo de usuario a registrar" GridPane.columnIndex="1" GridPane.rowIndex="6">
          <GridPane.margin>
             <Insets left="30.0" right="30.0" />
          </GridPane.margin>
       </ComboBox>
-      <CheckBox fx:id="chkSi" mnemonicParsing="false" onAction="#deseleccionarNo" text="Si" GridPane.columnIndex="1" GridPane.rowIndex="6">
-         <GridPane.margin>
-            <Insets left="30.0" />
-         </GridPane.margin>
-      </CheckBox>
-      <CheckBox fx:id="chkNo" mnemonicParsing="false" onAction="#deseleccionarSi" text="No" GridPane.columnIndex="1" GridPane.rowIndex="6">
-         <GridPane.margin>
-            <Insets left="100.0" />
-         </GridPane.margin>
-      </CheckBox>
-      <ComboBox fx:id="cbLGAC" prefHeight="25.0" prefWidth="288.0" promptText="Seleccione una LGAC" GridPane.columnIndex="1" GridPane.rowIndex="8">
+      <ComboBox fx:id="cbLGAC" disable="true" prefHeight="25.0" prefWidth="420.0" promptText="Seleccione una LGAC" GridPane.columnIndex="1" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets left="30.0" right="30.0" />
          </GridPane.margin>
       </ComboBox>
-      <ComboBox fx:id="cbPE" prefHeight="25.0" prefWidth="329.0" promptText="Seleccione un programa educativo en el que impacte" GridPane.columnIndex="1" GridPane.rowIndex="7">
+      <ComboBox fx:id="cbPE" prefHeight="25.0" prefWidth="329.0" promptText="Seleccione un programa educativo en el que impacte" GridPane.columnIndex="1" GridPane.rowIndex="8">
          <GridPane.margin>
             <Insets left="120.0" right="30.0" />
          </GridPane.margin>
       </ComboBox>
-      <Label prefHeight="17.0" prefWidth="79.0" text="Estado:" GridPane.rowIndex="9">
-         <padding>
-            <Insets left="30.0" />
-         </padding>
+      <ComboBox fx:id="cbEstado" prefHeight="25.0" prefWidth="420.0" promptText="Seleccione el estado del usuario" GridPane.columnIndex="1" GridPane.rowIndex="11">
          <GridPane.margin>
             <Insets left="30.0" />
          </GridPane.margin>
-      </Label>
-      <ComboBox fx:id="cbEstado" prefHeight="25.0" prefWidth="288.0" promptText="Seleccione el estado del usuario" GridPane.columnIndex="1" GridPane.rowIndex="9">
+      </ComboBox>
+      <Label text="Correo electronico:" GridPane.rowIndex="3">
          <GridPane.margin>
-            <Insets left="30.0" />
+            <Insets left="25.0" />
+         </GridPane.margin>
+      </Label>
+      <Label text="Estado:" GridPane.rowIndex="11">
+         <GridPane.margin>
+            <Insets left="25.0" />
+         </GridPane.margin>
+      </Label>
+      <TextField fx:id="tfEmail" GridPane.columnIndex="1" GridPane.rowIndex="3">
+         <GridPane.margin>
+            <Insets left="30.0" right="30.0" />
+         </GridPane.margin>
+      </TextField>
+      <RadioButton fx:id="rbPROMEP" mnemonicParsing="false" prefHeight="17.0" prefWidth="147.0" text="Cuenta con PROMEP" GridPane.columnIndex="1" GridPane.rowIndex="7">
+         <GridPane.margin>
+            <Insets left="25.0" />
+         </GridPane.margin>
+      </RadioButton>
+      <PasswordField fx:id="tfContrasenia" editable="false" promptText="La contraseña se genera aleatoriamente" GridPane.columnIndex="1" GridPane.rowIndex="4">
+         <GridPane.margin>
+            <Insets left="30.0" right="90.0" />
+         </GridPane.margin>
+      </PasswordField>
+      <Label text="Cuerpo academico:" GridPane.columnSpan="2" GridPane.rowIndex="9">
+         <GridPane.margin>
+            <Insets left="25.0" />
+         </GridPane.margin>
+      </Label>
+      <ComboBox fx:id="cbCA" onAction="#definirLGACs" prefHeight="25.0" prefWidth="419.0" promptText="Seleccione un cuerpo academico" GridPane.columnIndex="1" GridPane.rowIndex="9">
+         <GridPane.margin>
+            <Insets left="30.0" right="30.0" />
          </GridPane.margin>
       </ComboBox>
    </children>

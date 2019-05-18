@@ -1,6 +1,8 @@
 package paac;
 
+import entity.CaMiembro;
 import entity.Colaborador;
+import entity.CuerpoAcademico;
 import entity.Miembro;
 import entity.Pais;
 import entity.Producto;
@@ -9,6 +11,7 @@ import entity.ProductoMiembro;
 import entity.Prototipo;
 import java.io.File;
 import java.io.IOException;
+import static java.lang.Thread.sleep;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -40,7 +43,9 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import persistence.CaMiembroJpaController;
 import persistence.ColaboradorJpaController;
+import persistence.CuerpoAcademicoJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
@@ -59,13 +64,13 @@ public class RegistrarPrototipoController extends ControladorProductos implement
     @FXML
     private TextField tfNombre;
     @FXML
-    private TextField tfProposito;
+    private ComboBox<String> cbProposito;
     @FXML
     private TextField tfCaracteristicas;
     @FXML
     private TextField tfArchivo;
     @FXML
-    private TextField tfEstado;
+    private ComboBox<String> cbEstadoActual;
     @FXML
     private TextField tfInstitucion;
     @FXML
@@ -93,9 +98,10 @@ public class RegistrarPrototipoController extends ControladorProductos implement
     @FXML
     private Button btnCargar;
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
-    private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
     private File file;
+    private Miembro m;
+    
     /**
      * Initializes the controller class.
      * @param url
@@ -105,18 +111,28 @@ public class RegistrarPrototipoController extends ControladorProductos implement
     public void initialize(URL url, ResourceBundle rb) {
         colaboradores = recuperarColaboradores();
         miembros = recuperarMiembros();
+        iniciarColaboradores();
+        iniciarMiembros();
         cbPais.setItems((ObservableList<Pais>) recuperarPaises());
+        cbPais.getSelectionModel().select(116);
         UtilidadCadenas uc = new UtilidadCadenas();
+        cbEstadoActual.setItems(super.estados);
+        cbProposito.setItems(super.propositos);
         uc.limitarCampos(tfNombre, 140);
-        uc.limitarCampos(tfProposito, 140);
         uc.limitarCampos(tfAnio, 4);
         uc.limitarCampos(tfCaracteristicas, 150);
-        uc.limitarCampos(tfEstado, 150);
         uc.limitarCampos(tfInstitucion, 150);
         uc.limitarCampos(tfColaborador, 100);
-        uc.limitarCampos(tfEstado, 70);
     }    
 
+    /**
+     * Recibe el miembro de la ventana anterior.
+     * @param m Miembro que inicio sesion en el sistema.
+     */
+    public void setMiembro(Miembro m) {
+        this.m = m;
+    }
+    
     @FXML
     private void mostrarCampoColaborador(ActionEvent event) {
         if (!tfColaborador.isVisible()) {
@@ -146,6 +162,13 @@ public class RegistrarPrototipoController extends ControladorProductos implement
             registrarPrototipo();
             lblMensaje.setText(r.getMensaje());
             lblMensaje.setVisible(true);
+            try {
+                sleep(2000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            abrirMenu(m);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
 
@@ -161,10 +184,11 @@ public class RegistrarPrototipoController extends ControladorProductos implement
         cancelar.setTitle("Cancelar proceso");
         cancelar.setHeaderText(null);
         cancelar.initStyle(StageStyle.UTILITY);
-        cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
+        cancelar.setContentText("¿Esta seguro que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
-            abrirVentanaSeleccion();
+            seleccionarProductos(m);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
 
@@ -221,10 +245,10 @@ public class RegistrarPrototipoController extends ControladorProductos implement
         Respuesta r = new Respuesta();
         if(tfNombre.getText().isEmpty() 
                 || tfAnio.getText().isEmpty() 
-                || tfProposito.getText().isEmpty() 
-                || tfCaracteristicas.getText().isEmpty() 
-                || tfArchivo.getText().isEmpty() 
-                || tfEstado.getText().isEmpty()
+                || cbProposito.getSelectionModel().isEmpty() 
+                || tfCaracteristicas.getText().isEmpty()  
+                || cbEstadoActual.getSelectionModel().isEmpty()
+                || (cbEstadoActual.getSelectionModel().getSelectedIndex() == 1 && tfArchivo.getText().isEmpty())
                 || tfInstitucion.getText().isEmpty()) {
             r.setError(true);
             r.setMensaje("No puede haber campos vacíos");
@@ -243,22 +267,10 @@ public class RegistrarPrototipoController extends ControladorProductos implement
             r.setErrorcode(2);
             return r;
         }
-        if(Objects.equals(tfProposito.getText().trim(), null)){
-            r.setError(true);
-            r.setMensaje("El proposito no puede estar vacio");
-            r.setErrorcode(3);
-            return r;
-        }
         if(Objects.equals(tfCaracteristicas.getText(), null)){
             r.setError(true);
             r.setMensaje("Ingrese las caracteristicas.");
             r.setErrorcode(4);
-            return r;
-        }
-        if(Objects.equals(tfEstado.getText().trim(), null)){
-            r.setError(true);
-            r.setMensaje("El estado actual no puede estar vacio.");
-            r.setErrorcode(5);
             return r;
         }
         if(cbPais.getSelectionModel().isEmpty()){
@@ -291,19 +303,31 @@ public class RegistrarPrototipoController extends ControladorProductos implement
         protos.add(proto);
         ///datos del Producto///
         Producto producto = new Producto();
-        byte[] doc;
-        try {
-            doc = Files.readAllBytes(file.toPath());
-            producto.setArchivoPDF(doc);
-            producto.setNombrePDF(file.getName());
-        } catch(IOException ex) {
-            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+        
+        if (cbEstadoActual.getSelectionModel().getSelectedIndex() == 0) {
+            if (!Objects.equals(file, null)) {
+                byte[] doc;
+                try {
+                    doc = Files.readAllBytes(file.toPath());
+                    producto.setArchivoPDF(doc);
+                    producto.setNombrePDF(file.getName());
+                } catch (IOException ex) {
+                    Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
         producto.setAnio(Integer.parseInt(tfAnio.getText().trim()));
         producto.setTitulo(tfNombre.getText().trim());
-        producto.setProposito(tfProposito.getText().trim());
+        producto.setProposito(cbProposito.getSelectionModel().getSelectedItem());
         producto.setIdPais(cbPais.getSelectionModel().getSelectedItem());
-        producto.setEstadoActual(tfEstado.getText().trim());
+        producto.setEstadoActual(cbEstadoActual.getSelectionModel().getSelectedItem());
+        //Busco el CA del miembro que esta registrando el producto.
+        CaMiembroJpaController camJpaC = new CaMiembroJpaController();
+        CuerpoAcademicoJpaController caJpaC = new CuerpoAcademicoJpaController();
+        CaMiembro cam = camJpaC.findByMiembro(m.getIdMiembro());
+        CuerpoAcademico ca = caJpaC.findCuerpoAcademico(cam.getCaMiembroPK().getIdCuerpoAcademico());
+        //Fijo el CuerpoAcademico al producto.
+        producto.setIdCuerpoAcademico(ca);
         producto.setPrototipoList(protos);
         ProductoJpaController pJpaC = new ProductoJpaController();
         if (!pJpaC.create(producto)) {
@@ -326,7 +350,6 @@ public class RegistrarPrototipoController extends ControladorProductos implement
         ///datos del producto-Miembro
         ObservableList<Miembro> mis = lstAutores.getItems();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
-        System.out.println(mis.size());
         ProductoMiembro pm;
         for (int i = 0; i < mis.size(); i++) {
             pm = new ProductoMiembro();
@@ -395,24 +418,16 @@ public class RegistrarPrototipoController extends ControladorProductos implement
     }
     
     /**
-     * Abre la ventana de seleccion de productos a registrar.
+     * Activa los campos en caso de que el producto siga en proceso.
+     * @param event 
      */
-    private void abrirVentanaSeleccion() {
-        try {
-            Locale.setDefault(new Locale("es"));
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("SeleccionProductos.fxml"));
-            
-            Parent responder = loader.load();
-            
-            Scene scene = new Scene(responder);
-            Stage stage = new Stage();
-            
-            stage.setScene(scene);
-            stage.show();
-            ((Node) (btnCancelar)).getScene().getWindow().hide();
-        } catch (IOException ex) {
-            Logger.getLogger(SeleccionProductosController.class.getName()).log(Level.SEVERE, null, ex);
+    public void cambiarEstado(ActionEvent event) {
+        if (cbEstadoActual.getSelectionModel().getSelectedIndex() == 1) {
+            btnCargar.setDisable(false);
+            tfArchivo.setDisable(false);
+        } else {
+            btnCargar.setDisable(true);
+            tfArchivo.setDisable(true);
         }
     }
 }

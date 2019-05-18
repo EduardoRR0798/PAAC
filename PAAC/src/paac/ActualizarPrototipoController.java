@@ -1,6 +1,8 @@
 package paac;
 
+import entity.CaMiembro;
 import entity.Colaborador;
+import entity.CuerpoAcademico;
 import entity.Miembro;
 import entity.Pais;
 import entity.Producto;
@@ -23,6 +25,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -35,7 +38,9 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import persistence.CaMiembroJpaController;
 import persistence.ColaboradorJpaController;
+import persistence.CuerpoAcademicoJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
@@ -55,13 +60,13 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
     @FXML
     private TextField tfNombre;
     @FXML
-    private TextField tfProposito;
+    private ComboBox<String> cbProposito;
     @FXML
     private TextField tfCaracteristicas;
     @FXML
     private TextField tfArchivo;
     @FXML
-    private TextField tfEstado;
+    private ComboBox<String> cbEstado;
     @FXML
     private TextField tfInstitucion;
     @FXML
@@ -95,6 +100,7 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
     private ArrayList<Miembro> mInvolucrados = new ArrayList<>();
     private ArrayList<Colaborador> cInvolucrados = new ArrayList<>();
     private File file;
+    private Miembro m;
     
     /**
      * Initializes the controller class.
@@ -106,15 +112,14 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
         colaboradores = super.recuperarColaboradores();
         miembros = super.recuperarMiembros();
         cbPais.setItems(recuperarPaises());
+        cbProposito.setItems(super.propositos);
+        cbEstado.setItems(super.estados);
         UtilidadCadenas uc = new UtilidadCadenas();
         uc.limitarCampos(tfNombre, 140);
-        uc.limitarCampos(tfProposito, 140);
         uc.limitarCampos(tfAnio, 4);
         uc.limitarCampos(tfCaracteristicas, 150);
-        uc.limitarCampos(tfEstado, 150);
         uc.limitarCampos(tfInstitucion, 150);
         uc.limitarCampos(tfColaborador, 100);
-        uc.limitarCampos(tfEstado, 70);
     }    
 
     /**
@@ -150,6 +155,8 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
             actualizarPrototipo();
             lblMensaje.setText(r.getMensaje());
             lblMensaje.setVisible(true);
+            abrirMenu(m);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
 
@@ -166,7 +173,8 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
-            System.exit(0);
+            seleccionarPrototipo(m);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
 
@@ -174,8 +182,9 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
      * Recibe el id del producto seleccionado anteriormente.
      * @param pro id del producto.
      */
-    public void recibirParametros(Producto pro) {
+    public void recibirParametros(Producto pro, Miembro m) {
         Producto producto;
+        this.m = m;
         ProductoJpaController pJpaC = new ProductoJpaController();
         producto = pJpaC.findProducto(pro.getIdProducto());
         p = producto;
@@ -239,16 +248,17 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
         Respuesta r = new Respuesta();
         if(tfNombre.getText().isEmpty() 
                 || tfAnio.getText().isEmpty() 
-                || tfProposito.getText().isEmpty() 
+                || cbProposito.getSelectionModel().isEmpty() 
                 || tfCaracteristicas.getText().isEmpty() 
-                || tfArchivo.getText().isEmpty() 
-                || tfEstado.getText().isEmpty()
+                || cbEstado.getSelectionModel().isEmpty()
+                || (cbEstado.getSelectionModel().isSelected(1) && tfArchivo.getText().isEmpty())
                 || tfInstitucion.getText().isEmpty()) {
             r.setError(true);
             r.setMensaje("No puede haber campos vacíos");
             r.setErrorcode(1);
             return r;
         }
+        
         if(!validarTituloActualizar(tfNombre.getText().trim(), p.getIdProducto())){
             r.setError(true);
             r.setMensaje("El titulo de este producto ya se encuentra registrado");
@@ -264,12 +274,6 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
         if (!super.verificarAnio(tfAnio.getText())) {
             r.setError(true);
             r.setMensaje("El año no puede ser mayor al año actual o menor a 1900.");
-            r.setErrorcode(3);
-            return r;
-        }
-        if(Objects.equals(tfProposito.getText().trim(), null)){
-            r.setError(true);
-            r.setMensaje("El proposito no puede estar vacio");
             r.setErrorcode(3);
             return r;
         }
@@ -359,11 +363,13 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
      */
     private void actualizarPrototipo() {
         ///prototipo
+        
         PrototipoJpaController pJpaC = new PrototipoJpaController();
         Prototipo prototipo = pJpaC.encontrarPrototipoPorIdProducto(p);
         prototipo.setCaracteristicas(tfCaracteristicas.getText().trim());
         prototipo.setInstitucionCreacion(tfInstitucion.getText().trim());
-        List<Prototipo> protos = new ArrayList<>();     
+        List<Prototipo> protos = new ArrayList<>();
+        
         try {
             pJpaC.edit(prototipo);
         } catch (Exception ex) {
@@ -372,27 +378,33 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
         protos.add(prototipo);
         p.setAnio(Integer.parseInt(tfAnio.getText()));
         p.setTitulo(tfNombre.getText());
-        p.setProposito(tfProposito.getText());
+        p.setProposito(cbProposito.getSelectionModel().getSelectedItem());
         p.setIdPais(cbPais.getSelectionModel().getSelectedItem());
-        p.setEstadoActual(tfEstado.getText());
+        p.setEstadoActual(cbEstado.getSelectionModel().getSelectedItem());
+        //Busco el CA del miembro que esta registrando el producto.
+        CaMiembroJpaController camJpaC = new CaMiembroJpaController();
+        CuerpoAcademicoJpaController caJpaC = new CuerpoAcademicoJpaController();
+        CaMiembro cam = camJpaC.findByMiembro(m.getIdMiembro());
+        CuerpoAcademico ca = caJpaC.findCuerpoAcademico(cam.getCaMiembroPK().getIdCuerpoAcademico());
+        //Fijo el CuerpoAcademico al producto.
+        p.setIdCuerpoAcademico(ca);
         p.setPrototipoList(protos);
-        if (!Objects.equals(file, null)) {
-            byte[] doc;
-            try {
-                doc = Files.readAllBytes(file.toPath());
-                p.setArchivoPDF(doc);
-                p.setNombrePDF(file.getName());
-            } catch (IOException ex) {
-                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+        if (cbEstado.getSelectionModel().getSelectedIndex() == 1) {
+            if (!Objects.equals(file, null)) {
+                byte[] doc;
+                try {
+                    doc = Files.readAllBytes(file.toPath());
+                    p.setArchivoPDF(doc);
+                    p.setNombrePDF(file.getName());
+                } catch (IOException ex) {
+                    Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
-        
+
         ProductoJpaController prJpaC = new ProductoJpaController();
         try {
             prJpaC.edit(p);
-        } catch (NonexistentEntityException ex) {
-            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
-            lblMensaje.setText("Error al conectar con la base de datos");
         } catch (Exception ex) {
             Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
             lblMensaje.setText("Error al conectar con la base de datos");
@@ -401,7 +413,6 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
         
         List<Colaborador> colas = lstColaboradores.getItems();
         ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
-        List<ProductoColaborador> pcs = pcJpaC.findByIdProducto(p.getIdProducto());
         ProductoColaborador productCol;
         for (int j = 0; j < colas.size(); j++) {
             if (!cInvolucrados.contains(colas.get(j))) {
@@ -417,7 +428,7 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
                 cInvolucrados.remove(colas.get(j));
             }
         }
-        if (cInvolucrados.size() > 0) {           
+        if (!cInvolucrados.isEmpty()) {           
             for (int i = 0; i < cInvolucrados.size(); i++) {
                 productCol = pcJpaC.findByIdPC(cInvolucrados.get(i).getIdColaborador(), p.getIdProducto());
                 try {
@@ -431,7 +442,6 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
         //datos del producto-Miembro
         List<Miembro> miems = lstAutores.getItems();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
-        List<ProductoMiembro> pms = pmJpaC.findByIdProducto(p);
         ProductoMiembro productMiem;
         for (int j = 0; j < miems.size(); j++) {
             if (!mInvolucrados.contains(miems.get(j))) {
@@ -447,7 +457,7 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
                 mInvolucrados.remove(miems.get(j));
             }
         }
-        if (mInvolucrados.size() > 0) {           
+        if (!mInvolucrados.isEmpty()) {           
             for (int i = 0; i < mInvolucrados.size(); i++) {
                 productMiem = pmJpaC.findByIdPM(mInvolucrados.get(i), p);
                 try {
@@ -463,21 +473,32 @@ public class ActualizarPrototipoController extends ControladorProductos implemen
      * LLena los campos con los datos del producto seleccionado.
      */
     private void iniciarPantalla() {
-        Prototipo proto = new Prototipo();
+        Prototipo proto;
         PrototipoJpaController pJpaC = new PrototipoJpaController();
-        List<Prototipo> ps = pJpaC.findPrototipoEntities();
-        for (int i = 0; i < ps.size(); i++) {
-            if (Objects.equals(p.getIdProducto(), ps.get(i).getIdProducto().getIdProducto())) {
-                proto = ps.get(i);
-            }
-        }
+        proto = pJpaC.encontrarPrototipoPorIdProducto(p);
+        
         tfNombre.setText(p.getTitulo());
         tfAnio.setText(p.getAnio().toString());
-        tfProposito.setText(p.getProposito());
-        tfEstado.setText(p.getEstadoActual());
+        cbProposito.getSelectionModel().select(p.getProposito());
+        cbEstado.getSelectionModel().select(p.getEstadoActual());
         tfCaracteristicas.setText(proto.getCaracteristicas());
         tfArchivo.setText(p.getNombrePDF());
         tfInstitucion.setText(proto.getInstitucionCreacion());
         cbPais.getSelectionModel().select(p.getIdPais());
+    }
+    
+    /**
+     * Habilita el boton de carga de archivo.
+     * @param event Seleccion en el estado Terminado.
+     */
+    @FXML
+    private void cambiarEstado(ActionEvent event) {
+        if (cbEstado.getSelectionModel().isSelected(1)) {
+            tfArchivo.setDisable(false);
+            btnCargar.setDisable(false);
+        } else {
+            tfArchivo.setDisable(true);
+            btnCargar.setDisable(true);
+        }
     }
 }

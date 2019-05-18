@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -24,7 +19,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 @Entity
 @Table(name = "cuerpo_academico")
@@ -34,7 +29,6 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "CuerpoAcademico.findByIdCuerpoAcademico", query = "SELECT c FROM CuerpoAcademico c WHERE c.idCuerpoAcademico = :idCuerpoAcademico")
     , @NamedQuery(name = "CuerpoAcademico.findByClave", query = "SELECT c FROM CuerpoAcademico c WHERE c.clave = :clave")
     , @NamedQuery(name = "CuerpoAcademico.findByGradoConsolidacion", query = "SELECT c FROM CuerpoAcademico c WHERE c.gradoConsolidacion = :gradoConsolidacion")
-    , @NamedQuery(name = "CuerpoAcademico.findByIes", query = "SELECT c FROM CuerpoAcademico c WHERE c.ies = :ies")
     , @NamedQuery(name = "CuerpoAcademico.findByNombre", query = "SELECT c FROM CuerpoAcademico c WHERE c.nombre = :nombre")})
 public class CuerpoAcademico implements Serializable {
 
@@ -48,8 +42,8 @@ public class CuerpoAcademico implements Serializable {
     private String clave;
     @Column(name = "gradoConsolidacion")
     private String gradoConsolidacion;
-    @Column(name = "ies")
-    private String ies;
+    @Column(name = "desAdscripcion")
+    private String desAdscripcion;
     @Column(name = "nombre")
     private String nombre;
     @OneToMany(mappedBy = "idCA")
@@ -94,12 +88,12 @@ public class CuerpoAcademico implements Serializable {
         this.gradoConsolidacion = gradoConsolidacion;
     }
 
-    public String getIes() {
-        return ies;
+    public String getDesAdscripcion() {
+        return desAdscripcion;
     }
 
-    public void setIes(String ies) {
-        this.ies = ies;
+    public void setDesAdscripcion(String desAdscripcion) {
+        this.desAdscripcion = desAdscripcion;
     }
 
     public String getNombre() {
@@ -175,7 +169,7 @@ public class CuerpoAcademico implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.CuerpoAcademico[ idCuerpoAcademico=" + idCuerpoAcademico + " ]";
+        return nombre;
     }
     
 }

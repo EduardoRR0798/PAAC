@@ -1,6 +1,8 @@
 package paac;
 
+import entity.CaMiembro;
 import entity.Colaborador;
+import entity.CuerpoAcademico;
 import persistence.ColaboradorJpaController;
 import entity.Memoria;
 import entity.Miembro;
@@ -24,6 +26,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -37,6 +40,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import persistence.CaMiembroJpaController;
+import persistence.CuerpoAcademicoJpaController;
 import persistence.MemoriaJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
@@ -53,7 +58,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     @FXML
     private TextField tfTitulo;
     @FXML
-    private TextField tfProposito;
+    private ComboBox<String> cbProposito;
     @FXML
     private TextField tfAnio;
     @FXML
@@ -67,7 +72,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     @FXML
     private TextField tfFin;
     @FXML
-    private TextField tfEstadoActual;
+    private ComboBox<String> cbEstadoActual;
     @FXML
     private Label lblMensaje;
     @FXML
@@ -96,9 +101,9 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     private Button btnCargar;
     // atributos necesarios
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
-    private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
     private File file;
+    private Miembro m;
     
     /**
      * Initializes the controller class.
@@ -109,13 +114,16 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     public void initialize(URL url, ResourceBundle rb) {
         colaboradores = super.recuperarColaboradores();
         miembros = super.recuperarMiembros();
+        ObservableList<Pais> paises;
         paises = recuperarPaises();
         cbPais.setItems(paises);
+        cbPais.getSelectionModel().select(116);
+        cbProposito.setItems(super.propositos);
+        cbEstadoActual.setItems(super.estados);
         iniciarMiembros();
         iniciarColaboradores();
         UtilidadCadenas uc = new UtilidadCadenas();
         uc.limitarCampos(tfTitulo, 140);
-        uc.limitarCampos(tfProposito, 140);
         uc.limitarCampos(tfAnio, 4);
         uc.limitarCampos(tfCongreso, 150);
         uc.limitarCampos(tfEstado, 150);
@@ -140,9 +148,19 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
             lblMensaje.setText(r.getMensaje());
             lblMensaje.setVisible(true);
             registrarMemoria();
+            abrirMenu(m);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
 
+    /**
+     * Recibe el miembro de la ventana anterior.
+     * @param miembro Miembro de la ventana anterior.
+     */
+    public void setMiembro(Miembro miembro) {
+        this.m = miembro;
+    }
+    
     /**
      * Abre un cuadro de dialogo para seleccionar un archivo PDF para cargarlo
      * en la base de datos.
@@ -180,7 +198,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
-            System.exit(0);
+            seleccionarProductos(m);
         }
     }
 
@@ -216,7 +234,9 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
                     c.setNombre(tfColaborador.getText());
                     ColaboradorJpaController cJpaC = new ColaboradorJpaController();
                     cJpaC.create(c);
-                    recuperarColaboradores();
+                    colaboradores = recuperarColaboradores();
+                    tfColaborador.clear();
+                    
                 }
             } else {
                 lblMensaje.setText("Escriba el nombre de un Colaborador");
@@ -233,14 +253,14 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         Respuesta r = new Respuesta();
         if(tfTitulo.getText().isEmpty() 
                 || tfAnio.getText().isEmpty() 
-                || tfProposito.getText().isEmpty() 
+                || cbProposito.getSelectionModel().isEmpty() 
                 || tfCongreso.getText().isEmpty() 
-                || tfCiudad.getText().isEmpty() 
+                || tfCiudad.getText().isEmpty()
+                || cbEstadoActual.getSelectionModel().isEmpty()
+                || (cbEstadoActual.getSelectionModel().getSelectedIndex() == 1 && tfInicio.getText().isEmpty() 
+                && tfFin.getText().isEmpty() && tfPDF.getText().isEmpty())
                 || tfEstado.getText().isEmpty()
-                || tfInicio.getText().isEmpty() 
-                || tfFin.getText().isEmpty() 
-                || cbPais.getSelectionModel().isEmpty()
-                || tfEstadoActual.getText().isEmpty()){
+                || cbPais.getSelectionModel().isEmpty()){
             r.setMensaje("No puede haber campos vacíos");
             r.setError(true);
             return r;
@@ -263,38 +283,34 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
             r.setErrorcode(3);
             return r;
         }
-        if(!tfEstado.getText().trim().matches("^.*\\\\d.*$")){
+        if(tfEstado.getText().trim().matches("^.*\\\\d.*$")){
             r.setError(true);
             r.setMensaje("El estado no puede contener numeros.");
             r.setErrorcode(4);
             return r;
         }
-        if(!tfCiudad.getText().trim().matches("^.*\\\\d.*$")){
+        if(tfCiudad.getText().trim().matches("^.*\\\\d.*$")){
             r.setError(true);
             r.setMensaje("La ciudad no puede contener numeros.");
             r.setErrorcode(4);
             return r;
         }
-        try {
-            Integer inicio = Integer.parseInt(tfInicio.getText().trim());
-            Integer fin = Integer.parseInt(tfFin.getText().trim());
-            if(!validarPaginas(inicio, fin)){
+        if (cbEstadoActual.getSelectionModel().isEmpty()) {
+            try {
+                Integer inicio = Integer.parseInt(tfInicio.getText().trim());
+                Integer fin = Integer.parseInt(tfFin.getText().trim());
+                if (!validarPaginas(inicio, fin)) {
+                    r.setError(true);
+                    r.setMensaje("Las paginas de inicio deben ser menores o iguales a las de fin.");
+                    r.setErrorcode(6);
+                    return r;
+                }
+            } catch (Exception e) {
                 r.setError(true);
-                r.setMensaje("Las paginas de inicio deben ser menores o iguales a las de fin.");
+                r.setMensaje("Ingrese solo numeros.");
                 r.setErrorcode(6);
                 return r;
             }
-        } catch (Exception e) {
-            r.setError(true);
-            r.setMensaje("Ingrese solo numeros.");
-            r.setErrorcode(6);
-            return r;
-        }
-        if(cbPais.getSelectionModel().isEmpty()){
-            r.setError(true);
-            r.setMensaje("Seleccione un pais.");
-            r.setErrorcode(8);
-            return r;
         }
         if(Objects.equals(file, null)) {
             r.setError(true);
@@ -311,27 +327,40 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         memoria.setCiudad(tfCiudad.getText().trim());
         memoria.setEstado(tfEstado.getText().trim());
         memoria.setNombreCongreso(tfCongreso.getText().trim());
-        String rango = tfInicio.getText().trim() + "-" + tfFin.getText().trim();
-        memoria.setRangoPaginas(rango);
+        if (!btnCargar.isDisabled()) {
+            String rango = tfInicio.getText().trim() + "-" + tfFin.getText().trim();
+            memoria.setRangoPaginas(rango);
+        }
+        
         List<Memoria> memos = new ArrayList<>();
         memos.add(memoria);
         MemoriaJpaController mJpaC = new MemoriaJpaController();
         mJpaC.create(memoria);
         ///datos del Producto///
         Producto producto = new Producto();
-        byte[] doc;
-        try {
-            doc = Files.readAllBytes(file.toPath());
-            producto.setArchivoPDF(doc);
-            producto.setNombrePDF(file.getName());
-        } catch(IOException ex) {
-            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+        if (!btnCancelar.isDisabled()) {
+            byte[] doc;
+            try {
+                doc = Files.readAllBytes(file.toPath());
+                producto.setArchivoPDF(doc);
+                producto.setNombrePDF(file.getName());
+            } catch (IOException ex) {
+                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        
         producto.setAnio(Integer.parseInt(tfAnio.getText()));
         producto.setTitulo(tfTitulo.getText().trim());
-        producto.setProposito(tfProposito.getText().trim());
+        producto.setProposito(cbProposito.getSelectionModel().getSelectedItem());
         producto.setIdPais(cbPais.getSelectionModel().getSelectedItem());
-        producto.setEstadoActual(tfEstadoActual.getText().trim());
+        producto.setEstadoActual(cbEstadoActual.getSelectionModel().getSelectedItem());
+        //Busco el CA del miembro que esta registrando el producto.
+        CaMiembroJpaController camJpaC = new CaMiembroJpaController();
+        CuerpoAcademicoJpaController caJpaC = new CuerpoAcademicoJpaController();
+        CaMiembro cam = camJpaC.findByMiembro(m.getIdMiembro());
+        CuerpoAcademico ca = caJpaC.findCuerpoAcademico(cam.getCaMiembroPK().getIdCuerpoAcademico());
+        //Fijo el CuerpoAcademico al producto.
+        producto.setIdCuerpoAcademico(ca);
         producto.setMemoriaList(memos);
         ProductoJpaController prJpaC = new ProductoJpaController();
         if (!prJpaC.create(producto)) {
@@ -421,4 +450,25 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         lblMensaje.setVisible(false);
     }
     
+    /**
+     * Habilita los campos necesarios para que correspondan al estado actual.
+     * @param event Clic en el estado "Terminado"
+     */
+    @FXML
+    private void cambiarEstado(ActionEvent event) {
+        if (cbEstadoActual.getSelectionModel().getSelectedIndex() == 1) {
+            tfInicio.setDisable(false);
+            tfFin.setDisable(false);
+            btnCargar.setDisable(false);
+            tfPDF.setDisable(false);
+        } else {
+            tfInicio.setDisable(true);
+            tfFin.setDisable(true);
+            btnCargar.setDisable(true);
+            tfPDF.setDisable(true);
+            tfPDF.clear();
+            tfInicio.clear();
+            tfFin.clear();
+        }
+    }
 }

@@ -8,13 +8,13 @@ import javafx.stage.Stage;
 
 /**
  *
- * @author Eduar
- */
+ * @author Eduardo Rosas Rivera.
+ */ 
 public class PAAC extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("RegistrarPrototipo.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("IniciarSesion.fxml"));
 
         Scene scene = new Scene(root);
 

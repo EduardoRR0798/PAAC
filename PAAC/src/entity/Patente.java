@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -13,7 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -22,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 @Entity
 @Table(name = "patente")
@@ -32,8 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Patente.findByIdPatente", query = "SELECT p FROM Patente p WHERE p.idPatente = :idPatente")
     , @NamedQuery(name = "Patente.findByClasifIntlPatentes", query = "SELECT p FROM Patente p WHERE p.clasifIntlPatentes = :clasifIntlPatentes")
     , @NamedQuery(name = "Patente.findByDescripcion", query = "SELECT p FROM Patente p WHERE p.descripcion = :descripcion")
-    , @NamedQuery(name = "Patente.findByTipo", query = "SELECT p FROM Patente p WHERE p.tipo = :tipo")
-    , @NamedQuery(name = "Patente.findByNombreEvidencia", query = "SELECT p FROM Patente p WHERE p.nombreEvidencia = :nombreEvidencia")})
+    , @NamedQuery(name = "Patente.findByTipo", query = "SELECT p FROM Patente p WHERE p.tipo = :tipo")})
 public class Patente implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -46,13 +39,8 @@ public class Patente implements Serializable {
     private String clasifIntlPatentes;
     @Column(name = "descripcion")
     private String descripcion;
-    @Lob
-    @Column(name = "evidencia")
-    private byte[] evidencia;
     @Column(name = "tipo")
     private String tipo;
-    @Column(name = "nombreEvidencia")
-    private String nombreEvidencia;
     @JoinColumn(name = "idProducto", referencedColumnName = "idProducto")
     @ManyToOne
     private Producto idProducto;
@@ -88,28 +76,12 @@ public class Patente implements Serializable {
         this.descripcion = descripcion;
     }
 
-    public byte[] getEvidencia() {
-        return evidencia;
-    }
-
-    public void setEvidencia(byte[] evidencia) {
-        this.evidencia = evidencia;
-    }
-
     public String getTipo() {
         return tipo;
     }
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
-    }
-
-    public String getNombreEvidencia() {
-        return nombreEvidencia;
-    }
-
-    public void setNombreEvidencia(String nombreEvidencia) {
-        this.nombreEvidencia = nombreEvidencia;
     }
 
     public Producto getIdProducto() {

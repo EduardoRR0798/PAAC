@@ -161,4 +161,20 @@ public class PrototipoJpaController implements Serializable {
         }
     }
     
+    /**
+     * Recupera un articulo por el id del producto.
+     * @param id (int) id del producto.
+     * @return Prototipo correspondiente al id del producto.
+     */
+    public Prototipo encontrarPrototipoPorIdProducto(Producto id) {
+        Prototipo pro;
+        try {
+            EntityManager em = getEntityManager();
+            Query q = em.createNamedQuery("Prototipo.findByIdProducto", Prototipo.class).setParameter("idProducto", id);
+            pro = (Prototipo) q.getSingleResult();
+        } catch (Exception e) {
+            pro = null;
+        }
+        return pro;
+    }
 }

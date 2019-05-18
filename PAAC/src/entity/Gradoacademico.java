@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -38,7 +33,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Gradoacademico.findByInstitucion", query = "SELECT g FROM Gradoacademico g WHERE g.institucion = :institucion")
     , @NamedQuery(name = "Gradoacademico.findByInstitucionNoConsiderada", query = "SELECT g FROM Gradoacademico g WHERE g.institucionNoConsiderada = :institucionNoConsiderada")
     , @NamedQuery(name = "Gradoacademico.findByNivel", query = "SELECT g FROM Gradoacademico g WHERE g.nivel = :nivel")
-    , @NamedQuery(name = "Gradoacademico.findByTema", query = "SELECT g FROM Gradoacademico g WHERE g.tema = :tema")})
+    , @NamedQuery(name = "Gradoacademico.findByTema", query = "SELECT g FROM Gradoacademico g WHERE g.tema = :tema")
+    , @NamedQuery(name = "Gradoacademico.findByIdMiembro", query = "SELECT g FROM Gradoacademico g WHERE g.idMiembro = :idMiembro")})
 public class Gradoacademico implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -55,6 +51,9 @@ public class Gradoacademico implements Serializable {
     @Column(name = "fechatitulacion")
     @Temporal(TemporalType.DATE)
     private Date fechatitulacion;
+    @Column(name = "fechaFin")
+    @Temporal(TemporalType.DATE)
+    private Date fechaFin;
     @Column(name = "institucion")
     private String institucion;
     @Column(name = "institucionNoConsiderada")
@@ -109,6 +108,14 @@ public class Gradoacademico implements Serializable {
         this.fechatitulacion = fechatitulacion;
     }
 
+    public Date getFechaFin() {
+        return fechatitulacion;
+    }
+
+    public void setFechaFin(Date fechaFin) {
+        this.fechaFin = fechaFin;
+    }
+    
     public String getInstitucion() {
         return institucion;
     }
@@ -179,7 +186,7 @@ public class Gradoacademico implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Gradoacademico[ idGradoAcademico=" + idGradoAcademico + " ]";
+        return tema;
     }
     
 }

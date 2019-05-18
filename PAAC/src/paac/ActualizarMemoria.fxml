@@ -5,7 +5,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.ControladorRegistrarMemoria">
+<GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.ControladorActualizarMemoria">
   <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="374.0" />
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="376.0" />
@@ -54,7 +54,7 @@
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Estado:" GridPane.rowIndex="7">
+      <Label text="Estado:" GridPane.rowIndex="9">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
@@ -74,11 +74,6 @@
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfProposito" GridPane.rowIndex="4">
-         <GridPane.margin>
-            <Insets left="80.0" right="20.0" />
-         </GridPane.margin>
-      </TextField>
       <TextField fx:id="tfAnio" GridPane.rowIndex="3">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
@@ -94,12 +89,7 @@
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfEstado" GridPane.rowIndex="7">
-         <GridPane.margin>
-            <Insets left="80.0" right="20.0" />
-         </GridPane.margin>
-      </TextField>
-      <TextField fx:id="tfInicio" prefHeight="25.0" prefWidth="195.0" GridPane.halignment="LEFT" GridPane.rowIndex="8" GridPane.valignment="CENTER">
+      <TextField fx:id="tfInicio" disable="true" prefHeight="25.0" prefWidth="195.0" GridPane.halignment="LEFT" GridPane.rowIndex="8" GridPane.valignment="CENTER">
          <GridPane.margin>
             <Insets left="85.0" right="200.0" />
          </GridPane.margin>
@@ -169,22 +159,22 @@
             <Insets left="110.0" right="25.0" />
          </GridPane.margin>
       </MenuButton>
-      <Label text="Estado actual:" GridPane.rowIndex="9">
+      <Label text="Estado actual:" GridPane.rowIndex="7">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <TextField fx:id="tfEstadoActual" GridPane.rowIndex="9">
+      <TextField fx:id="tfEstado" GridPane.rowIndex="9">
          <GridPane.margin>
-            <Insets left="100.0" right="20.0" />
+            <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfPDF" editable="false" GridPane.rowIndex="10">
+      <TextField fx:id="tfPDF" disable="true" editable="false" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets left="95.0" right="75.0" />
          </GridPane.margin>
       </TextField>
-      <Button fx:id="btnCargar" mnemonicParsing="false" onAction="#cargar" text="Cargar" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
+      <Button fx:id="btnCargar" disable="true" mnemonicParsing="false" onAction="#cargar" text="Cargar" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets right="20.0" />
          </GridPane.margin>
@@ -194,10 +184,20 @@
             <Insets right="130.0" />
          </GridPane.margin>
       </Label>
-      <TextField fx:id="tfFin" prefHeight="25.0" prefWidth="195.0" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
+      <TextField fx:id="tfFin" disable="true" prefHeight="25.0" prefWidth="195.0" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
          <GridPane.margin>
             <Insets left="250.0" right="20.0" />
          </GridPane.margin>
       </TextField>
+      <ComboBox fx:id="cbProposito" prefHeight="25.0" prefWidth="304.0" promptText="Seleccione un proposito" GridPane.rowIndex="4">
+         <GridPane.margin>
+            <Insets left="80.0" right="20.0" />
+         </GridPane.margin>
+      </ComboBox>
+      <ComboBox fx:id="cbEstadoActual" onAction="#cambiarEstado" prefHeight="25.0" prefWidth="410.0" promptText="Seleccione un estado" GridPane.rowIndex="7">
+         <GridPane.margin>
+            <Insets left="100.0" right="20.0" />
+         </GridPane.margin>
+      </ComboBox>
    </children>
 </GridPane>

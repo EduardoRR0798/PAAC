@@ -446,4 +446,25 @@ public class MiembroJpaController implements Serializable {
         } catch (Exception e) {}
         return id;
     }
+    
+    /**
+     * Busca a los miembros por su correo, si existe alguno con el
+     * significa que no puede registrarlo.
+     * @param email del miembro.
+     * @return false si no puede registrarlo, true si si.
+     */
+    public boolean comprobarEmail(String email) {
+        EntityManager em = getEntityManager();
+        List<Miembro> ms;
+        try {
+            Query q = em.createNamedQuery("Miembro.findByEmail", Miembro.class).setParameter("email", email);
+            ms = q.getResultList();
+            if (ms.isEmpty()) {
+                return true;
+            }
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
+    }
 }

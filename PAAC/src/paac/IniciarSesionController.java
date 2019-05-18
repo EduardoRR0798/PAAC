@@ -20,6 +20,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import persistence.MiembroJpaController;
+import utilidades.UtilidadCadenas;
 
 /**
  * FXML Controller class
@@ -36,14 +37,18 @@ public class IniciarSesionController implements Initializable {
     private Button btnIniciar;
     @FXML
     private Label lblMensaje;
-    public Miembro miembro;
+    private Miembro miembro;
     
     /**
      * Initializes the controller class.
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        UtilidadCadenas uc = new UtilidadCadenas();
+        uc.excluirEspacios(tfUsuario);
+        uc.excluirEspacios(tfContrasenia);
     }    
 
     /**
@@ -57,6 +62,7 @@ public class IniciarSesionController implements Initializable {
             lblMensaje.setText(r.getMensaje());
         } else {
             lblMensaje.setText("Iniciando sesion.");
+            abrirMenu();
         }
     }
     
@@ -91,7 +97,9 @@ public class IniciarSesionController implements Initializable {
      */
     public boolean verificarNombre() {
         MiembroJpaController mJpaC = new MiembroJpaController();
-        int id = mJpaC.comprobarLog(tfUsuario.getText().trim(), tfContrasenia.getText().replaceAll(" ", ""));
+        UtilidadCadenas uc = new UtilidadCadenas();
+        String cont = uc.hacerHashAContrasenia(tfContrasenia.getText());
+        int id = mJpaC.comprobarLog(tfUsuario.getText().trim(), cont);
         if (id != 0) {
             miembro = mJpaC.findMiembro(id);
             return true;
@@ -115,9 +123,12 @@ public class IniciarSesionController implements Initializable {
         try {
             Locale.setDefault(new Locale("es"));
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("SeleccionProductos.fxml"));
+            loader.setLocation(getClass().getResource("MenuPrincipal.fxml"));
             
             Parent responder = loader.load();
+            MenuPrincipalController controller = loader.getController();
+            
+            controller.recibirParametros(miembro);
             
             Scene scene = new Scene(responder);
             Stage stage = new Stage();
