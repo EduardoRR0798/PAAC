@@ -20,6 +20,7 @@ import entity.Libro;
 import entity.ProductoColaborador;
 import entity.Patente;
 import entity.Producto;
+import java.util.Objects;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -771,10 +772,23 @@ public class ProductoJpaController implements Serializable {
     public boolean verificarTitulo(String titulo, Integer p) {
         EntityManager em = getEntityManager();
         boolean permiso = false;
+        List<Producto> prs;
         try {
-            Query q = em.createNamedQuery("Producto.findByTituloAndId", Producto.class).setParameter("titulo", titulo).setParameter("idProducto", p);
+            Query q = em.createNamedQuery("Producto.findByTitulo", Producto.class).setParameter("titulo", titulo);
+            prs = q.getResultList();
+            if (prs.isEmpty()) {
+                return true;
+            } else {
+                for (int i = 0; i < prs.size(); i++) {
+                    if (Objects.equals(prs.get(i).getIdProducto(), p)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
         } catch (Exception e) {
-            permiso = true;
+            return true;
         }
         return permiso;
     }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entity;
 
 import java.io.Serializable;
@@ -24,7 +19,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 @Entity
 @Table(name = "articulo")
@@ -36,7 +31,8 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Articulo.findByIssn", query = "SELECT a FROM Articulo a WHERE a.issn = :issn")
     , @NamedQuery(name = "Articulo.findByNombreRevista", query = "SELECT a FROM Articulo a WHERE a.nombreRevista = :nombreRevista")
     , @NamedQuery(name = "Articulo.findByRangoPaginas", query = "SELECT a FROM Articulo a WHERE a.rangoPaginas = :rangoPaginas")
-    , @NamedQuery(name = "Articulo.findByVolumen", query = "SELECT a FROM Articulo a WHERE a.volumen = :volumen")})
+    , @NamedQuery(name = "Articulo.findByVolumen", query = "SELECT a FROM Articulo a WHERE a.volumen = :volumen")
+    , @NamedQuery(name = "Articulo.findByIdProducto", query = "SELECT a FROM Articulo a WHERE a.idProducto = :idProducto")})
 public class Articulo implements Serializable {
 
     private static final long serialVersionUID = 1L;

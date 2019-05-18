@@ -33,7 +33,8 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Miembro.findByTipo", query = "SELECT m FROM Miembro m WHERE m.tipo = :tipo")
     , @NamedQuery(name = "Miembro.findByNombre", query = "SELECT m FROM Miembro m WHERE m.nombre = :nombre")
     , @NamedQuery(name = "Miembro.findByUsuario", query = "SELECT m FROM Miembro m WHERE m.usuario = :usuario")
-    , @NamedQuery(name = "Miembro.findByContrasenia", query = "SELECT m FROM Miembro m WHERE m.contrasenia = :contrasenia")})
+    , @NamedQuery(name = "Miembro.findByContrasenia", query = "SELECT m FROM Miembro m WHERE m.contrasenia = :contrasenia")
+    , @NamedQuery(name = "Miembro.Login", query = "SELECT m FROM Miembro m WHERE m.usuario = :usuario AND m.contrasenia = :contrasenia")})
 public class Miembro implements Serializable {
 
     private static final long serialVersionUID = 1L;

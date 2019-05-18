@@ -59,12 +59,12 @@
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Rango de Paginas:" GridPane.rowIndex="8">
+      <Label text="Pag. Inicio:" GridPane.rowIndex="8">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Fecha de Publicacion:" GridPane.rowIndex="10">
+      <Label text="Archivo PDF:" GridPane.rowIndex="10">
          <GridPane.margin>
             <Insets left="25.0" />
          </GridPane.margin>
@@ -74,7 +74,7 @@
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfPropsito" GridPane.rowIndex="4">
+      <TextField fx:id="tfProposito" GridPane.rowIndex="4">
          <GridPane.margin>
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
@@ -99,9 +99,9 @@
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </TextField>
-      <TextField fx:id="tfRango" GridPane.rowIndex="8">
+      <TextField fx:id="tfInicio" prefHeight="25.0" prefWidth="195.0" GridPane.halignment="LEFT" GridPane.rowIndex="8" GridPane.valignment="CENTER">
          <GridPane.margin>
-            <Insets left="125.0" right="20.0" />
+            <Insets left="85.0" right="200.0" />
          </GridPane.margin>
       </TextField>
       <Label text="Autor(es):" GridPane.columnIndex="1" GridPane.rowIndex="1">
@@ -154,11 +154,6 @@
             <Insets left="80.0" right="20.0" />
          </GridPane.margin>
       </ComboBox>
-      <DatePicker fx:id="dpFecha" prefHeight="25.0" prefWidth="239.0" GridPane.rowIndex="10">
-         <GridPane.margin>
-            <Insets left="140.0" right="20.0" />
-         </GridPane.margin>
-      </DatePicker>
       <Label fx:id="lblMensaje" contentDisplay="CENTER" onMouseClicked="#ocultarMensaje" prefHeight="17.0" prefWidth="710.0" textAlignment="CENTER" textFill="RED" textOverrun="CENTER_ELLIPSIS" wrapText="true" GridPane.columnSpan="2">
          <GridPane.margin>
             <Insets left="100.0" right="100.0" />
@@ -182,6 +177,26 @@
       <TextField fx:id="tfEstadoActual" GridPane.rowIndex="9">
          <GridPane.margin>
             <Insets left="100.0" right="20.0" />
+         </GridPane.margin>
+      </TextField>
+      <TextField fx:id="tfPDF" editable="false" GridPane.rowIndex="10">
+         <GridPane.margin>
+            <Insets left="95.0" right="75.0" />
+         </GridPane.margin>
+      </TextField>
+      <Button fx:id="btnCargar" mnemonicParsing="false" onAction="#cargar" text="Cargar" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
+         <GridPane.margin>
+            <Insets right="20.0" />
+         </GridPane.margin>
+      </Button>
+      <Label text="Pag. Fin:" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
+         <GridPane.margin>
+            <Insets right="130.0" />
+         </GridPane.margin>
+      </Label>
+      <TextField fx:id="tfFin" prefHeight="25.0" prefWidth="195.0" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
+         <GridPane.margin>
+            <Insets left="250.0" right="20.0" />
          </GridPane.margin>
       </TextField>
    </children>

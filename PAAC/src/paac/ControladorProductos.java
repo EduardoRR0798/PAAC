@@ -138,10 +138,30 @@ public abstract class ControladorProductos {
      * Verifica si es posible cambiar el titulo de un producto.
      * @param titulo titulo del producto.
      * @param p id del producto.
-     * @return 
+     * @return true si existe un 
      */
     protected boolean validarTituloActualizar(String titulo, Integer p) {
         ProductoJpaController pJpaC = new ProductoJpaController();
         return pJpaC.verificarTitulo(titulo, p);
     }
+    
+    /**
+     * Valida que las paginas iniciales sean menores a las finales;
+     * @param inicio (int) numero de pagina de inicio.
+     * @param fin (int) numero de pagina de fin.
+     * @return true si cumple, false si no.
+     */
+    protected boolean validarPaginas(int inicio, int fin) {
+        boolean permiso = false;
+        try {
+            if (inicio <= fin) {
+                permiso = true;
+            }
+        } catch (Exception e) {
+            permiso = false;
+        }
+        return permiso;
+    }
+    
+    
 }
