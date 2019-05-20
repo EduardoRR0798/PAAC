@@ -6,9 +6,9 @@
 package paac;
 
 import entity.Colaborador;
+import entity.CapituloLibro;
 import entity.Miembro;
 import entity.Pais;
-import entity.Patente;
 import entity.Producto;
 import entity.ProductoColaborador;
 import entity.ProductoMiembro;
@@ -27,9 +27,10 @@ import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -45,7 +46,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import persistence.ColaboradorJpaController;
-import persistence.PatenteJpaController;
+import persistence.CapituloLibroJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
@@ -55,26 +56,39 @@ import persistence.exceptions.NonexistentEntityException;
  *
  * @author Enrique Ceballos Mtz
  */
-import persistence.exceptions.NonexistentEntityException;
-public class ActualizarPatenteController extends ControladorProductos implements Initializable{
 
+  
+
+ 
+
+public class ActualizarCapituloLibroController extends ControladorProductos implements Initializable{
+      @FXML
+    private TextField tfTitulo;
+    @FXML
+    private TextField tfNombreCapitulo;
+    @FXML
+    private TextField tfEditorial;
+    @FXML
+    private TextField tfEdicion;
+    @FXML
+    private TextField tfTiraje;
+    @FXML
+    private TextField tfIsbn;
+    @FXML
+    private TextField tfAnio;
+    private TextField tfPropisito;
+     @FXML
+    private ListView<Miembro> lstAutores;
+    @FXML
+    private ListView<Colaborador> lstColaboradores;
+    @FXML
+    private TextField tfArchivoPDF;
+    private TextField tfRangoPag;
     @FXML
     private ComboBox<Pais> cbPais;
     @FXML
-    private TextField tfAnio;
-    @FXML
-    private TextField tfEstadoActual;
-    @FXML
-    private TextField tfDescripcion;
-    @FXML
-    private TextField tfClasificacion;
-    @FXML
-    private TextField tfTipo;
-    @FXML
-    private TextField tfPdf;
-    @FXML
-    private Label lblNotificacion;
-      // atributos necesarios
+    private TextField tfNombreLibro;
+     // atributos necesarios
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
     private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
@@ -82,37 +96,39 @@ public class ActualizarPatenteController extends ControladorProductos implements
     private ArrayList<Colaborador> cInvolucrados = new ArrayList<>();
     private File file;
     @FXML
-    private TextField tfTitulo;
+    private TextField tfPagInicio;
+    @FXML
+    private TextField tfPagFinal;
+    @FXML
+    private Label lblNotificacion;
     @FXML
     private TextField tfProposito;
     @FXML
-    private TextField tfNombreEvidencia;
+    private TextField tfEstadoActual;
     @FXML
-    private ListView<Miembro> lstAutores;
+    private MenuButton mbColaboradores;
     @FXML
-    private ListView<Colaborador> lstColaboradores;
+    private MenuButton mbMiembros;
     @FXML
     private TextField tfColaborador;
     @FXML
     private Button btAgregar;
-    @FXML
-    private MenuButton mbAutores;
-    @FXML
-    private MenuButton mbColaboradores;
-    Producto p;
+    private Producto p;
     
-     @Override
+    
+
+    @Override
     public void initialize(URL location, ResourceBundle resources) {
    colaboradores = recuperarColaboradores();
         miembros = recuperarMiembros();
         cbPais.setItems((ObservableList<Pais>) recuperarPaises());
         
     }
-    public ActualizarPatenteController (){
+    
+      public ActualizarCapituloLibroController() {
         
     }
-
-        /**
+       /**
      * Abre un cuadro de dialogo para seleccionar un archivo PDF para cargarlo
      * en la base de datos.
      * @param event Clic en el boton Cargar.
@@ -129,13 +145,14 @@ public class ActualizarPatenteController extends ControladorProductos implements
         if(!Objects.equals(fl, null)) {
             if (fl.length() <= 10000000) {
                 file = fl;
-               tfPdf .setText(file.getPath());
+                tfArchivoPDF.setText(file.getPath());
             } else {
                 lblNotificacion.setText("El archivo debe ser menor a 10 MB.");
             }
         }
     }
-         /**
+    
+       /**
      * Recibe el id del producto seleccionado anteriormente.
      * @param pro id del producto.
      */
@@ -151,7 +168,7 @@ public class ActualizarPatenteController extends ControladorProductos implements
         iniciarColaboradores();
         iniciarPantalla();
     } 
-            /**
+        /**
      * Valida que todos los datos sean correctos y re.
      * @param event Clic en el boton Aceptar.
      */
@@ -168,15 +185,18 @@ public class ActualizarPatenteController extends ControladorProductos implements
         
         actualizarProducto();
     }
-        public Respuesta validarCampos(){
+              public Respuesta validarCampos(){
         Respuesta r = new Respuesta();
         if(tfTitulo.getText().isEmpty() 
-            || tfAnio.getText().isEmpty() 
-                || tfProposito.getText().isEmpty()
-                || tfClasificacion.getText().isEmpty()
-                || tfDescripcion.getText().isEmpty()
-                || tfPdf.getText().isEmpty()
-                || tfTipo.getText().isEmpty()
+                || tfAnio.getText().isEmpty() 
+                || tfProposito.getText().isEmpty() 
+                || tfTiraje.getText().isEmpty()
+                || tfIsbn.getText().isEmpty()
+                || tfTitulo.getText().isEmpty()
+                || tfEdicion.getText().isEmpty()
+                || tfEditorial.getText().isEmpty()
+                || tfNombreCapitulo.getText().isEmpty()
+                || tfNombreLibro.getText().isEmpty()
                 || cbPais.getSelectionModel().isEmpty()
                 || tfEstadoActual.getText().isEmpty()){
             r.setMensaje("No puede haber campos vacíos");
@@ -202,7 +222,8 @@ public class ActualizarPatenteController extends ControladorProductos implements
         return r;
         
           }
-       /**
+    
+    /**
      * Cancela el proceso de Actualizacion, devolviendo a la pantalla anterior.
      * @param event Clic en el boton cancelar.
      */
@@ -217,28 +238,42 @@ public class ActualizarPatenteController extends ControladorProductos implements
         if(result.get() == ButtonType.OK) {
             regresarAVentanaAnterior();
         }
-    }  
+    }
+      
+
     
-   public void actualizarProducto(){
-           PatenteJpaController pJpaC = new PatenteJpaController();
-           Patente pat = pJpaC.findByIdProducto(p);
-       
-           pat.setTipo(tfTipo.getText().trim());
-           pat.setDescripcion(tfDescripcion.getText().trim());
-           pat.setClasifIntlPatentes(tfClasificacion.getText().trim());
-           List<Patente> patentes = new ArrayList<>();
-           patentes.add(pat);
-           try {
-               pJpaC.edit(pat);
-           } catch (Exception ex){
-               Logger.getLogger(ActualizarPatenteController.class.getName()).log(Level.SEVERE,null,ex);
-           }
-    p.setAnio(Integer.parseInt(tfAnio.getText()));
-    p.setTitulo(tfTitulo.getText().trim());
+      
+    /**
+     * Registra el producto, la memoria y todas sus relaciones.
+     */
+    private void actualizarProducto() {
+        ///Capitulo de libro
+
+        CapituloLibroJpaController cJpaC = new CapituloLibroJpaController();
+        CapituloLibro cap = cJpaC.findByIdProducto(p);
+        
+ 
+         cap.setTituloLibro(tfNombreCapitulo.getText().trim());
+           cap.setNombreLibro(tfNombreLibro.getText().trim());
+           cap.setEdicion(Integer.parseInt(tfEdicion.getText()));
+           cap.setRangoPaginas(tfPagInicio.getText().trim() + "-" + tfPagFinal.getText().trim());
+           cap.setEdicion(tfEdicion.getText());
+           cap.setEditorial(tfEditorial.getText().trim());
+           cap.setIsbn(tfIsbn.getText().trim());
+           cap.setTiraje(Integer.parseInt(tfTiraje.getText()));
+        List<CapituloLibro> capitulos = new ArrayList<>();
+        capitulos.add(cap);
+        try {
+            cJpaC.edit(cap);
+        } catch (Exception ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         p.setAnio(Integer.parseInt(tfAnio.getText()));
+     p.setTitulo(tfTitulo.getText().trim());
     p.setProposito(tfProposito.getText().trim());
-    p.setIdPais(cbPais.getSelectionModel().getSelectedItem());
-    p.setEstadoActual(tfEstadoActual.getText().trim());
-    p.setPatenteList(patentes);
+      p.setIdPais(cbPais.getSelectionModel().getSelectedItem());
+      p.setEstadoActual(tfEstadoActual.getText().trim());
+    p.setCapituloLibroList(capitulos);
         if (!Objects.equals(file, null)) {
             byte[] doc;
             try {
@@ -249,14 +284,15 @@ public class ActualizarPatenteController extends ControladorProductos implements
                 Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-   ProductoJpaController prJpaC = new ProductoJpaController();
-   try{
-       prJpaC.edit(p);
-   } catch (NonexistentEntityException ex){
-       Logger.getLogger(ActualizarPatenteController.class.getName()).log(Level.SEVERE, null, ex);
-          lblNotificacion.setText("Error al conectar con la base de datos");
+        
+        ProductoJpaController prJpaC = new ProductoJpaController();
+        try {
+            prJpaC.edit(p);
+        } catch (NonexistentEntityException ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+            lblNotificacion.setText("Error al conectar con la base de datos");
         } catch (Exception ex) {
-            Logger.getLogger(ActualizarPatenteController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
             lblNotificacion.setText("Error al conectar con la base de datos");
         }
         ///datos del producto-colaborador///
@@ -289,8 +325,8 @@ public class ActualizarPatenteController extends ControladorProductos implements
                     Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }   
-         
+        }
+        
         //datos del producto-Miembro
         List<Miembro> miems = lstAutores.getItems();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
@@ -321,7 +357,7 @@ public class ActualizarPatenteController extends ControladorProductos implements
             }
         }
     }
-       
+    
   /**
      * Este metodo agregar los checkmenuitem al menubutton para una multiple seleccion.
      */
@@ -347,7 +383,7 @@ public class ActualizarPatenteController extends ControladorProductos implements
             });
         }
     }
-            @FXML
+        @FXML
     private void mostrarCampoColaborador(ActionEvent event) {
         if (!tfColaborador.isVisible()) {
             tfColaborador.setVisible(true);
@@ -361,7 +397,8 @@ public class ActualizarPatenteController extends ControladorProductos implements
             btAgregar.setDisable(true);
         }
     }
-        /**
+      
+    /**
      * Este metodo agrega los checkmenuitem al menubutton pata una multiple seleccion;
      */
     @FXML
@@ -373,7 +410,7 @@ public class ActualizarPatenteController extends ControladorProductos implements
             cmi.setUserData(miembros.get(i));
             items.add(cmi);
         }
-        mbAutores.getItems().setAll(items);
+        mbMiembros.getItems().setAll(items);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
                 
@@ -385,7 +422,7 @@ public class ActualizarPatenteController extends ControladorProductos implements
             });
         }
     }
-           @FXML
+        @FXML
     private void agregarALista(ActionEvent event) {
         if (!tfColaborador.isDisabled()) {
             if (!Objects.equals(tfColaborador.getText().trim(), null)) {
@@ -408,26 +445,48 @@ public class ActualizarPatenteController extends ControladorProductos implements
         lblNotificacion.setText("");
         lblNotificacion.setVisible(false);
     }
-     /**
+    
+    /**
      * LLena los campos con los datos del producto seleccionado.
      */
     private void iniciarPantalla() {
-        Patente pat = new Patente();
-        PatenteJpaController pJpaC = new PatenteJpaController();
-       pat = pJpaC.buscarPatenteByIdProducto(p);
-     
+        CapituloLibro cap =new CapituloLibro();
+        CapituloLibroJpaController cJpaC = new CapituloLibroJpaController();
+        List<CapituloLibro> capitulos = cJpaC.findCapituloLibroEntities();
+        System.out.println(capitulos.size());
+        for (int i = 0; i < capitulos.size(); i++) {
+            if (Objects.equals(p.getIdProducto(), capitulos.get(i).getIdProducto().getIdProducto())){
+                 cap = capitulos.get(i);
+              
+            }
+        }
         tfTitulo.setText(p.getTitulo());
         tfAnio.setText(p.getAnio().toString());
         tfProposito.setText(p.getProposito());
         tfEstadoActual.setText(p.getEstadoActual());
-        tfTipo.setText(pat.getTipo());
-        tfDescripcion.setText(pat.getDescripcion());
-        tfClasificacion.setText(pat.getDescripcion());
-   
-         cbPais.getSelectionModel().select(p.getIdPais());
       
+    
+    String[] pags = cap.getRangoPaginas().split("-");
+      tfPagInicio.setText(pags[0]);
+        tfPagFinal.setText(pags[1]); 
+        tfTiraje.setText(cap.getTiraje().toString());
+    tfArchivoPDF.setText(p.getNombrePDF());
+    tfNombreCapitulo.setText(cap.getTituloLibro());
+    tfNombreLibro.setText(cap.getNombreLibro());
+      
+        tfEditorial.setText(cap.getEditorial());
+  tfEdicion.setText(cap.getEdicion().toString());
+        tfIsbn.setText(cap.getIsbn());
+        tfNombreCapitulo.setText(cap.getTituloLibro());
+        tfNombreLibro.setText(cap.getNombreLibro());
+        tfArchivoPDF.setText(p.getNombrePDF());
+        cbPais.getSelectionModel().select(p.getIdPais());
     }
-      private void regresarAVentanaAnterior() {
+    
+    /**
+     * Regresa a la ventana Seleccion de Capitulo.
+     */
+    private void regresarAVentanaAnterior() {
         try {
             Locale.setDefault(new Locale("es"));
             FXMLLoader loader = new FXMLLoader();
@@ -446,15 +505,7 @@ public class ActualizarPatenteController extends ControladorProductos implements
             ex.printStackTrace();
         }
     }
-          
-   }
-   
-   
-      
-        
-  
-
-   
- 
     
 
+    
+}

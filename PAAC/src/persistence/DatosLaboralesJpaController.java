@@ -15,6 +15,7 @@ import entity.Miembro;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.NonexistentEntityException;
 
 /**
@@ -23,10 +24,13 @@ import persistence.exceptions.NonexistentEntityException;
  */
 public class DatosLaboralesJpaController implements Serializable {
 
-    public DatosLaboralesJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public DatosLaboralesJpaController() {
+       
+ this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
+
+  
 
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
@@ -164,5 +168,23 @@ public class DatosLaboralesJpaController implements Serializable {
             em.close();
         }
     }
-    
+    /**
+     * Recupera todos los datos laborales de un mismo miembro.
+     * @param m
+     * @return 
+     */
+    public List<DatosLaborales> findByDatosLaborales(Miembro m){
+        EntityManager em = getEntityManager();
+        List<DatosLaborales> datosLaborales;
+        try {
+            Query q = em.createNamedQuery("DatosLaborales.findByIdMiembro",DatosLaborales.class).setParameter("idMiembro", m);
+            datosLaborales = q.getResultList();
+        }catch (Exception e){
+            datosLaborales = null;
+        }
+        return datosLaborales;
+    }
+
 }
+
+

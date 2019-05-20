@@ -5,6 +5,7 @@
  */
 package persistence;
 
+import entity.Miembro;
 import entity.Patente;
 import java.io.Serializable;
 import javax.persistence.Query;

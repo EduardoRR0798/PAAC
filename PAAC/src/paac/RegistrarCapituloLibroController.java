@@ -5,91 +5,107 @@
  */
 package paac;
 
+import entity.CapituloLibro;
 import entity.Colaborador;
 import entity.Miembro;
 import entity.Pais;
+import entity.Producto;
+import entity.ProductoColaborador;
+import entity.ProductoMiembro;
 import java.io.File;
-import java.net.URL;
-import java.util.Objects;
-import java.util.ResourceBundle;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import persistence.PatenteJpaController;
-import entity.Patente;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import entity.Producto;
-import entity.ProductoColaborador;
-import entity.ProductoMiembro;
-import java.util.Optional;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import persistence.ColaboradorJpaController;
+import persistence.CapituloLibroJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
+import paac.ControladorProductos;
+import persistence.ColaboradorJpaController;
+import utilidades.UtilidadCadenas;
+
+
 /**
  * FXML Controller class
  *
  * @author Enrique Ceballos Mtz
  */
-    public class RegistrarPatenteController extends ControladorProductos implements Initializable {
+public class RegistrarCapituloLibroController extends ControladorProductos implements Initializable {
 
-    @FXML
-    private ComboBox<Pais> cbPais;
-    @FXML
-    private TextField tfAnio;
-    @FXML
-    private TextField tfEstadoActual;
-    @FXML
-    private TextField tfDescripcion;
-    @FXML
-    private TextField tfClasificacion;
-    @FXML
-    private TextField tfTipo;
-    @FXML
-    private TextField tfPdf;
-    @FXML
-    private Label lblNotificacion;
-    private ListView<Miembro> lwMiembros;
-    private File file;
-    private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
-    private ObservableList<Pais> paises = FXCollections.observableArrayList();
-    private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
- 
     @FXML
     private TextField tfTitulo;
     @FXML
-    private TextField tfProposito;
+    private TextField tfNombreCapitulo;
+    private TextField tfEstado;
     @FXML
-    private MenuButton mbAutores;
+    private TextField tfEditorial;
     @FXML
-    private MenuButton mbColaboradores;
+    private TextField tfEdicion;
     @FXML
+    private TextField tfTiraje;
+    @FXML
+    private TextField tfIsbn;
+    @FXML
+    private TextField tfAnio;
+    private TextField tfPropisuto;
+     @FXML
     private ListView<Miembro> lstAutores;
     @FXML
     private ListView<Colaborador> lstColaboradores;
     @FXML
-    private Button btAgregar;
+    private TextField tfArchivoPDF;
+    private TextField tfRangoPag;
+    @FXML
+    private ComboBox<Pais> cbPais;
+    @FXML
+    private TextField tfNombreLibro;
+     // atributos necesarios
+    private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
+    private ObservableList<Pais> paises = FXCollections.observableArrayList();
+    private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
+    private File file;
+    @FXML
+    private TextField tfPagInicio;
+    @FXML
+    private TextField tfPagFinal;
+    @FXML
+    private Label lblNotificacion;
+    @FXML
+    private TextField tfProposito;
+    @FXML
+    private TextField tfEstadoActual;
+    @FXML
+    private MenuButton mbColaboradores;
+    @FXML
+    private MenuButton mbMiembros;
     @FXML
     private TextField tfColaborador;
+    @FXML
+    private Button btAgregar;
 
     /**
      * Initializes the controller class.
@@ -100,10 +116,27 @@ import persistence.ProductoMiembroJpaController;
         miembros = super.recuperarMiembros();
         paises = recuperarPaises();
         cbPais.setItems(paises);
+        cbPais.getSelectionModel().select(116);
         iniciarMiembros();
         iniciarColaboradores();
-    }    
-    @FXML
+        UtilidadCadenas uc = new UtilidadCadenas();
+        uc.limitarCampos(tfEditorial,40);
+        uc.limitarCampos(tfNombreCapitulo, 80);
+        uc.limitarCampos(tfIsbn, 30);
+        uc.limitarCampos(tfPagInicio, 4);
+        uc.limitarCampos(tfPagFinal, 4);
+        uc.limitarCampos(tfNombreLibro, 80);
+        uc.limitarCampos(tfTiraje, 11);
+        uc.limitarCampos(tfTitulo, 140);
+        uc.limitarCampos(tfProposito, 140);
+        uc.limitarCampos(tfAnio, 4);
+ 
+        uc.limitarCampos(tfColaborador, 100);
+        
+        
+        
+    }   
+ @FXML
     private void cargar(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter imageFilter = new FileChooser.
@@ -115,43 +148,40 @@ import persistence.ProductoMiembroJpaController;
         if(!Objects.equals(fl, null)) {
             if (fl.length() <= 10000000) {
                 file = fl;
-                tfPdf.setText(file.getPath());
+                tfArchivoPDF.setText(file.getPath());
             } else {
                 lblNotificacion.setText("El archivo debe ser menor a 10 MB.");
             }
         }
     }
-             public Respuesta validarCampos(){
+          public Respuesta validarCampos(){
         Respuesta r = new Respuesta();
-  
         if(tfTitulo.getText().isEmpty() 
                 || tfAnio.getText().isEmpty() 
                 || tfProposito.getText().isEmpty()
-                || tfClasificacion.getText().isEmpty()
-                || tfDescripcion.getText().isEmpty()
-                || tfPdf.getText().isEmpty()
-                || tfTipo.getText().isEmpty()
+                || tfTiraje.getText().isEmpty()
+                || tfTitulo.getText().isEmpty()
+                || tfEdicion.getText().isEmpty()
+                || tfEditorial.getText().isEmpty()
+                || tfNombreCapitulo.getText().isEmpty()
+                || tfNombreLibro.getText().isEmpty()
                 || cbPais.getSelectionModel().isEmpty()
                 || tfEstadoActual.getText().isEmpty()){
             r.setMensaje("No puede haber campos vacíos");
             r.setError(true);
             return r;
-            
        
         } 
-        r.setMensaje("Patente registrada exitosamente");
+        r.setMensaje("Capitulo de libro registrada exitosamente");
         r.setError(false);
         return r;
           }
           
-            
-             
-             
-      /**
-     * Registra patente tras validar que los datos introducidos por el usuario.
+    /**
+     * Registra Capitulo de libro tras validar que los datos introducidos por el usuario.
      * @param event Clic en el boton Aceptar
      */
-    @FXML
+          @FXML
     private void aceptar(ActionEvent event) {
         
         Respuesta r = validarCampos();
@@ -161,40 +191,42 @@ import persistence.ProductoMiembroJpaController;
         } else {
             lblNotificacion.setText(r.getMensaje());
             lblNotificacion.setVisible(true);
-            registrarPatente();
+            registrarCapituloLibro();
         }
     }
-       private void registrarPatente() {
-           Patente pa = new Patente();
-           pa.setTipo(tfTipo.getText().trim());
-           pa.setDescripcion(tfDescripcion.getText().trim());
-           pa.setClasifIntlPatentes(tfClasificacion.getText().trim());
-          List<Patente> patentes =new ArrayList<>();
-          patentes.add(pa);
-          PatenteJpaController pJpaC = new PatenteJpaController();
-          pJpaC.create(pa);
+       private void registrarCapituloLibro() {
+           CapituloLibro cap = new CapituloLibro();
+           cap.setTituloLibro(tfNombreCapitulo.getText().trim());
+           cap.setNombreLibro(tfNombreLibro.getText().trim());
+           cap.setEdicion(Integer.parseInt(tfEdicion.getText()));
+           cap.setRangoPaginas(tfPagInicio.getText().trim() + "-" + tfPagFinal.getText().trim());
+           cap.setEdicion(tfEdicion.getText());
+           cap.setEditorial(tfEditorial.getText().trim());
+           cap.setIsbn(tfIsbn.getText().trim());
+           cap.setTiraje(Integer.parseInt(tfTiraje.getText()));
+        List<CapituloLibro> capitulos = new ArrayList<>();
+        capitulos.add(cap);
+           CapituloLibroJpaController cJpaC = new CapituloLibroJpaController();
+           cJpaC.create(cap);
     
         ///datos del Producto///
-        
         Producto producto = new Producto();
-       byte [] doc;
+        byte[] doc;
         try {
             doc = Files.readAllBytes(file.toPath());
             producto.setArchivoPDF(doc);
             producto.setNombrePDF(file.getName());
         } catch(IOException ex) {
-            Logger.getLogger(RegistrarPatenteController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
         }
-   
         producto.setAnio(Integer.parseInt(tfAnio.getText()));
         producto.setTitulo(tfTitulo.getText().trim());
         producto.setProposito(tfProposito.getText().trim());
        producto.setIdPais(cbPais.getSelectionModel().getSelectedItem());
         producto.setEstadoActual(tfEstadoActual.getText().trim());
-        producto.setPatenteList(patentes);
+        producto.setCapituloLibroList(capitulos);
         ProductoJpaController prJpaC = new ProductoJpaController();
         if (!prJpaC.create(producto)) {
-            System.out.println(producto.getIdProducto());
            lblNotificacion.setText("Error al conectar con la base de datos...");
         }
         ///datos del producto-colaborador///
@@ -213,21 +245,17 @@ import persistence.ProductoMiembroJpaController;
         }
         ///datos del producto-Miembro
         ObservableList<Miembro> mis = lstAutores.getItems();
-        System.out.println(mis);
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
         ProductoMiembro pm;
-           
         for (int i = 0; i < mis.size(); i++) {
-            
-      
             pm = new ProductoMiembro();
             pm.setIdMiembro(mis.get(i));
             pm.setIdProducto(producto);
             pmJpaC.create(pm);
         }
-    }       
-      
-        /**
+    }
+    
+    /**
      * Este metodo agregar los checkmenuitem al menubutton para una multiple seleccion.
      */
     public void iniciarColaboradores() {
@@ -263,7 +291,7 @@ import persistence.ProductoMiembroJpaController;
             cmi.setUserData(miembros.get(i));
             items.add(cmi);
         }
-        mbAutores.getItems().setAll(items);
+        mbMiembros.getItems().setAll(items);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
                 
@@ -275,8 +303,7 @@ import persistence.ProductoMiembroJpaController;
             });
         }
     }
-    
-    /**
+       /**
      * Muestra un campo para agregar un nuevo colaborador.
      * @param event Clic en el boton Agregar Colaborador
      */
@@ -293,7 +320,7 @@ import persistence.ProductoMiembroJpaController;
             btAgregar.setVisible(false);
             btAgregar.setDisable(true);
         }
-    } 
+    }
      /**
      * Registra un colaborador en la base de datos.
      * @param event Clic en el boton +.
@@ -314,12 +341,10 @@ import persistence.ProductoMiembroJpaController;
             }
         }
     }
-    
        /**
      * Muestra el cuadro de dialogo de confirmacion para cancelar la operacion.
      * @param event clic en el boton Cancelar
      */
-    
     @FXML
     private void cancelar(ActionEvent event) {
         Alert cancelar = new Alert(Alert.AlertType.CONFIRMATION);
@@ -333,5 +358,5 @@ import persistence.ProductoMiembroJpaController;
         }
     }
     
-             
+    
 }
