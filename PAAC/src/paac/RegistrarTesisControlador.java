@@ -12,7 +12,10 @@ import entity.Producto;
 import entity.ProductoColaborador;
 import entity.ProductoMiembro;
 import entity.Tesis;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,10 +39,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import persistence.ColaboradorJpaController;
-import persistence.MiembroJpaController;
-import persistence.PaisJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
@@ -50,11 +53,12 @@ import persistence.TesisJpaController;
  *
  * @author Foncho
  */
-public class RegistrarTesisControlador implements Initializable {
+public class RegistrarTesisControlador extends ControladorProductos implements Initializable {
+
     @FXML
     private TextField titulotxt;
     @FXML
-    private ComboBox<Pais> cbPaises;
+    private ComboBox<Pais> paisescb;
     @FXML
     private TextArea propositotxt;
     @FXML
@@ -66,38 +70,57 @@ public class RegistrarTesisControlador implements Initializable {
     @FXML
     private DatePicker fechadp;
     @FXML
-    private TextField gradotxt;
+    private ComboBox<String> gradocb;
     @FXML
-    private TextField clasificaciontxt;
+    private ComboBox<String> clasificacioncb;
     @FXML
-    private TextField estadotxt;
+    private ComboBox<String> estadocb;
     @FXML
     private Label errorlbl;
     @FXML
-    private Label lblNombreColaborador;
+    private Label lbl_nombreColaborador;
     @FXML
-    private TextField tfColaborador;
+    private TextField txt_nombreColaborador;
     @FXML
-    private Button btnAgregar;
-    @FXML
-    private Label lblMensaje;
+    private Button btn_guardarColaborador;
     @FXML
     private Button cancelar;
     @FXML
     private Button aceptar;
     @FXML
-    private MenuButton mbMiembros;
+    private MenuButton mb_autores;
+    @FXML
+    private MenuButton mb_colaboradores;
+    @FXML
+    private Button btnAgregar;
+    @FXML
+    private TextField txt_archivo;
+    @FXML
+    private TextField txt_numHojas;
     @FXML
     private ListView<Miembro> lstAutores;
     @FXML
-    private Button agregar;
-    @FXML
     private ListView<Colaborador> lstColaboradores;
-    @FXML
-    private MenuButton mbColaboradores;
+    // atributos necesarios
+    ObservableList<String> estados = FXCollections.observableArrayList(
+        "En proceso",
+        "Finalizado");
+    ObservableList<String> clasif = FXCollections.observableArrayList(
+        "Clase 1",
+        "Clase 2",
+        "Clase 3");
+    ObservableList<String> grados = FXCollections.observableArrayList(
+        "Doctorado",
+        "Especialidad",
+        "Especialidad médica",
+        "Licenciatura",
+        "Maestría",
+        "Técnico",
+        "Técnico superior universitario");
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
     private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
+    private File file;
 
     /**
      * Initializes the controller class.
@@ -105,31 +128,60 @@ public class RegistrarTesisControlador implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-        recuperarColaboradores();
-        recuperarMiembros();
-        recuperarPaises();
-    }    
+        gradocb.setItems(grados);
+        clasificacioncb.setItems(clasif);
+        estadocb.setItems(estados);
+        colaboradores = super.recuperarColaboradores();
+        miembros = super.recuperarMiembros();
+        paises = recuperarPaises();
+        paisescb.setItems(paises);
+        iniciarMiembros();
+        iniciarColaboradores();
+        paisescb.getSelectionModel().select(116);
+    }
 
     @FXML
-    private void agregarALista(ActionEvent event) {
-        if (!tfColaborador.isDisabled()) {
-            if (!Objects.equals(tfColaborador.getText().trim(), null)) {
-                if (tfColaborador.getText().trim().length() > 10) {
+    private void subirArchivo(ActionEvent event) {
+        txt_archivo.setEditable(false);
+        FileChooser fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Archivos PDF", "*.pdf");
+        fileChooser.getExtensionFilters().add(imageFilter);
+        fileChooser.setTitle("Selecciona un archivo PDF");
+        Stage stage = new Stage();
+        File fl = fileChooser.showOpenDialog(stage);
+        if (!Objects.equals(fl, null)) {
+            if (fl.length() <= 10000000) {
+                file = fl;
+                txt_archivo.setText(file.getPath());
+            } else {
+                errorlbl.setText("El archivo debe ser menor a 10 MB.");
+                errorlbl.setVisible(true);
+            }
+        }
+    }
+
+    @FXML
+    private void clickGuardarColaborador(ActionEvent event) {
+        if (!txt_nombreColaborador.isDisabled()) {
+            if (!Objects.equals(txt_nombreColaborador.getText().trim(), null)) {
+                if (txt_nombreColaborador.getText().trim().length() > 10) {
                     Colaborador c = new Colaborador();
-                    c.setNombre(tfColaborador.getText());
+                    c.setNombre(txt_nombreColaborador.getText().trim());
                     ColaboradorJpaController cJpaC = new ColaboradorJpaController();
                     cJpaC.create(c);
                     recuperarColaboradores();
+                    lbl_nombreColaborador.setVisible(false);
+                    txt_nombreColaborador.setVisible(false);
+                    txt_nombreColaborador.setDisable(true);
+                    txt_nombreColaborador.setText("");
+                    btn_guardarColaborador.setVisible(false);
+                    btn_guardarColaborador.setDisable(true);
                 }
             } else {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ControladorRegistrarMemoria.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                errorlbl.setText("Escriba el nombre de un Colaborador");
+                errorlbl.setVisible(true);
             }
         }
-        tfColaborador.setText("");
     }
 
     @FXML
@@ -140,7 +192,7 @@ public class RegistrarTesisControlador implements Initializable {
         cancelar.initStyle(StageStyle.UTILITY);
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
-        if(result.get() == ButtonType.OK) {
+        if (result.get() == ButtonType.OK) {
             System.exit(0);
         }
     }
@@ -148,135 +200,107 @@ public class RegistrarTesisControlador implements Initializable {
     @FXML
     private void clickAceptar(ActionEvent event) {
         Respuesta r = validarCampos();
-        if(r.isError()){
+        if (r.isError()) {
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
-        }else{
+        } else {
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
-            registrarProducto();
+            registrarTesis();
         }
     }
 
     @FXML
     private void clickAgregar(ActionEvent event) {
-        if (!tfColaborador.isVisible()) {
-            lblNombreColaborador.setVisible(true);
-            tfColaborador.setVisible(true);
-            tfColaborador.setDisable(false);
-            btnAgregar.setVisible(true);
-            btnAgregar.setDisable(false);
+        if (!lbl_nombreColaborador.isVisible()) {
+            lbl_nombreColaborador.setVisible(true);
+            txt_nombreColaborador.setVisible(true);
+            txt_nombreColaborador.setDisable(false);
+            btn_guardarColaborador.setVisible(true);
+            btn_guardarColaborador.setDisable(false);
         } else {
-            tfColaborador.setVisible(false);
-            tfColaborador.setDisable(true);
-            btnAgregar.setVisible(false);
-            btnAgregar.setDisable(true);
+            lbl_nombreColaborador.setVisible(false);
+            txt_nombreColaborador.setVisible(false);
+            txt_nombreColaborador.setDisable(true);
+            txt_nombreColaborador.setText("");
+            btn_guardarColaborador.setVisible(false);
+            btn_guardarColaborador.setDisable(true);
         }
     }
-    
-    public Respuesta validarCampos(){
+
+    public Respuesta validarCampos() {
         Respuesta r = new Respuesta();
-        if(titulotxt.getText().isEmpty() || gradotxt.getText().isEmpty() 
-                || propositotxt.getText().isEmpty() || registrotxt.getText().isEmpty() 
-                || descripciontxt.getText().isEmpty() || usuariotxt.getText().isEmpty()
-                || fechadp.getValue()==null || cbPaises.getValue() == null ||
-                clasificaciontxt.getText() == null || estadotxt.getText() == null){
+        if (titulotxt.getText().isEmpty()
+                || gradocb.getSelectionModel().isEmpty()
+                || propositotxt.getText().isEmpty()
+                || registrotxt.getText().isEmpty()
+                || descripciontxt.getText().isEmpty()
+                || usuariotxt.getText().isEmpty()
+                || fechadp.getValue() == null
+                || paisescb.getSelectionModel().isEmpty()
+                || clasificacioncb.getSelectionModel().isEmpty()
+                || estadocb.getSelectionModel().isEmpty()
+                || txt_numHojas.getText().isEmpty()) {
             r.setError(true);
             r.setMensaje("No puede haber campos vacíos");
             r.setErrorcode(1);
             return r;
         }
-        if(titulotxt.getText().length()>100){
+        if (titulotxt.getText().length() > 100) {
             r.setError(true);
             r.setMensaje("El titulo no puede tener mas de 100 caracteres");
-            r.setErrorcode(1);
-            return r;
-        }
-        if(gradotxt.getText().length()>20){
-            r.setError(true);
-            r.setMensaje("El grado no puede tener mas de 20 caracteres");
             r.setErrorcode(2);
             return r;
         }
-        if(propositotxt.getText().length()>10){
+        if (!validarTitulo(titulotxt.getText().trim())) {
             r.setError(true);
-            r.setMensaje("El proposito no puede tener mas de 10 caracteres");
+            r.setMensaje("El titulo de esta memoria ya se encuentra registrado.");
             r.setErrorcode(3);
             return r;
         }
-        if(registrotxt.getText().length()>20){
+        if (propositotxt.getText().length() > 255) {
             r.setError(true);
-            r.setMensaje("El registro no puede tener mas de 20 caracteres");
-            r.setErrorcode(4);
-            return r;
-        }
-        if(descripciontxt.getText().length()>10){
-            r.setError(true);
-            r.setMensaje("La descripcion no puede tener mas de 10 caracteres");
+            r.setMensaje("El proposito no puede tener mas de 255 caracteres");
             r.setErrorcode(5);
             return r;
         }
-        if(usuariotxt.getText().length()>20){
+        if (registrotxt.getText().length() > 10 || !registrotxt.getText().matches("[0-9]*")) {
             r.setError(true);
-            r.setMensaje("El usuario no debe ser mayor a 20");
+            r.setMensaje("El registro solo puede ser numeros y no tener mas de 10 caracteres");
             r.setErrorcode(6);
             return r;
+        }
+        if (descripciontxt.getText().length() > 255) {
+            r.setError(true);
+            r.setMensaje("La descripcion no puede tener mas de 255 caracteres");
+            r.setErrorcode(7);
+            return r;
+        }
+        if (usuariotxt.getText().length() > 255) {
+            r.setError(true);
+            r.setMensaje("El usuario no debe ser mayor a 255 caracteres");
+            r.setErrorcode(8);
+            return r;
+        }
+        if (Objects.equals(file, null)) {
+            r.setError(true);
+            r.setMensaje("Seleccione un archivo PDF como evidencia.");
+            r.setErrorcode(9);
+        }
+        if (!txt_numHojas.getText().matches("[0-9]*")) {
+            r.setError(true);
+            r.setMensaje("Valor no numerico en numero de hojas");
+            r.setErrorcode(9);
         }
         r.setMensaje("Exitoso");
         r.setError(false);
         return r;
     }
-    
-    private boolean recuperarPaises() {
-        PaisJpaController pJpaC = new PaisJpaController();
-        List<Pais> ps;
-        ps = pJpaC.findAll();
-        for (int i = 0; i < ps.size(); i++) {
-            paises.add(ps.get(i));
-        }
-        if (paises.isEmpty()) {
-            return false;
-        }
-        cbPaises.setItems(paises);
-        return true;
-    }
-    
+
     /**
-     * Recupera a todos los miembros de la base de datos.
-     * @return true si pudo recuperar algo, false si no.
+     * Este metodo agregar los checkmenuitem al menubutton para una multiple
+     * seleccion.
      */
-    private boolean recuperarMiembros() {
-        Miembro m = new Miembro();
-        MiembroJpaController mJpaC = new MiembroJpaController();
-        List<Miembro> ms = new ArrayList<>();
-        ms = mJpaC.findAll();
-        
-        if (ms.isEmpty()) {
-            return false;
-        }
-        for (int i = 0; i < ms.size(); i++) {
-            miembros.add(ms.get(i));
-        }
-        //lstAutores.setItems(miembros);
-        iniciarMiembros();
-        return true;
-    }
-    
-    private boolean recuperarColaboradores() {
-        Colaborador c = new Colaborador();
-        ColaboradorJpaController cJpaC = new ColaboradorJpaController();
-        List<Colaborador> ls = new ArrayList<>();
-        ls = cJpaC.findAll();
-        for (int i = 0; i <ls.size(); i++) {
-            colaboradores.add(ls.get(i));
-        }
-        if (colaboradores.isEmpty()) {
-            return false;
-        }
-        iniciarColaboradores();
-        return true;
-    }
-    
     public void iniciarColaboradores() {
         CheckMenuItem cmi;
         ArrayList<CheckMenuItem> items = new ArrayList<>();
@@ -285,12 +309,12 @@ public class RegistrarTesisControlador implements Initializable {
             cmi.setUserData(colaboradores.get(i));
             items.add(cmi);
         }
-        mbColaboradores.getItems().setAll(items);
-        
+        mb_colaboradores.getItems().setAll(items);
+
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
-                
-            if (newValue) {
+
+                if (newValue) {
                     lstColaboradores.getItems().add((Colaborador) item.getUserData());
                 } else {
                     lstColaboradores.getItems().remove((Colaborador) item.getUserData());
@@ -298,7 +322,7 @@ public class RegistrarTesisControlador implements Initializable {
             });
         }
     }
-    
+
     public void iniciarMiembros() {
         CheckMenuItem cmi;
         ArrayList<CheckMenuItem> items = new ArrayList<>();
@@ -307,11 +331,11 @@ public class RegistrarTesisControlador implements Initializable {
             cmi.setUserData(miembros.get(i));
             items.add(cmi);
         }
-        mbMiembros.getItems().setAll(items);
+        mb_autores.getItems().setAll(items);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
-                
-            if (newValue) {
+
+                if (newValue) {
                     lstAutores.getItems().add((Miembro) item.getUserData());
                 } else {
                     lstAutores.getItems().remove((Miembro) item.getUserData());
@@ -319,40 +343,42 @@ public class RegistrarTesisControlador implements Initializable {
             });
         }
     }
-    
-    public void registrarProducto(){
-        ///tesis
-        ///producto
-        ///colaborador
-        ///
-        //datos de la tesis///
+
+    private void registrarTesis() {
         Tesis tesis = new Tesis();
-        tesis.setGrado(gradotxt.getText());
-        tesis.setNumRegistro(Integer.valueOf(registrotxt.getText()));
-        tesis.setClasificacionInter(clasificaciontxt.getText());
-        tesis.setDescripcion(descripciontxt.getText());
-        tesis.setUsuarioDirigido(usuariotxt.getText());
-        
-        TesisJpaController tjc = new TesisJpaController();
-        tjc.create(tesis);
+        tesis.setGrado(gradocb.getSelectionModel().getSelectedItem());
+        tesis.setNumRegistro(Integer.valueOf(registrotxt.getText().trim()));
+        tesis.setClasificacionInter((String) clasificacioncb.getValue());
+        tesis.setDescripcion(descripciontxt.getText().trim());
+        tesis.setNumHojas(Integer.valueOf(txt_numHojas.getText().trim()));
+        tesis.setUsuarioDirigido(usuariotxt.getText().trim());
+        List<Tesis> t = new ArrayList<>();
+        t.add(tesis);
+        TesisJpaController tj = new TesisJpaController();
+        tj.create(tesis);
         ///datos del Producto///
-        
         Producto producto = new Producto();
+        byte[] doc;
+        try {
+            doc = Files.readAllBytes(file.toPath());
+            producto.setArchivoPDF(doc);
+            producto.setNombrePDF(file.getName());
+        } catch (IOException ex) {
+            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         producto.setAnio(fechadp.getValue().getYear());
-        producto.setTitulo(titulotxt.getText());
-        producto.setProposito(propositotxt.getText());
-        producto.setEstadoActual(estadotxt.getText());
-        producto.setIdPais((Pais) cbPaises.getSelectionModel().getSelectedItem());
+        producto.setTitulo(titulotxt.getText().trim());
+        producto.setProposito(propositotxt.getText().trim());
+        producto.setIdPais(paisescb.getSelectionModel().getSelectedItem());
+        producto.setEstadoActual(estadocb.getSelectionModel().getSelectedItem());
+        producto.setTesisList(t);
         ProductoJpaController prJpaC = new ProductoJpaController();
         if (!prJpaC.create(producto)) {
-           lblMensaje.setText("Error al conectar con la base de datos...");
-           lblMensaje.setVisible(true);
+            errorlbl.setText("Error al conectar con la base de datos...");
         }
-        System.out.println(producto.getIdProducto());
         ///datos del producto-colaborador///
         ObservableList<Colaborador> colas = lstColaboradores.getItems();
         ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
-        
         ProductoColaborador pc;
         for (int i = 0; i < colas.size(); i++) {
             pc = new ProductoColaborador();
@@ -367,7 +393,6 @@ public class RegistrarTesisControlador implements Initializable {
         ///datos del producto-Miembro
         ObservableList<Miembro> mis = lstAutores.getItems();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
-        
         ProductoMiembro pm;
         for (int i = 0; i < mis.size(); i++) {
             pm = new ProductoMiembro();

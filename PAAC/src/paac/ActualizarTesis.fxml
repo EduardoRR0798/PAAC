@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="551.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.RegistrarTesisControlador">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="551.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.ActualizarTesisControlador">
    <bottom>
       <BorderPane prefHeight="93.0" prefWidth="750.0" BorderPane.alignment="CENTER">
          <right>
@@ -140,6 +140,11 @@
                   <Insets bottom="9.0" />
                </GridPane.margin>
             </Label>
+            <TextField fx:id="gradotxt" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+               <GridPane.margin>
+                  <Insets bottom="5.0" left="10.0" />
+               </GridPane.margin>
+            </TextField>
             <ComboBox fx:id="clasificacioncb" prefHeight="31.0" prefWidth="207.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                <GridPane.margin>
                   <Insets left="10.0" />
@@ -157,11 +162,6 @@
                </GridPane.margin>
             </TextField>
             <Button mnemonicParsing="false" onAction="#subirArchivo" text="+" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
-            <ComboBox fx:id="gradocb" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
-               <GridPane.margin>
-                  <Insets bottom="3.0" left="10.0" />
-               </GridPane.margin>
-            </ComboBox>
          </children>
       </GridPane>
    </left>
