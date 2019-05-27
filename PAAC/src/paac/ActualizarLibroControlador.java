@@ -18,6 +18,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -27,7 +28,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -46,12 +51,14 @@ import persistence.LibroJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
+import persistence.exceptions.NonexistentEntityException;
 
 /**
+ * FXML Controller class
  *
  * @author Foncho
  */
-public class RegistrarLibroControlador extends ControladorProductos implements Initializable {
+public class ActualizarLibroControlador extends ControladorProductos implements Initializable {
 
     @FXML
     private TextField titulotxt;
@@ -78,8 +85,6 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
     @FXML
     private Label errorlbl;
     @FXML
-    private ComboBox<String> estadocb;
-    @FXML
     private TextField txt_nombreColaborador;
     @FXML
     private Label lbl_nombreColaborador;
@@ -99,16 +104,27 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
     private Button agregar;
     @FXML
     private ListView<Colaborador> lstColaboradores;
+    @FXML
+    private ComboBox<String> estadocb;
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
     private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
+    private ArrayList<Miembro> mInvolucrados = new ArrayList<>();
+    private ArrayList<Colaborador> cInvolucrados = new ArrayList<>();
     private File file;
+    private Producto p;
+    private Libro l;
     ObservableList<String> estados = FXCollections.observableArrayList(
+            "Planeado",
             "En proceso",
-            "Finalizado");
+            "Terminado");
 
+    /**
+     * Initializes the controller class.
+     */
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize(URL url, ResourceBundle rb) {
+        // TODO
         estadocb.setItems(estados);
         colaboradores = super.recuperarColaboradores();
         miembros = super.recuperarMiembros();
@@ -116,7 +132,6 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
         cbPaises.setItems(paises);
         iniciarMiembros();
         iniciarColaboradores();
-        cbPaises.getSelectionModel().select(116);
     }
 
     @FXML
@@ -184,9 +199,10 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
         } else {
-            registrarLibro();
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
+            actualizarProducto();
+            regresarAVentanaAnterior();
         }
     }
 
@@ -205,6 +221,114 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
             txt_nombreColaborador.setText("");
             btn_guardar.setVisible(false);
             btn_guardar.setDisable(true);
+        }
+    }
+
+    public void recibirParametros(Producto pro) {
+        Producto producto;
+        ProductoJpaController pJpaC = new ProductoJpaController();
+        producto = pJpaC.findProducto(pro.getIdProducto());
+        p = producto;
+        cInvolucrados = recuperarColaboradoresInvolucrados(p);
+        mInvolucrados = recuperarMiembrosInvolucrados(p);
+        iniciarMiembros();
+        iniciarColaboradores();
+        iniciarPantalla();
+    }
+
+    private void iniciarMiembros() {
+        CheckMenuItem cmi;
+        ArrayList<CheckMenuItem> items = new ArrayList<>();
+        for (int i = 0; i < miembros.size(); i++) {
+            cmi = new CheckMenuItem(miembros.get(i).toString());
+            cmi.setUserData(miembros.get(i));
+            items.add(cmi);
+        }
+        mbMiembros.getItems().setAll(items);
+
+        for (final CheckMenuItem item : items) {
+            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+
+                if (newValue) {
+                    lstAutores.getItems().add((Miembro) item.getUserData());
+                } else {
+                    lstAutores.getItems().remove((Miembro) item.getUserData());
+                }
+            });
+        }
+        for (int i = 0; i < mInvolucrados.size(); i++) {
+            for (int j = 0; j < items.size(); j++) {
+                if (mInvolucrados.get(i).equals(items.get(j).getUserData())) {
+                    items.get(j).setSelected(true);
+                }
+            }
+        }
+    }
+
+    private void iniciarColaboradores() {
+        CheckMenuItem cmi;
+        ArrayList<CheckMenuItem> items = new ArrayList<>();
+        for (int i = 0; i < colaboradores.size(); i++) {
+            cmi = new CheckMenuItem(colaboradores.get(i).toString());
+            cmi.setUserData(colaboradores.get(i));
+            items.add(cmi);
+        }
+        mbColaboradores.getItems().setAll(items);
+
+        for (final CheckMenuItem item : items) {
+            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+
+                if (newValue) {
+                    lstColaboradores.getItems().add((Colaborador) item.getUserData());
+                } else {
+                    lstColaboradores.getItems().remove((Colaborador) item.getUserData());
+                }
+            });
+        }
+        for (int i = 0; i < cInvolucrados.size(); i++) {
+            for (int j = 0; j < items.size(); j++) {
+                if (cInvolucrados.get(i).equals(items.get(j).getUserData())) {
+                    items.get(j).setSelected(true);
+                }
+            }
+        }
+    }
+
+    public void iniciarPantalla() {
+        Libro libro;
+        LibroJpaController ljc = new LibroJpaController();
+        libro = ljc.encontrarLibroPorIdProducto(p);
+        l = libro;
+        titulotxt.setText(p.getTitulo());
+        cbPaises.getSelectionModel().select(p.getIdPais());
+        aniotxt.setText(p.getAnio().toString());
+        propositotxt.setText(p.getProposito());
+        isbntxt.setText(l.getIsbn());
+        editorialtxt.setText(l.getEditorial());
+        paginastxt.setText(String.valueOf(l.getNumPaginas()));
+        ediciontxt.setText(String.valueOf(l.getEdicion()));
+        ejemplarestxt.setText(String.valueOf(l.getTiraje()));
+        txt_archivo.setText(p.getNombrePDF());
+        estadocb.getSelectionModel().select(p.getEstadoActual());
+
+    }
+
+    private void regresarAVentanaAnterior() {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource(
+                    "SeleccionarLibro.fxml"));
+
+            Parent seleccion = loader.load();
+            Scene scene = new Scene(seleccion);
+            Stage stage = new Stage();
+            stage.fullScreenProperty();
+            stage.setScene(scene);
+            stage.show();
+            ((Node) (cancelar)).getScene().getWindow().hide();
+        } catch (IOException ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -288,107 +412,111 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
         return r;
     }
 
-    /**
-     * Este metodo agregar los checkmenuitem al menubutton para una multiple
-     * seleccion.
-     */
-    public void iniciarColaboradores() {
-        CheckMenuItem cmi;
-        ArrayList<CheckMenuItem> items = new ArrayList<>();
-        for (int i = 0; i < colaboradores.size(); i++) {
-            cmi = new CheckMenuItem(colaboradores.get(i).toString());
-            cmi.setUserData(colaboradores.get(i));
-            items.add(cmi);
-        }
-        mbColaboradores.getItems().setAll(items);
-
-        for (final CheckMenuItem item : items) {
-            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
-
-                if (newValue) {
-                    lstColaboradores.getItems().add((Colaborador) item.getUserData());
-                } else {
-                    lstColaboradores.getItems().remove((Colaborador) item.getUserData());
-                }
-            });
-        }
-    }
-
-    public void iniciarMiembros() {
-        CheckMenuItem cmi;
-        ArrayList<CheckMenuItem> items = new ArrayList<>();
-        for (int i = 0; i < miembros.size(); i++) {
-            cmi = new CheckMenuItem(miembros.get(i).toString());
-            cmi.setUserData(miembros.get(i));
-            items.add(cmi);
-        }
-        mbMiembros.getItems().setAll(items);
-        for (final CheckMenuItem item : items) {
-            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
-
-                if (newValue) {
-                    lstAutores.getItems().add((Miembro) item.getUserData());
-                } else {
-                    lstAutores.getItems().remove((Miembro) item.getUserData());
-                }
-            });
-        }
-    }
-
-    public void registrarLibro() {
-        Libro l = new Libro();
+    private void actualizarProducto() {
+        LibroJpaController tjc = new LibroJpaController();
+        Libro l = tjc.encontrarLibroPorIdProducto(p);
         l.setEdicion(Integer.valueOf(ediciontxt.getText()));
         l.setEditorial(ediciontxt.getText().trim());
         l.setIsbn(isbntxt.getText());
         l.setNumPaginas(Integer.valueOf(paginastxt.getText()));
         l.setTiraje(Integer.valueOf(ejemplarestxt.getText()));
-        List<Libro> lista = new ArrayList<>();
+
+        List<Libro> lista = new ArrayList();
         lista.add(l);
-        LibroJpaController ljpa = new LibroJpaController();
-        ljpa.create(l);
-        //datos del producto
-        Producto producto = new Producto();
-        byte[] doc;
+
         try {
-            doc = Files.readAllBytes(file.toPath());
-            producto.setArchivoPDF(doc);
-            producto.setNombrePDF(file.getName());
-        } catch (IOException ex) {
-            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+            tjc.edit(l);
+        } catch (Exception ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
         }
-        producto.setAnio(Integer.valueOf(aniotxt.getText()));
-        producto.setTitulo(titulotxt.getText().trim());
-        producto.setProposito(propositotxt.getText().trim());
-        producto.setIdPais(cbPaises.getSelectionModel().getSelectedItem());
-        producto.setEstadoActual(estadocb.getSelectionModel().getSelectedItem());
-        producto.setLibroList(lista);
-        ProductoJpaController prJpaC = new ProductoJpaController();
-        if (!prJpaC.create(producto)) {
-            errorlbl.setText("Error al conectar con la base de datos...");
-        }
-        ///datos del producto-colaborador///
-        ObservableList<Colaborador> colas = lstColaboradores.getItems();
-        ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
-        ProductoColaborador pc;
-        for (int i = 0; i < colas.size(); i++) {
-            pc = new ProductoColaborador();
-            pc.setProducto(producto);
-            pc.setColaborador(colas.get(i));
+
+        p.setAnio(Integer.valueOf(aniotxt.getText()));
+        p.setTitulo(titulotxt.getText().trim());
+        p.setProposito(propositotxt.getText().trim());
+        p.setIdPais(cbPaises.getSelectionModel().getSelectedItem());
+        p.setEstadoActual(estadocb.getSelectionModel().getSelectedItem());
+        p.setLibroList(lista);
+
+        if (!Objects.equals(file, null)) {
+            byte[] doc;
             try {
-                pcJpaC.create(pc);
-            } catch (Exception ex) {
-                Logger.getLogger(ControladorRegistrarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                doc = Files.readAllBytes(file.toPath());
+                p.setArchivoPDF(doc);
+                p.setNombrePDF(file.getName());
+            } catch (IOException ex) {
+                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        ///datos del producto-Miembro
-        ObservableList<Miembro> mis = lstAutores.getItems();
+
+        ProductoJpaController prJpaC = new ProductoJpaController();
+        try {
+            prJpaC.edit(p);
+        } catch (NonexistentEntityException ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+            errorlbl.setText("Error al conectar con la base de datos");
+        } catch (Exception ex) {
+            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+            errorlbl.setText("Error al conectar con la base de datos");
+        }
+
+        ///datos del producto-colaborador///
+        List<Colaborador> colas = lstColaboradores.getItems();
+        ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
+        List<ProductoColaborador> pcs = pcJpaC.findByIdProducto(p.getIdProducto());
+        ProductoColaborador productCol;
+        for (int j = 0; j < colas.size(); j++) {
+            if (!cInvolucrados.contains(colas.get(j))) {
+                productCol = new ProductoColaborador();
+                productCol.setColaborador(colas.get(j));
+                productCol.setProducto(p);
+                try {
+                    pcJpaC.create(productCol);
+                } catch (Exception ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                cInvolucrados.remove(colas.get(j));
+            }
+        }
+        if (cInvolucrados.size() > 0) {
+            for (int i = 0; i < cInvolucrados.size(); i++) {
+                productCol = pcJpaC.findByIdPC(cInvolucrados.get(i).getIdColaborador(), p.getIdProducto());
+                try {
+                    pcJpaC.destroy(productCol.getProductoColaboradorPK());
+                } catch (NonexistentEntityException ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+        //datos del producto-Miembro
+        List<Miembro> miems = lstAutores.getItems();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
-        ProductoMiembro pm;
-        for (int i = 0; i < mis.size(); i++) {
-            pm = new ProductoMiembro();
-            pm.setIdMiembro(mis.get(i));
-            pm.setIdProducto(producto);
-            pmJpaC.create(pm);
+        List<ProductoMiembro> pms = pmJpaC.findByIdProducto(p);
+        ProductoMiembro productMiem;
+        for (int j = 0; j < miems.size(); j++) {
+            if (!mInvolucrados.contains(miems.get(j))) {
+                productMiem = new ProductoMiembro();
+                productMiem.setIdMiembro(miems.get(j));
+                productMiem.setIdProducto(p);
+                try {
+                    pmJpaC.create(productMiem);
+                } catch (Exception ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                mInvolucrados.remove(miems.get(j));
+            }
+        }
+        if (mInvolucrados.size() > 0) {
+            for (int i = 0; i < mInvolucrados.size(); i++) {
+                productMiem = pmJpaC.findByIdPM(mInvolucrados.get(i), p);
+                try {
+                    pmJpaC.destroy(productMiem.getIdMiembroProducto());
+                } catch (NonexistentEntityException ex) {
+                    Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
     }
 }
