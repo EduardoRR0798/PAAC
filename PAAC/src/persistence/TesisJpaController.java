@@ -15,6 +15,7 @@ import entity.Tesis;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.NonexistentEntityException;
 
 /**
@@ -23,8 +24,8 @@ import persistence.exceptions.NonexistentEntityException;
  */
 public class TesisJpaController implements Serializable {
 
-    public TesisJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public TesisJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -165,4 +166,15 @@ public class TesisJpaController implements Serializable {
         }
     }
     
+    public Tesis encontrarTesisPorIdProducto(Producto id) {
+        Tesis t;
+        try {
+            EntityManager em = getEntityManager();
+            Query q = em.createNamedQuery("Tesis.findByIdProducto", Tesis.class).setParameter("idProducto", id);
+            t = (Tesis) q.getSingleResult();
+        } catch (Exception e) {
+            t = null;
+        }
+        return t;
+    }
 }

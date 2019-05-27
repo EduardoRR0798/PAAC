@@ -17,6 +17,7 @@ import entity.Proyecto;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.NonexistentEntityException;
 import persistence.exceptions.PreexistingEntityException;
 
@@ -26,8 +27,8 @@ import persistence.exceptions.PreexistingEntityException;
  */
 public class ProductoProyectoJpaController implements Serializable {
 
-    public ProductoProyectoJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public ProductoProyectoJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
