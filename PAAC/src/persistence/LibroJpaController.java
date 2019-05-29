@@ -15,6 +15,7 @@ import entity.Producto;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import persistence.exceptions.NonexistentEntityException;
 
 /**
@@ -23,8 +24,8 @@ import persistence.exceptions.NonexistentEntityException;
  */
 public class LibroJpaController implements Serializable {
 
-    public LibroJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    public LibroJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("PAACPU");
     }
     private EntityManagerFactory emf = null;
 
@@ -163,6 +164,18 @@ public class LibroJpaController implements Serializable {
         } finally {
             em.close();
         }
+    }
+    
+    public Libro encontrarLibroPorIdProducto(Producto id) {
+        Libro l;
+        try {
+            EntityManager em = getEntityManager();
+            Query q = em.createNamedQuery("Libro.findByIdProducto", Libro.class).setParameter("idProducto", id);
+            l = (Libro) q.getSingleResult();
+        } catch (Exception e) {
+            l = null;
+        }
+        return l;
     }
     
 }
