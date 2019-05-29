@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.RegistrarLibroControlador">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="564.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.RegistrarLibroControlador">
    <bottom>
       <BorderPane prefHeight="93.0" prefWidth="750.0" BorderPane.alignment="CENTER">
          <right>
@@ -26,18 +26,8 @@
                      </BorderPane.margin>
                   </Button>
                </left>
-               <top>
-                  <Label fx:id="lblMensaje" text="Error" visible="false" BorderPane.alignment="CENTER" />
-               </top>
             </BorderPane>
          </right>
-         <left>
-            <Label fx:id="errorlbl" text="Error de datos" visible="false" BorderPane.alignment="CENTER">
-               <BorderPane.margin>
-                  <Insets left="10.0" />
-               </BorderPane.margin>
-            </Label>
-         </left>
          <center>
             <GridPane BorderPane.alignment="CENTER">
               <columnConstraints>
@@ -49,9 +39,9 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <TextField fx:id="tfColaborador" visible="false" GridPane.rowIndex="1" />
-                  <Label fx:id="lblNombreColaborador" text="Nombre colaborador:" visible="false" GridPane.halignment="LEFT" GridPane.valignment="BOTTOM" />
-                  <Button fx:id="btnAgregar" mnemonicParsing="false" onAction="#agregarALista" text="+" visible="false" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                  <TextField fx:id="txt_nombreColaborador" visible="false" GridPane.rowIndex="1" />
+                  <Label fx:id="lbl_nombreColaborador" text="Nombre colaborador:" visible="false" GridPane.halignment="LEFT" GridPane.valignment="BOTTOM" />
+                  <Button fx:id="btn_guardar" mnemonicParsing="false" onAction="#guardarColaborador" text="Guardar" visible="false" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="CENTER">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin>
@@ -59,6 +49,9 @@
                </children>
             </GridPane>
          </center>
+         <top>
+            <Label fx:id="errorlbl" text="Error" visible="false" BorderPane.alignment="CENTER" />
+         </top>
       </BorderPane>
    </bottom>
    <left>
@@ -116,7 +109,7 @@
                   <Insets top="15.0" />
                </GridPane.margin>
             </Label>
-            <Label text="Total ejemplares" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+            <Label text="Total ejemplares" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
                <GridPane.margin>
                   <Insets bottom="5.0" />
                </GridPane.margin>
@@ -136,11 +129,18 @@
                   <Insets left="10.0" top="8.0" />
                </GridPane.margin>
             </TextField>
-            <TextField fx:id="ejemplarestxt" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+            <TextField fx:id="ejemplarestxt" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
                <GridPane.margin>
                   <Insets bottom="1.0" left="10.0" />
                </GridPane.margin>
             </TextField>
+            <Label text="Archivo" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
+            <TextField fx:id="txt_archivo" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+               <GridPane.margin>
+                  <Insets left="10.0" />
+               </GridPane.margin>
+            </TextField>
+            <Button fx:id="btn_subirArchivo" mnemonicParsing="false" onAction="#subirArchivo" text="+" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
          </children>
       </GridPane>
    </left>
@@ -230,6 +230,20 @@
                </center>
             </BorderPane>
          </bottom>
+         <center>
+            <ComboBox fx:id="estadocb" prefWidth="150.0" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets right="200.0" />
+               </BorderPane.margin>
+            </ComboBox>
+         </center>
+         <left>
+            <Label text="Estado" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets left="50.0" />
+               </BorderPane.margin>
+            </Label>
+         </left>
       </BorderPane>
    </center>
 </BorderPane>
