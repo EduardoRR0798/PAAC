@@ -39,8 +39,6 @@ public class Colaborador implements Serializable {
     private String nombre;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "colaborador")
     private List<ProductoColaborador> productoColaboradorList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "colaborador")
-    private List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoList;
 
     public Colaborador() {
     }
@@ -72,15 +70,6 @@ public class Colaborador implements Serializable {
 
     public void setProductoColaboradorList(List<ProductoColaborador> productoColaboradorList) {
         this.productoColaboradorList = productoColaboradorList;
-    }
-
-    @XmlTransient
-    public List<ColaboradorCuerpoacademico> getColaboradorCuerpoacademicoList() {
-        return colaboradorCuerpoacademicoList;
-    }
-
-    public void setColaboradorCuerpoacademicoList(List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoList) {
-        this.colaboradorCuerpoacademicoList = colaboradorCuerpoacademicoList;
     }
 
     @Override

@@ -159,4 +159,21 @@ public class CaMiembroJpaController implements Serializable {
         }
         return cam;
     }
+    
+    /**
+     * Recupera todos los miembros que pertenezcan a un CA.
+     * @param ca id del Cuerpo academico.
+     * @return Lista con las relaciones de miembro y Cuerpo academico.
+     */
+    public List<CaMiembro> findByIdCA(Integer ca) {
+        EntityManager em = getEntityManager();
+        List<CaMiembro> cams;
+        try {
+            Query q = em.createNamedQuery("CaMiembro.findByIdCuerpoAcademico", CaMiembro.class).setParameter("idCuerpoAcademico", ca);
+            cams = q.getResultList();
+        } catch (Exception e) {
+            cams = null;
+        }
+        return cams;
+    }
 }

@@ -39,8 +39,6 @@ public class Pais implements Serializable {
     private String nombre;
     @OneToMany(mappedBy = "idPais")
     private List<Producto> productoList;
-    @OneToMany(mappedBy = "idPais")
-    private List<Cuerpoacademicoexterno> cuerpoacademicoexternoList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idPais")
     private List<Gradoacademico> gradoacademicoList;
 
@@ -74,15 +72,6 @@ public class Pais implements Serializable {
 
     public void setProductoList(List<Producto> productoList) {
         this.productoList = productoList;
-    }
-
-    @XmlTransient
-    public List<Cuerpoacademicoexterno> getCuerpoacademicoexternoList() {
-        return cuerpoacademicoexternoList;
-    }
-
-    public void setCuerpoacademicoexternoList(List<Cuerpoacademicoexterno> cuerpoacademicoexternoList) {
-        this.cuerpoacademicoexternoList = cuerpoacademicoexternoList;
     }
 
     @XmlTransient

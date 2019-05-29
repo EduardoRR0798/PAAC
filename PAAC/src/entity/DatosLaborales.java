@@ -40,8 +40,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "DatosLaborales.findByIes", query = "SELECT d FROM DatosLaborales d WHERE d.ies = :ies")
     , @NamedQuery(name = "DatosLaborales.findByNombramiento", query = "SELECT d FROM DatosLaborales d WHERE d.nombramiento = :nombramiento")
     , @NamedQuery(name = "DatosLaborales.findByTipo", query = "SELECT d FROM DatosLaborales d WHERE d.tipo = :tipo")
-    , @NamedQuery(name = "DatosLaborales.findByUnidadAcademica", query = "SELECT d FROM DatosLaborales d WHERE d.unidadAcademica = :unidadAcademica")
-    , @NamedQuery(name = "DatosLaborales.findByIdMiembro", query = "SELECT d FROM DatosLaborales d WHERE d.idMiembro = :idMiembro")})
+    , @NamedQuery(name = "DatosLaborales.findByUnidadAcademica", query = "SELECT d FROM DatosLaborales d WHERE d.unidadAcademica = :unidadAcademica")})
 public class DatosLaborales implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -191,7 +190,7 @@ public class DatosLaborales implements Serializable {
 
     @Override
     public String toString() {
-        return nombramiento;
+        return "entity.DatosLaborales[ idDatosLaborales=" + idDatosLaborales + " ]";
     }
     
 }

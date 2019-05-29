@@ -95,6 +95,7 @@ public class SeleccionProductosController extends ControladorProductos implement
         switch (seleccion) {
             case 0:
                 super.registrarArticulo(miembro);
+                ((Node) btnCancelar).getScene().getWindow().hide();
                 break;
             case 1:
                 break;
@@ -102,17 +103,18 @@ public class SeleccionProductosController extends ControladorProductos implement
                 break;
             case 3:
                 super.registrarMemoria(miembro);
+                ((Node) btnCancelar).getScene().getWindow().hide();
                 break;
             case 4:
                 break;
             case 5:
                 super.registrarPrototipo(miembro);
+                ((Node) btnCancelar).getScene().getWindow().hide();
                 break;
             case 6:
                 break;
             default:
                 break;
         }
-        ((Node) btnCancelar).getScene().getWindow().hide();
     }
 }

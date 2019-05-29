@@ -137,7 +137,7 @@ public class ControladorActualizarArticulo extends ControladorProductos implemen
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         colaboradores = super.recuperarColaboradores();
-        miembros = super.recuperarMiembros();
+        miembros = super.recuperarMiembros(m);
         cbPais.setItems(recuperarPaises());
         cbProposito.setItems(propositos);
         cbEstadoActual.setItems(estados);
@@ -435,7 +435,6 @@ public class ControladorActualizarArticulo extends ControladorProductos implemen
             items.add(cmi);
         }
         mbMiembros.getItems().setAll(items);
-        
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
                 
@@ -537,7 +536,7 @@ public class ControladorActualizarArticulo extends ControladorProductos implemen
             prJpaC.edit(p);
         } catch (Exception ex) {
             Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
-            lblMensaje.setText("Error al conectar con la base de datos");
+            lblMensaje.setText(ERRORBD);
         }
         ///datos del producto-colaborador///
         

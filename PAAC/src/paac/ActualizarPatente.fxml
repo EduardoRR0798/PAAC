@@ -40,7 +40,8 @@
             <Label text="Descripcion:" GridPane.rowIndex="5" />
             <Label text="Tipo:" GridPane.rowIndex="6" />
             <Label text="Clasificacion:;" GridPane.rowIndex="7" />
-            <ComboBox fx:id="cbPais" prefHeight="25.0" prefWidth="268.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Nombre Evidencia" GridPane.rowIndex="8" />
+            <ComboBox fx:id="cbPais" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <TextField fx:id="tfTitulo" GridPane.columnIndex="1" />
             <TextField fx:id="tfAnio" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <TextField fx:id="tfEstadoActual" GridPane.columnIndex="1" GridPane.rowIndex="4" />
@@ -48,8 +49,9 @@
             <TextField fx:id="tfDescripcion" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <TextField fx:id="tfClasificacion" GridPane.columnIndex="1" GridPane.rowIndex="7" />
             <TextField fx:id="tfTipo" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-            <TextField fx:id="tfPdf" prefWidth="215.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-            <Label text="Archivo:" GridPane.rowIndex="8" />
+            <TextField fx:id="tfPdf" prefWidth="215.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <Label text="Archivo:" GridPane.rowIndex="9" />
+            <TextField fx:id="tfNombreEvidencia" GridPane.columnIndex="1" GridPane.rowIndex="8" />
          </children>
       </GridPane>
       <Label fx:id="lblNotificacion" layoutX="217.0" layoutY="21.0" prefHeight="17.0" prefWidth="412.0" />

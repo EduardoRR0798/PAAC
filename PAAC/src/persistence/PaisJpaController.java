@@ -8,7 +8,6 @@ import javax.persistence.criteria.Root;
 import entity.Producto;
 import java.util.ArrayList;
 import java.util.List;
-import entity.Cuerpoacademicoexterno;
 import entity.Gradoacademico;
 import entity.Pais;
 import javax.persistence.EntityManager;
@@ -36,9 +35,6 @@ public class PaisJpaController implements Serializable {
         if (pais.getProductoList() == null) {
             pais.setProductoList(new ArrayList<Producto>());
         }
-        if (pais.getCuerpoacademicoexternoList() == null) {
-            pais.setCuerpoacademicoexternoList(new ArrayList<Cuerpoacademicoexterno>());
-        }
         if (pais.getGradoacademicoList() == null) {
             pais.setGradoacademicoList(new ArrayList<Gradoacademico>());
         }
@@ -52,12 +48,6 @@ public class PaisJpaController implements Serializable {
                 attachedProductoList.add(productoListProductoToAttach);
             }
             pais.setProductoList(attachedProductoList);
-            List<Cuerpoacademicoexterno> attachedCuerpoacademicoexternoList = new ArrayList<Cuerpoacademicoexterno>();
-            for (Cuerpoacademicoexterno cuerpoacademicoexternoListCuerpoacademicoexternoToAttach : pais.getCuerpoacademicoexternoList()) {
-                cuerpoacademicoexternoListCuerpoacademicoexternoToAttach = em.getReference(cuerpoacademicoexternoListCuerpoacademicoexternoToAttach.getClass(), cuerpoacademicoexternoListCuerpoacademicoexternoToAttach.getIdCuerpoeExterno());
-                attachedCuerpoacademicoexternoList.add(cuerpoacademicoexternoListCuerpoacademicoexternoToAttach);
-            }
-            pais.setCuerpoacademicoexternoList(attachedCuerpoacademicoexternoList);
             List<Gradoacademico> attachedGradoacademicoList = new ArrayList<Gradoacademico>();
             for (Gradoacademico gradoacademicoListGradoacademicoToAttach : pais.getGradoacademicoList()) {
                 gradoacademicoListGradoacademicoToAttach = em.getReference(gradoacademicoListGradoacademicoToAttach.getClass(), gradoacademicoListGradoacademicoToAttach.getIdGradoAcademico());
@@ -72,15 +62,6 @@ public class PaisJpaController implements Serializable {
                 if (oldIdPaisOfProductoListProducto != null) {
                     oldIdPaisOfProductoListProducto.getProductoList().remove(productoListProducto);
                     oldIdPaisOfProductoListProducto = em.merge(oldIdPaisOfProductoListProducto);
-                }
-            }
-            for (Cuerpoacademicoexterno cuerpoacademicoexternoListCuerpoacademicoexterno : pais.getCuerpoacademicoexternoList()) {
-                Pais oldIdPaisOfCuerpoacademicoexternoListCuerpoacademicoexterno = cuerpoacademicoexternoListCuerpoacademicoexterno.getIdPais();
-                cuerpoacademicoexternoListCuerpoacademicoexterno.setIdPais(pais);
-                cuerpoacademicoexternoListCuerpoacademicoexterno = em.merge(cuerpoacademicoexternoListCuerpoacademicoexterno);
-                if (oldIdPaisOfCuerpoacademicoexternoListCuerpoacademicoexterno != null) {
-                    oldIdPaisOfCuerpoacademicoexternoListCuerpoacademicoexterno.getCuerpoacademicoexternoList().remove(cuerpoacademicoexternoListCuerpoacademicoexterno);
-                    oldIdPaisOfCuerpoacademicoexternoListCuerpoacademicoexterno = em.merge(oldIdPaisOfCuerpoacademicoexternoListCuerpoacademicoexterno);
                 }
             }
             for (Gradoacademico gradoacademicoListGradoacademico : pais.getGradoacademicoList()) {
@@ -108,8 +89,6 @@ public class PaisJpaController implements Serializable {
             Pais persistentPais = em.find(Pais.class, pais.getIdPais());
             List<Producto> productoListOld = persistentPais.getProductoList();
             List<Producto> productoListNew = pais.getProductoList();
-            List<Cuerpoacademicoexterno> cuerpoacademicoexternoListOld = persistentPais.getCuerpoacademicoexternoList();
-            List<Cuerpoacademicoexterno> cuerpoacademicoexternoListNew = pais.getCuerpoacademicoexternoList();
             List<Gradoacademico> gradoacademicoListOld = persistentPais.getGradoacademicoList();
             List<Gradoacademico> gradoacademicoListNew = pais.getGradoacademicoList();
             List<String> illegalOrphanMessages = null;
@@ -131,13 +110,6 @@ public class PaisJpaController implements Serializable {
             }
             productoListNew = attachedProductoListNew;
             pais.setProductoList(productoListNew);
-            List<Cuerpoacademicoexterno> attachedCuerpoacademicoexternoListNew = new ArrayList<Cuerpoacademicoexterno>();
-            for (Cuerpoacademicoexterno cuerpoacademicoexternoListNewCuerpoacademicoexternoToAttach : cuerpoacademicoexternoListNew) {
-                cuerpoacademicoexternoListNewCuerpoacademicoexternoToAttach = em.getReference(cuerpoacademicoexternoListNewCuerpoacademicoexternoToAttach.getClass(), cuerpoacademicoexternoListNewCuerpoacademicoexternoToAttach.getIdCuerpoeExterno());
-                attachedCuerpoacademicoexternoListNew.add(cuerpoacademicoexternoListNewCuerpoacademicoexternoToAttach);
-            }
-            cuerpoacademicoexternoListNew = attachedCuerpoacademicoexternoListNew;
-            pais.setCuerpoacademicoexternoList(cuerpoacademicoexternoListNew);
             List<Gradoacademico> attachedGradoacademicoListNew = new ArrayList<Gradoacademico>();
             for (Gradoacademico gradoacademicoListNewGradoacademicoToAttach : gradoacademicoListNew) {
                 gradoacademicoListNewGradoacademicoToAttach = em.getReference(gradoacademicoListNewGradoacademicoToAttach.getClass(), gradoacademicoListNewGradoacademicoToAttach.getIdGradoAcademico());
@@ -160,23 +132,6 @@ public class PaisJpaController implements Serializable {
                     if (oldIdPaisOfProductoListNewProducto != null && !oldIdPaisOfProductoListNewProducto.equals(pais)) {
                         oldIdPaisOfProductoListNewProducto.getProductoList().remove(productoListNewProducto);
                         oldIdPaisOfProductoListNewProducto = em.merge(oldIdPaisOfProductoListNewProducto);
-                    }
-                }
-            }
-            for (Cuerpoacademicoexterno cuerpoacademicoexternoListOldCuerpoacademicoexterno : cuerpoacademicoexternoListOld) {
-                if (!cuerpoacademicoexternoListNew.contains(cuerpoacademicoexternoListOldCuerpoacademicoexterno)) {
-                    cuerpoacademicoexternoListOldCuerpoacademicoexterno.setIdPais(null);
-                    cuerpoacademicoexternoListOldCuerpoacademicoexterno = em.merge(cuerpoacademicoexternoListOldCuerpoacademicoexterno);
-                }
-            }
-            for (Cuerpoacademicoexterno cuerpoacademicoexternoListNewCuerpoacademicoexterno : cuerpoacademicoexternoListNew) {
-                if (!cuerpoacademicoexternoListOld.contains(cuerpoacademicoexternoListNewCuerpoacademicoexterno)) {
-                    Pais oldIdPaisOfCuerpoacademicoexternoListNewCuerpoacademicoexterno = cuerpoacademicoexternoListNewCuerpoacademicoexterno.getIdPais();
-                    cuerpoacademicoexternoListNewCuerpoacademicoexterno.setIdPais(pais);
-                    cuerpoacademicoexternoListNewCuerpoacademicoexterno = em.merge(cuerpoacademicoexternoListNewCuerpoacademicoexterno);
-                    if (oldIdPaisOfCuerpoacademicoexternoListNewCuerpoacademicoexterno != null && !oldIdPaisOfCuerpoacademicoexternoListNewCuerpoacademicoexterno.equals(pais)) {
-                        oldIdPaisOfCuerpoacademicoexternoListNewCuerpoacademicoexterno.getCuerpoacademicoexternoList().remove(cuerpoacademicoexternoListNewCuerpoacademicoexterno);
-                        oldIdPaisOfCuerpoacademicoexternoListNewCuerpoacademicoexterno = em.merge(oldIdPaisOfCuerpoacademicoexternoListNewCuerpoacademicoexterno);
                     }
                 }
             }
@@ -235,11 +190,6 @@ public class PaisJpaController implements Serializable {
             for (Producto productoListProducto : productoList) {
                 productoListProducto.setIdPais(null);
                 productoListProducto = em.merge(productoListProducto);
-            }
-            List<Cuerpoacademicoexterno> cuerpoacademicoexternoList = pais.getCuerpoacademicoexternoList();
-            for (Cuerpoacademicoexterno cuerpoacademicoexternoListCuerpoacademicoexterno : cuerpoacademicoexternoList) {
-                cuerpoacademicoexternoListCuerpoacademicoexterno.setIdPais(null);
-                cuerpoacademicoexternoListCuerpoacademicoexterno = em.merge(cuerpoacademicoexternoListCuerpoacademicoexterno);
             }
             em.remove(pais);
             em.getTransaction().commit();

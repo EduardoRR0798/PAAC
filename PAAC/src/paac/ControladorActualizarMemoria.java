@@ -116,7 +116,6 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         colaboradores = recuperarColaboradores();
-        miembros = recuperarMiembros();
         cbPais.setItems((ObservableList<Pais>) recuperarPaises());
         cbEstadoActual.setItems(estados);
         cbProposito.setItems(propositos);
@@ -167,11 +166,9 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
      * @param pro id del producto.
      */
     public void recibirParametros(Producto pro, Miembro m) {
-        Producto producto;
         this.m = m;
-        ProductoJpaController pJpaC = new ProductoJpaController();
-        producto = pJpaC.findProducto(pro.getIdProducto());
-        p = producto;
+        p = pro;
+        miembros = recuperarMiembros(m);
         cInvolucrados = recuperarColaboradoresInvolucrados(p);
         mInvolucrados = recuperarMiembrosInvolucrados(p);
         iniciarMiembros();
@@ -395,7 +392,7 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
             prJpaC.edit(p);
         } catch (Exception ex) {
             Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
-            lblMensaje.setText("Error al conectar con la base de datos");
+            lblMensaje.setText(ERRORBD);
         }
         ///datos del producto-colaborador///
         
@@ -501,7 +498,7 @@ public class ControladorActualizarMemoria extends ControladorProductos implement
             items.add(cmi);
         }
         mbMiembros.getItems().setAll(items);
-        
+        lstAutores.getItems().add(m);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
                 

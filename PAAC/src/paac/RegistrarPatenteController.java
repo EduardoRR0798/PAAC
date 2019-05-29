@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package paac;
 
 import entity.Colaborador;
@@ -70,10 +65,11 @@ import persistence.ProductoMiembroJpaController;
     private Label lblNotificacion;
     private ListView<Miembro> lwMiembros;
     private File file;
+    @FXML
+    private TextField tfNombreEvidencia;
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
     private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
- 
     @FXML
     private TextField tfTitulo;
     @FXML
@@ -97,7 +93,7 @@ import persistence.ProductoMiembroJpaController;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
          colaboradores = super.recuperarColaboradores();
-        miembros = super.recuperarMiembros();
+//        miembros = super.recuperarMiembros();
         paises = recuperarPaises();
         cbPais.setItems(paises);
         iniciarMiembros();
@@ -129,6 +125,7 @@ import persistence.ProductoMiembroJpaController;
                 || tfProposito.getText().isEmpty()
                 || tfClasificacion.getText().isEmpty()
                 || tfDescripcion.getText().isEmpty()
+               || tfNombreEvidencia.getText().isEmpty()
                 || tfPdf.getText().isEmpty()
                 || tfTipo.getText().isEmpty()
                 || cbPais.getSelectionModel().isEmpty()
@@ -144,11 +141,11 @@ import persistence.ProductoMiembroJpaController;
         return r;
           }
           
-            
+              //    || tfNombre.getText().isEmpty()
              
              
       /**
-     * Registra patente tras validar que los datos introducidos por el usuario.
+     * Registra Capitulo de libro tras validar que los datos introducidos por el usuario.
      * @param event Clic en el boton Aceptar
      */
     @FXML
@@ -169,6 +166,7 @@ import persistence.ProductoMiembroJpaController;
            pa.setTipo(tfTipo.getText().trim());
            pa.setDescripcion(tfDescripcion.getText().trim());
            pa.setClasifIntlPatentes(tfClasificacion.getText().trim());
+  
           List<Patente> patentes =new ArrayList<>();
           patentes.add(pa);
           PatenteJpaController pJpaC = new PatenteJpaController();
@@ -183,7 +181,7 @@ import persistence.ProductoMiembroJpaController;
             producto.setArchivoPDF(doc);
             producto.setNombrePDF(file.getName());
         } catch(IOException ex) {
-            Logger.getLogger(RegistrarPatenteController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
         }
    
         producto.setAnio(Integer.parseInt(tfAnio.getText()));
@@ -194,7 +192,6 @@ import persistence.ProductoMiembroJpaController;
         producto.setPatenteList(patentes);
         ProductoJpaController prJpaC = new ProductoJpaController();
         if (!prJpaC.create(producto)) {
-            System.out.println(producto.getIdProducto());
            lblNotificacion.setText("Error al conectar con la base de datos...");
         }
         ///datos del producto-colaborador///
@@ -216,9 +213,7 @@ import persistence.ProductoMiembroJpaController;
         System.out.println(mis);
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
         ProductoMiembro pm;
-           
         for (int i = 0; i < mis.size(); i++) {
-            
       
             pm = new ProductoMiembro();
             pm.setIdMiembro(mis.get(i));
@@ -226,7 +221,7 @@ import persistence.ProductoMiembroJpaController;
             pmJpaC.create(pm);
         }
     }       
-      
+       
         /**
      * Este metodo agregar los checkmenuitem al menubutton para una multiple seleccion.
      */

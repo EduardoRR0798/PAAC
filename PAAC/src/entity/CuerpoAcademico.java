@@ -46,16 +46,8 @@ public class CuerpoAcademico implements Serializable {
     private String desAdscripcion;
     @Column(name = "nombre")
     private String nombre;
-    @OneToMany(mappedBy = "idCA")
-    private List<Participacion> participacionList;
     @OneToMany(mappedBy = "idCuerpoAcademico")
     private List<Producto> productoList;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "cuerpoAcademico")
-    private ProyectoInvestigacionconjunto proyectoInvestigacionconjunto;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "cuerpoAcademico")
-    private List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoList;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "cuerpoAcademico")
-    private Pe pe;
 
     public CuerpoAcademico() {
     }
@@ -105,46 +97,12 @@ public class CuerpoAcademico implements Serializable {
     }
 
     @XmlTransient
-    public List<Participacion> getParticipacionList() {
-        return participacionList;
-    }
-
-    public void setParticipacionList(List<Participacion> participacionList) {
-        this.participacionList = participacionList;
-    }
-
-    @XmlTransient
     public List<Producto> getProductoList() {
         return productoList;
     }
 
     public void setProductoList(List<Producto> productoList) {
         this.productoList = productoList;
-    }
-
-    public ProyectoInvestigacionconjunto getProyectoInvestigacionconjunto() {
-        return proyectoInvestigacionconjunto;
-    }
-
-    public void setProyectoInvestigacionconjunto(ProyectoInvestigacionconjunto proyectoInvestigacionconjunto) {
-        this.proyectoInvestigacionconjunto = proyectoInvestigacionconjunto;
-    }
-
-    @XmlTransient
-    public List<ColaboradorCuerpoacademico> getColaboradorCuerpoacademicoList() {
-        return colaboradorCuerpoacademicoList;
-    }
-
-    public void setColaboradorCuerpoacademicoList(List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoList) {
-        this.colaboradorCuerpoacademicoList = colaboradorCuerpoacademicoList;
-    }
-
-    public Pe getPe() {
-        return pe;
-    }
-
-    public void setPe(Pe pe) {
-        this.pe = pe;
     }
 
     @Override

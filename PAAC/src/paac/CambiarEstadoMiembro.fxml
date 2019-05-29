@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.CambiarEstadoMiembroController">
+   <children>
+      <ComboBox fx:id="cbEstado" layoutX="145.0" layoutY="120.0" prefHeight="25.0" prefWidth="347.0" AnchorPane.leftAnchor="145.0" />
+      <ComboBox fx:id="cbTipo" layoutX="145.0" layoutY="193.0" prefHeight="25.0" prefWidth="347.0" AnchorPane.leftAnchor="145.0" />
+      <Button fx:id="btnAceptar" layoutX="350.0" layoutY="339.0" mnemonicParsing="false" onAction="#aceptar" text="Aceptar" />
+      <Button fx:id="btnCancelar" layoutX="492.0" layoutY="339.0" mnemonicParsing="false" onAction="#cancelar" text="Cancelar" />
+      <Label layoutX="34.0" layoutY="124.0" text="Estado:" AnchorPane.leftAnchor="30.0" />
+      <Label layoutX="30.0" layoutY="197.0" text="Tipo:" AnchorPane.leftAnchor="30.0" />
+      <Label layoutX="33.0" layoutY="67.0" text="Nombre:" AnchorPane.leftAnchor="33.0" />
+      <Label fx:id="lblNombre" layoutX="145.0" layoutY="67.0" prefHeight="17.0" prefWidth="347.0" AnchorPane.leftAnchor="145.0" AnchorPane.rightAnchor="158.0" />
+      <Label fx:id="lblMensaje" layoutX="336.0" layoutY="28.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" />
+   </children>
+</AnchorPane>

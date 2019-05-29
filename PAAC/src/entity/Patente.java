@@ -8,7 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -27,7 +26,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Patente.findByIdPatente", query = "SELECT p FROM Patente p WHERE p.idPatente = :idPatente")
     , @NamedQuery(name = "Patente.findByClasifIntlPatentes", query = "SELECT p FROM Patente p WHERE p.clasifIntlPatentes = :clasifIntlPatentes")
     , @NamedQuery(name = "Patente.findByDescripcion", query = "SELECT p FROM Patente p WHERE p.descripcion = :descripcion")
-    , @NamedQuery(name = "Patente.findByIdProducto", query = "SELECT p FROM Patente p WHERE p.idProducto = :idProducto")
     , @NamedQuery(name = "Patente.findByTipo", query = "SELECT p FROM Patente p WHERE p.tipo = :tipo")})
 public class Patente implements Serializable {
 

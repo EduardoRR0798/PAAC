@@ -16,7 +16,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -26,11 +25,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -55,7 +51,7 @@ import utilidades.UtilidadCadenas;
 /**
  * FXML Controller class
  *
- * @author Eduar
+ * @author Eduardo Rosas Rivera
  */
 public class RegistrarPrototipoController extends ControladorProductos implements Initializable {
 
@@ -109,10 +105,8 @@ public class RegistrarPrototipoController extends ControladorProductos implement
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        colaboradores = recuperarColaboradores();
-        miembros = recuperarMiembros();
+        colaboradores = recuperarColaboradores();       
         iniciarColaboradores();
-        iniciarMiembros();
         cbPais.setItems((ObservableList<Pais>) recuperarPaises());
         cbPais.getSelectionModel().select(116);
         UtilidadCadenas uc = new UtilidadCadenas();
@@ -131,6 +125,8 @@ public class RegistrarPrototipoController extends ControladorProductos implement
      */
     public void setMiembro(Miembro m) {
         this.m = m;
+        miembros = super.recuperarMiembros(m);
+        iniciarMiembros();
     }
     
     @FXML
@@ -304,7 +300,7 @@ public class RegistrarPrototipoController extends ControladorProductos implement
         ///datos del Producto///
         Producto producto = new Producto();
         
-        if (cbEstadoActual.getSelectionModel().getSelectedIndex() == 0) {
+        if (!btnCargar.isDisabled()) {
             if (!Objects.equals(file, null)) {
                 byte[] doc;
                 try {
@@ -396,6 +392,7 @@ public class RegistrarPrototipoController extends ControladorProductos implement
             items.add(cmi);
         }
         mbMiembros.getItems().setAll(items);
+        lstAutores.getItems().add(m);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
                 

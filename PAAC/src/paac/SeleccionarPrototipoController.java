@@ -4,33 +4,25 @@ import entity.Miembro;
 import entity.Producto;
 import entity.ProductoMiembro;
 import entity.Prototipo;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
@@ -130,34 +122,5 @@ public class SeleccionarPrototipoController extends ControladorProductos impleme
             }
         }
         lst.getItems().setAll(productos);
-    }
-    
-    /**
-     * Este metodo abre una nueva ventana para editar el articulo seleccionado 
-     * por el miembro.
-     * @param p id del producto seleccionado.
-     */
-    private void abrirVentanaEditarMemoria(Producto p) {
-        try {
-            Locale.setDefault(new Locale("es"));
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource(
-                    "ActualizarPrototipo.fxml"));
-            
-            Parent responder = loader.load();
-            ActualizarPrototipoController controller = loader.getController();
-            
-            Miembro m = new Miembro();
-            controller.recibirParametros(p, m);
-            
-            Scene scene = new Scene(responder);
-            Stage stage = new Stage();
-            
-            stage.setScene(scene);
-            stage.show();
-             ((Node) (btnCancelar)).getScene().getWindow().hide();
-        } catch (IOException ex) {
-            Logger.getLogger(SeleccionarMemoriaController.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 }

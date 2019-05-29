@@ -40,6 +40,7 @@
             <Label text="Descripcion:" GridPane.rowIndex="5" />
             <Label text="Tipo:" GridPane.rowIndex="6" />
             <Label text="Clasificacion:;" GridPane.rowIndex="7" />
+            <Label text="Nombre Evidencia" GridPane.rowIndex="8" />
             <ComboBox fx:id="cbPais" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <TextField fx:id="tfTitulo" GridPane.columnIndex="1" />
             <TextField fx:id="tfAnio" GridPane.columnIndex="1" GridPane.rowIndex="2" />
@@ -48,8 +49,9 @@
             <TextField fx:id="tfDescripcion" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <TextField fx:id="tfClasificacion" GridPane.columnIndex="1" GridPane.rowIndex="7" />
             <TextField fx:id="tfTipo" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-            <TextField fx:id="tfPdf" prefWidth="215.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-            <Label text="Archivo:" GridPane.rowIndex="8" />
+            <TextField fx:id="tfPdf" prefWidth="215.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <Label text="Archivo:" GridPane.rowIndex="9" />
+            <TextField fx:id="tfNombreEvidencia" GridPane.columnIndex="1" GridPane.rowIndex="8" />
          </children>
       </GridPane>
       <Label fx:id="lblNotificacion" layoutX="217.0" layoutY="21.0" prefHeight="17.0" prefWidth="412.0" />
@@ -63,7 +65,7 @@
       <Label layoutX="591.0" layoutY="474.0" text="Nombre:" />
       <Button layoutX="677.0" layoutY="411.0" mnemonicParsing="false" onAction="#mostrarCampoColaborador" text="AgregarColaborador" />
       <Button fx:id="btAgregar" layoutX="711.0" layoutY="526.0" mnemonicParsing="false" onAction="#agregarALista" text="Aceptar" />
-      <Button layoutX="457.0" layoutY="387.0" mnemonicParsing="false" onAction="#cargar" text="Carga" />
+      <Button layoutX="457.0" layoutY="424.0" mnemonicParsing="false" onAction="#cargar" text="Carga" />
       <MenuButton fx:id="mbAutores" layoutX="542.0" layoutY="68.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="229.0" text="Selecciona Autor">
         <items>
           <MenuItem mnemonicParsing="false" text="Action 1" />

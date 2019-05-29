@@ -1,10 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package paac;
 
+import entity.Miembro;
 import entity.Producto;
 import entity.ProductoMiembro;
 import java.net.URL;
@@ -49,8 +45,7 @@ public class SeleccionarPatenteController implements Initializable {
     @FXML
     private ListView<Producto> lwPatente;
     private ObservableList<Producto> productos = FXCollections.observableArrayList();
-    
-    
+    private Miembro miembro;
 
     /**
      * Initializes the controller class.
@@ -66,16 +61,23 @@ public class SeleccionarPatenteController implements Initializable {
                     if (mouseEvent.getClickCount() == 2) {
                         if (!productos.isEmpty()) {
                             Integer p = lwPatente.getSelectionModel().getSelectedItems().get(0).getIdProducto();
-                            Producto P = lwPatente.getSelectionModel().getSelectedItem();
-                            System.out.println(P.getIdProducto());
-                            abrirVentanaActualizarPatente(P);
+                            abrirVentanaActualizarPatente(lwPatente.getSelectionModel().getSelectedItem());
                         }
                     }
                 }
             }
         });
-    }         
-      /**
+    }       
+    
+    /**
+     * Recibe el miembro de la ventana anterior.
+     * @param miembro 
+     */
+    public void recibirParametros(Miembro miembro) {
+        this.miembro = miembro;
+    }
+    
+    /**
      * Cancela una operacion.
      * @param event Clic en el boton Cancelar.
      */
@@ -150,7 +152,7 @@ public class SeleccionarPatenteController implements Initializable {
             
             stage.setScene(scene);
             stage.show();
-  //     ((Node) (btnCancelar)).getScene().getWindow().hide();
+  //       ((Node) (btnCancelar)).getScene().getWindow().hide();
         } catch (IOException ex) {
             Logger.getLogger(SeleccionarPatenteController.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();

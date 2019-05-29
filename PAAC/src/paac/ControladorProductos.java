@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -45,6 +46,7 @@ public abstract class ControladorProductos {
             "En proceso",
             "Terminado");
     protected Producto producto;
+    protected static final String ERRORBD = "Error al conectar con la base de datos";
     
     /**
      * VErifica que el anio introducido sea menor o igual al a;o acutual.
@@ -84,13 +86,15 @@ public abstract class ControladorProductos {
      * Recupera a todos los miembros de la base de datos.
      * @return true si pudo recuperar algo, false si no.
      */
-    protected ObservableList<Miembro> recuperarMiembros() {
+    protected ObservableList<Miembro> recuperarMiembros(Miembro m) {
         ObservableList<Miembro> mis = FXCollections.observableArrayList();
         MiembroJpaController mJpaC = new MiembroJpaController();
         List<Miembro> ms;
         ms = mJpaC.findAll();
         for (int i = 0; i < ms.size(); i++) {
-            mis.add(ms.get(i));
+            if (!Objects.equals(ms.get(i).getIdMiembro(), m.getIdMiembro())) {
+                mis.add(ms.get(i));
+            }
         }
         return mis;
     }
@@ -244,10 +248,7 @@ public abstract class ControladorProductos {
             loader.setLocation(getClass().getResource("RegistrarMemoria.fxml"));
             Parent responder = loader.load();
             ControladorRegistrarMemoria crm = loader.getController();
-            System.out.println("Controlador Productos "+miembro.getIdMiembro());
-            crm.setMiembro(miembro);
-
-            
+            crm.setMiembro(miembro);            
             Scene scene = new Scene(responder);
             Stage stage = new Stage();
             stage.setTitle("Registrar memoria");
@@ -576,6 +577,56 @@ public abstract class ControladorProductos {
             Scene scene = new Scene(responder);
             Stage stage = new Stage();
             stage.setTitle("Seleccion de productos");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * Este metodo abre la ventana para seleccionar los miembros a modificar.
+     * @param miembro Miembro que inicio sesion en el sistema.
+     */
+    protected void seleccionarMiembros(Miembro miembro) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("SeleccionarMiembro.fxml"));
+            
+            Parent responder = loader.load();
+            SeleccionarMiembroController smc = loader.getController();
+            smc.recibirParametros(miembro);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Seleccion de miembro");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * Este metodo abre la ventana para seleccionar los miembros a modificar.
+     * @param miembro Miembro que inicio sesion en el sistema.
+     */
+    protected void cambiarEstadoMiembro(Miembro responsable, Miembro edit) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("CambiarEstadoMiembro.fxml"));
+            
+            Parent responder = loader.load();
+            CambiarEstadoMiembroController smc = loader.getController();
+            smc.recibirParametros(responsable, edit);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Cambiar el estado del miembro");
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {

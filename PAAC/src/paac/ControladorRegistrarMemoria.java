@@ -104,7 +104,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
     private File file;
     private Miembro m;
-    
+
     /**
      * Initializes the controller class.
      * @param url
@@ -113,14 +113,12 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         colaboradores = super.recuperarColaboradores();
-        miembros = super.recuperarMiembros();
         ObservableList<Pais> paises;
         paises = recuperarPaises();
         cbPais.setItems(paises);
         cbPais.getSelectionModel().select(116);
         cbProposito.setItems(super.propositos);
         cbEstadoActual.setItems(super.estados);
-        iniciarMiembros();
         iniciarColaboradores();
         UtilidadCadenas uc = new UtilidadCadenas();
         uc.limitarCampos(tfTitulo, 140);
@@ -159,6 +157,8 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
      */
     public void setMiembro(Miembro miembro) {
         this.m = miembro;
+        miembros = super.recuperarMiembros(m);
+        iniciarMiembros();
     }
     
     /**
@@ -199,6 +199,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         Optional<ButtonType> result = cancelar.showAndWait();
         if(result.get() == ButtonType.OK) {
             seleccionarProductos(m);
+            ((Node) btnCancelar).getScene().getWindow().hide();
         }
     }
 
@@ -338,7 +339,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         mJpaC.create(memoria);
         ///datos del Producto///
         Producto producto = new Producto();
-        if (!btnCancelar.isDisabled()) {
+        if (!btnCargar.isDisabled()) {
             byte[] doc;
             try {
                 doc = Files.readAllBytes(file.toPath());
@@ -364,7 +365,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         producto.setMemoriaList(memos);
         ProductoJpaController prJpaC = new ProductoJpaController();
         if (!prJpaC.create(producto)) {
-           lblMensaje.setText("Error al conectar con la base de datos...");
+           lblMensaje.setText(ERRORBD);
         }
         ///datos del producto-colaborador///
         ObservableList<Colaborador> colas = lstColaboradores.getItems();
@@ -429,6 +430,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
             items.add(cmi);
         }
         mbMiembros.getItems().setAll(items);
+        lstAutores.getItems().add(m);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
                 

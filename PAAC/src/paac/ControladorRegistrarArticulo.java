@@ -135,12 +135,10 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         colaboradores = super.recuperarColaboradores();
-        miembros = super.recuperarMiembros();
         cbPais.setItems(recuperarPaises());
         cbPais.getSelectionModel().select(116);
         cbProposito.setItems(super.propositos);
         cbEstadoActual.setItems(super.estados);
-        iniciarMiembros();
         iniciarColaboradores();
         UtilidadCadenas uc = new UtilidadCadenas();
         uc.limitarCampos(tfTitulo, 140);
@@ -163,6 +161,8 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
      */
     public void recibirParametros(Miembro m) {
         this.m = m;
+        miembros = super.recuperarMiembros(m);
+        iniciarMiembros();
     }
     
     /**
@@ -448,7 +448,7 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
         producto.setArticuloList(artics);
         ProductoJpaController prJpaC = new ProductoJpaController();
         if (!prJpaC.create(producto)) {
-           lblMensaje.setText("Error al conectar con la base de datos...");
+           lblMensaje.setText(ERRORBD);
         }
         ///datos del producto-colaborador///
         ObservableList<Colaborador> colas = lstColaboradores.getItems();
@@ -513,6 +513,7 @@ public class ControladorRegistrarArticulo extends ControladorProductos implement
             items.add(cmi);
         }
         mbMiembros.getItems().setAll(items);
+        lstAutores.getItems().add(m);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
                 

@@ -35,9 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "CapituloLibro.findByNombreLibro", query = "SELECT c FROM CapituloLibro c WHERE c.nombreLibro = :nombreLibro")
     , @NamedQuery(name = "CapituloLibro.findByRangoPaginas", query = "SELECT c FROM CapituloLibro c WHERE c.rangoPaginas = :rangoPaginas")
     , @NamedQuery(name = "CapituloLibro.findByTiraje", query = "SELECT c FROM CapituloLibro c WHERE c.tiraje = :tiraje")
-    , @NamedQuery(name = "CapituloLibro.findByTituloLibro", query = "SELECT c FROM CapituloLibro c WHERE c.tituloLibro = :tituloLibro")
-    , @NamedQuery(name = "CapituloLibro.findByIdProducto", query = "SELECT c FROM CapituloLibro c WHERE c.idProducto = :idProducto")})
-   
+    , @NamedQuery(name = "CapituloLibro.findByTituloLibro", query = "SELECT c FROM CapituloLibro c WHERE c.tituloLibro = :tituloLibro")})
 public class CapituloLibro implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -169,19 +167,9 @@ public class CapituloLibro implements Serializable {
         return true;
     }
 
-    public void setEdicion(String edicion) {
-     
-    }
-
-    public void setTiraje(String tiraje) {
-     
-    }
-      @Override
+    @Override
     public String toString() {
-        return "entity.CapituloLibro[ idCapituloLibro=" + idCapitulolibro + " ]";
+        return "entity.CapituloLibro[ idCapitulolibro=" + idCapitulolibro + " ]";
     }
     
 }
-
-    
-

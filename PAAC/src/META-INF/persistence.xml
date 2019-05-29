@@ -4,16 +4,12 @@
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>entity.ProductoMiembro</class>
     <class>entity.ProductoProyecto</class>
-    <class>entity.Pe</class>
     <class>entity.Patente</class>
-    <class>entity.CuerpoAcademicoPromep</class>
     <class>entity.Memoria</class>
-    <class>entity.Cuerpoacademicoexterno</class>
     <class>entity.DatosLaborales</class>
     <class>entity.Tesis</class>
     <class>entity.Libro</class>
     <class>entity.ArticuloIndexado</class>
-    <class>entity.ProyectoInvestigacionconjunto</class>
     <class>entity.Producto</class>
     <class>entity.Pais</class>
     <class>entity.Gradoacademico</class>
@@ -21,8 +17,6 @@
     <class>entity.Articulo</class>
     <class>entity.Proyecto</class>
     <class>entity.Miembro</class>
-    <class>entity.ColaboradorCuerpoacademico</class>
-    <class>entity.Participacion</class>
     <class>entity.Colaborador</class>
     <class>entity.CapituloLibro</class>
     <class>entity.CuerpoAcademico</class>

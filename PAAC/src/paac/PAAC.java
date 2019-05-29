@@ -19,6 +19,8 @@ public class PAAC extends Application {
         Scene scene = new Scene(root);
 
         stage.setScene(scene);
+        stage.fullScreenProperty();
+        stage.setTitle("Inicio de sesion");
         stage.show();
     }
 

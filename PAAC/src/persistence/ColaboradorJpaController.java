@@ -9,7 +9,6 @@ import javax.persistence.criteria.Root;
 import entity.ProductoColaborador;
 import java.util.ArrayList;
 import java.util.List;
-import entity.ColaboradorCuerpoacademico;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -35,9 +34,6 @@ public class ColaboradorJpaController implements Serializable {
         if (colaborador.getProductoColaboradorList() == null) {
             colaborador.setProductoColaboradorList(new ArrayList<ProductoColaborador>());
         }
-        if (colaborador.getColaboradorCuerpoacademicoList() == null) {
-            colaborador.setColaboradorCuerpoacademicoList(new ArrayList<ColaboradorCuerpoacademico>());
-        }
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -48,12 +44,6 @@ public class ColaboradorJpaController implements Serializable {
                 attachedProductoColaboradorList.add(productoColaboradorListProductoColaboradorToAttach);
             }
             colaborador.setProductoColaboradorList(attachedProductoColaboradorList);
-            List<ColaboradorCuerpoacademico> attachedColaboradorCuerpoacademicoList = new ArrayList<ColaboradorCuerpoacademico>();
-            for (ColaboradorCuerpoacademico colaboradorCuerpoacademicoListColaboradorCuerpoacademicoToAttach : colaborador.getColaboradorCuerpoacademicoList()) {
-                colaboradorCuerpoacademicoListColaboradorCuerpoacademicoToAttach = em.getReference(colaboradorCuerpoacademicoListColaboradorCuerpoacademicoToAttach.getClass(), colaboradorCuerpoacademicoListColaboradorCuerpoacademicoToAttach.getColaboradorCuerpoacademicoPK());
-                attachedColaboradorCuerpoacademicoList.add(colaboradorCuerpoacademicoListColaboradorCuerpoacademicoToAttach);
-            }
-            colaborador.setColaboradorCuerpoacademicoList(attachedColaboradorCuerpoacademicoList);
             em.persist(colaborador);
             for (ProductoColaborador productoColaboradorListProductoColaborador : colaborador.getProductoColaboradorList()) {
                 Colaborador oldColaboradorOfProductoColaboradorListProductoColaborador = productoColaboradorListProductoColaborador.getColaborador();
@@ -64,15 +54,7 @@ public class ColaboradorJpaController implements Serializable {
                     oldColaboradorOfProductoColaboradorListProductoColaborador = em.merge(oldColaboradorOfProductoColaboradorListProductoColaborador);
                 }
             }
-            for (ColaboradorCuerpoacademico colaboradorCuerpoacademicoListColaboradorCuerpoacademico : colaborador.getColaboradorCuerpoacademicoList()) {
-                Colaborador oldColaboradorOfColaboradorCuerpoacademicoListColaboradorCuerpoacademico = colaboradorCuerpoacademicoListColaboradorCuerpoacademico.getColaborador();
-                colaboradorCuerpoacademicoListColaboradorCuerpoacademico.setColaborador(colaborador);
-                colaboradorCuerpoacademicoListColaboradorCuerpoacademico = em.merge(colaboradorCuerpoacademicoListColaboradorCuerpoacademico);
-                if (oldColaboradorOfColaboradorCuerpoacademicoListColaboradorCuerpoacademico != null) {
-                    oldColaboradorOfColaboradorCuerpoacademicoListColaboradorCuerpoacademico.getColaboradorCuerpoacademicoList().remove(colaboradorCuerpoacademicoListColaboradorCuerpoacademico);
-                    oldColaboradorOfColaboradorCuerpoacademicoListColaboradorCuerpoacademico = em.merge(oldColaboradorOfColaboradorCuerpoacademicoListColaboradorCuerpoacademico);
-                }
-            }
+            
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -89,8 +71,6 @@ public class ColaboradorJpaController implements Serializable {
             Colaborador persistentColaborador = em.find(Colaborador.class, colaborador.getIdColaborador());
             List<ProductoColaborador> productoColaboradorListOld = persistentColaborador.getProductoColaboradorList();
             List<ProductoColaborador> productoColaboradorListNew = colaborador.getProductoColaboradorList();
-            List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoListOld = persistentColaborador.getColaboradorCuerpoacademicoList();
-            List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoListNew = colaborador.getColaboradorCuerpoacademicoList();
             List<String> illegalOrphanMessages = null;
             for (ProductoColaborador productoColaboradorListOldProductoColaborador : productoColaboradorListOld) {
                 if (!productoColaboradorListNew.contains(productoColaboradorListOldProductoColaborador)) {
@@ -98,14 +78,6 @@ public class ColaboradorJpaController implements Serializable {
                         illegalOrphanMessages = new ArrayList<String>();
                     }
                     illegalOrphanMessages.add("You must retain ProductoColaborador " + productoColaboradorListOldProductoColaborador + " since its colaborador field is not nullable.");
-                }
-            }
-            for (ColaboradorCuerpoacademico colaboradorCuerpoacademicoListOldColaboradorCuerpoacademico : colaboradorCuerpoacademicoListOld) {
-                if (!colaboradorCuerpoacademicoListNew.contains(colaboradorCuerpoacademicoListOldColaboradorCuerpoacademico)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain ColaboradorCuerpoacademico " + colaboradorCuerpoacademicoListOldColaboradorCuerpoacademico + " since its colaborador field is not nullable.");
                 }
             }
             if (illegalOrphanMessages != null) {
@@ -118,13 +90,6 @@ public class ColaboradorJpaController implements Serializable {
             }
             productoColaboradorListNew = attachedProductoColaboradorListNew;
             colaborador.setProductoColaboradorList(productoColaboradorListNew);
-            List<ColaboradorCuerpoacademico> attachedColaboradorCuerpoacademicoListNew = new ArrayList<ColaboradorCuerpoacademico>();
-            for (ColaboradorCuerpoacademico colaboradorCuerpoacademicoListNewColaboradorCuerpoacademicoToAttach : colaboradorCuerpoacademicoListNew) {
-                colaboradorCuerpoacademicoListNewColaboradorCuerpoacademicoToAttach = em.getReference(colaboradorCuerpoacademicoListNewColaboradorCuerpoacademicoToAttach.getClass(), colaboradorCuerpoacademicoListNewColaboradorCuerpoacademicoToAttach.getColaboradorCuerpoacademicoPK());
-                attachedColaboradorCuerpoacademicoListNew.add(colaboradorCuerpoacademicoListNewColaboradorCuerpoacademicoToAttach);
-            }
-            colaboradorCuerpoacademicoListNew = attachedColaboradorCuerpoacademicoListNew;
-            colaborador.setColaboradorCuerpoacademicoList(colaboradorCuerpoacademicoListNew);
             colaborador = em.merge(colaborador);
             for (ProductoColaborador productoColaboradorListNewProductoColaborador : productoColaboradorListNew) {
                 if (!productoColaboradorListOld.contains(productoColaboradorListNewProductoColaborador)) {
@@ -134,17 +99,6 @@ public class ColaboradorJpaController implements Serializable {
                     if (oldColaboradorOfProductoColaboradorListNewProductoColaborador != null && !oldColaboradorOfProductoColaboradorListNewProductoColaborador.equals(colaborador)) {
                         oldColaboradorOfProductoColaboradorListNewProductoColaborador.getProductoColaboradorList().remove(productoColaboradorListNewProductoColaborador);
                         oldColaboradorOfProductoColaboradorListNewProductoColaborador = em.merge(oldColaboradorOfProductoColaboradorListNewProductoColaborador);
-                    }
-                }
-            }
-            for (ColaboradorCuerpoacademico colaboradorCuerpoacademicoListNewColaboradorCuerpoacademico : colaboradorCuerpoacademicoListNew) {
-                if (!colaboradorCuerpoacademicoListOld.contains(colaboradorCuerpoacademicoListNewColaboradorCuerpoacademico)) {
-                    Colaborador oldColaboradorOfColaboradorCuerpoacademicoListNewColaboradorCuerpoacademico = colaboradorCuerpoacademicoListNewColaboradorCuerpoacademico.getColaborador();
-                    colaboradorCuerpoacademicoListNewColaboradorCuerpoacademico.setColaborador(colaborador);
-                    colaboradorCuerpoacademicoListNewColaboradorCuerpoacademico = em.merge(colaboradorCuerpoacademicoListNewColaboradorCuerpoacademico);
-                    if (oldColaboradorOfColaboradorCuerpoacademicoListNewColaboradorCuerpoacademico != null && !oldColaboradorOfColaboradorCuerpoacademicoListNewColaboradorCuerpoacademico.equals(colaborador)) {
-                        oldColaboradorOfColaboradorCuerpoacademicoListNewColaboradorCuerpoacademico.getColaboradorCuerpoacademicoList().remove(colaboradorCuerpoacademicoListNewColaboradorCuerpoacademico);
-                        oldColaboradorOfColaboradorCuerpoacademicoListNewColaboradorCuerpoacademico = em.merge(oldColaboradorOfColaboradorCuerpoacademicoListNewColaboradorCuerpoacademico);
                     }
                 }
             }
@@ -184,13 +138,6 @@ public class ColaboradorJpaController implements Serializable {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
                 illegalOrphanMessages.add("This Colaborador (" + colaborador + ") cannot be destroyed since the ProductoColaborador " + productoColaboradorListOrphanCheckProductoColaborador + " in its productoColaboradorList field has a non-nullable colaborador field.");
-            }
-            List<ColaboradorCuerpoacademico> colaboradorCuerpoacademicoListOrphanCheck = colaborador.getColaboradorCuerpoacademicoList();
-            for (ColaboradorCuerpoacademico colaboradorCuerpoacademicoListOrphanCheckColaboradorCuerpoacademico : colaboradorCuerpoacademicoListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Colaborador (" + colaborador + ") cannot be destroyed since the ColaboradorCuerpoacademico " + colaboradorCuerpoacademicoListOrphanCheckColaboradorCuerpoacademico + " in its colaboradorCuerpoacademicoList field has a non-nullable colaborador field.");
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);

@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="551.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.RegistrarTesisControlador">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.RegistrarTesisControlador">
    <bottom>
       <BorderPane prefHeight="93.0" prefWidth="750.0" BorderPane.alignment="CENTER">
          <right>
@@ -26,8 +26,18 @@
                      </BorderPane.margin>
                   </Button>
                </left>
+               <top>
+                  <Label fx:id="lblMensaje" text="Error de conexión" visible="false" BorderPane.alignment="CENTER" />
+               </top>
             </BorderPane>
          </right>
+         <left>
+            <Label fx:id="errorlbl" text="Error de datos" visible="false" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets left="10.0" />
+               </BorderPane.margin>
+            </Label>
+         </left>
          <center>
             <GridPane BorderPane.alignment="CENTER">
               <columnConstraints>
@@ -39,13 +49,13 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label fx:id="lbl_nombreColaborador" text="Nombre del colaborador:" visible="false" GridPane.halignment="LEFT" GridPane.valignment="BOTTOM">
+                  <Label fx:id="lblNombreColaborador" text="Nombre del colaborador:" visible="false" GridPane.halignment="LEFT" GridPane.valignment="BOTTOM">
                      <GridPane.margin>
-                        <Insets bottom="5.0" />
+                        <Insets />
                      </GridPane.margin>
                   </Label>
-                  <TextField fx:id="txt_nombreColaborador" visible="false" GridPane.rowIndex="1" />
-                  <Button fx:id="btn_guardarColaborador" mnemonicParsing="false" onAction="#clickGuardarColaborador" text="Guardar" visible="false" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                  <TextField fx:id="tfColaborador" visible="false" GridPane.rowIndex="1" />
+                  <Button fx:id="btnAgregar" mnemonicParsing="false" onAction="#agregarALista" text="+" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin>
@@ -53,17 +63,10 @@
                </children>
             </GridPane>
          </center>
-         <top>
-            <Label fx:id="errorlbl" text="Error de datos" visible="false" BorderPane.alignment="CENTER">
-               <BorderPane.margin>
-                  <Insets left="10.0" top="5.0" />
-               </BorderPane.margin>
-            </Label>
-         </top>
       </BorderPane>
    </bottom>
    <left>
-      <GridPane prefHeight="520.0" prefWidth="297.0" BorderPane.alignment="CENTER">
+      <GridPane prefHeight="407.0" prefWidth="297.0" BorderPane.alignment="CENTER">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="144.0" minWidth="10.0" prefWidth="138.0" />
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="165.0" minWidth="10.0" prefWidth="142.0" />
@@ -84,7 +87,7 @@
                   <Insets left="10.0" />
                </GridPane.margin>
             </TextField>
-            <ComboBox fx:id="paisescb" prefHeight="31.0" prefWidth="187.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <ComboBox fx:id="cbPaises" prefHeight="31.0" prefWidth="187.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <GridPane.margin>
                   <Insets left="10.0" />
                </GridPane.margin>
@@ -115,7 +118,7 @@
                   <Insets top="15.0" />
                </GridPane.margin>
             </Label>
-            <Label text="Estado actual" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+            <Label text="Estado actual" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
                <GridPane.margin>
                   <Insets bottom="5.0" />
                </GridPane.margin>
@@ -140,28 +143,21 @@
                   <Insets bottom="9.0" />
                </GridPane.margin>
             </Label>
-            <ComboBox fx:id="clasificacioncb" prefHeight="31.0" prefWidth="207.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+            <TextField fx:id="gradotxt" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
                <GridPane.margin>
-                  <Insets left="10.0" />
-               </GridPane.margin>
-            </ComboBox>
-            <ComboBox fx:id="estadocb" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-               <GridPane.margin>
-                  <Insets left="10.0" />
-               </GridPane.margin>
-            </ComboBox>
-            <Label text="Archivo" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
-            <TextField fx:id="txt_archivo" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
-               <GridPane.margin>
-                  <Insets left="10.0" right="25.0" />
+                  <Insets bottom="5.0" left="10.0" />
                </GridPane.margin>
             </TextField>
-            <Button mnemonicParsing="false" onAction="#subirArchivo" text="+" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM" />
-            <ComboBox fx:id="gradocb" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+            <TextField fx:id="clasificaciontxt" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                <GridPane.margin>
-                  <Insets bottom="3.0" left="10.0" />
+                  <Insets left="10.0" />
                </GridPane.margin>
-            </ComboBox>
+            </TextField>
+            <TextField fx:id="estadotxt" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+               <GridPane.margin>
+                  <Insets left="10.0" />
+               </GridPane.margin>
+            </TextField>
          </children>
       </GridPane>
    </left>
@@ -181,18 +177,18 @@
                         <Insets left="50.0" />
                      </BorderPane.margin>
                      <children>
-                        <Label text="Añadir autores MDCA" GridPane.halignment="LEFT">
+                        <Label text="Añadir autores MDCA">
                            <GridPane.margin>
                               <Insets top="40.0" />
                            </GridPane.margin>
                         </Label>
-                        <MenuButton fx:id="mb_autores" mnemonicParsing="false" prefHeight="31.0" prefWidth="185.0" text="Seleccionar" GridPane.halignment="RIGHT">
+                        <MenuButton fx:id="mbMiembros" mnemonicParsing="false" prefHeight="31.0" prefWidth="204.0" text="Elegir" GridPane.halignment="RIGHT" GridPane.valignment="BOTTOM">
                           <items>
                             <MenuItem mnemonicParsing="false" text="Action 1" />
                             <MenuItem mnemonicParsing="false" text="Action 2" />
                           </items>
                            <GridPane.margin>
-                              <Insets right="10.0" top="40.0" />
+                              <Insets bottom="10.0" right="10.0" />
                            </GridPane.margin>
                         </MenuButton>
                      </children>
@@ -223,7 +219,7 @@
                               <Insets left="50.0" />
                            </GridPane.margin>
                         </Label>
-                        <MenuButton fx:id="mb_colaboradores" mnemonicParsing="false" prefHeight="31.0" prefWidth="185.0" text="Seleccionar" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
+                        <MenuButton fx:id="mbColaboradores" mnemonicParsing="false" prefHeight="31.0" prefWidth="204.0" text="Elegir" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
                           <items>
                             <MenuItem mnemonicParsing="false" text="Action 1" />
                             <MenuItem mnemonicParsing="false" text="Action 2" />
@@ -236,7 +232,7 @@
                   </GridPane>
                </top>
                <bottom>
-                  <Button fx:id="btnAgregar" mnemonicParsing="false" onAction="#clickAgregar" text="Agregar colaborador" BorderPane.alignment="BOTTOM_RIGHT">
+                  <Button fx:id="agregar" mnemonicParsing="false" onAction="#clickAgregar" text="Agregar colaborador" BorderPane.alignment="BOTTOM_RIGHT">
                      <BorderPane.margin>
                         <Insets right="10.0" />
                      </BorderPane.margin>
@@ -251,20 +247,6 @@
                </center>
             </BorderPane>
          </bottom>
-         <left>
-            <Label text="Número de hojas:" BorderPane.alignment="CENTER_LEFT">
-               <BorderPane.margin>
-                  <Insets left="50.0" />
-               </BorderPane.margin>
-            </Label>
-         </left>
-         <center>
-            <TextField fx:id="txt_numHojas" BorderPane.alignment="CENTER_RIGHT">
-               <BorderPane.margin>
-                  <Insets left="10.0" right="220.0" />
-               </BorderPane.margin>
-            </TextField>
-         </center>
       </BorderPane>
    </center>
 </BorderPane>

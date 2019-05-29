@@ -150,7 +150,7 @@ public class MenuPrincipalController extends ControladorProductos implements Ini
      */
     @FXML
     private void cambiarEstado(ActionEvent event) {
-        
+        seleccionarMiembros(miembro);
         ((Node) mbMenu).getScene().getWindow().hide();
     }
 

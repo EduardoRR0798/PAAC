@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package paac;
 
 import entity.Colaborador;
@@ -104,7 +99,7 @@ public class ActualizarPatenteController extends ControladorProductos implements
      @Override
     public void initialize(URL location, ResourceBundle resources) {
    colaboradores = recuperarColaboradores();
-        miembros = recuperarMiembros();
+        //miembros = recuperarMiembros();
         cbPais.setItems((ObservableList<Pais>) recuperarPaises());
         
     }
@@ -175,6 +170,7 @@ public class ActualizarPatenteController extends ControladorProductos implements
                 || tfProposito.getText().isEmpty()
                 || tfClasificacion.getText().isEmpty()
                 || tfDescripcion.getText().isEmpty()
+               || tfNombreEvidencia.getText().isEmpty()
                 || tfPdf.getText().isEmpty()
                 || tfTipo.getText().isEmpty()
                 || cbPais.getSelectionModel().isEmpty()
@@ -414,8 +410,14 @@ public class ActualizarPatenteController extends ControladorProductos implements
     private void iniciarPantalla() {
         Patente pat = new Patente();
         PatenteJpaController pJpaC = new PatenteJpaController();
-       pat = pJpaC.buscarPatenteByIdProducto(p);
-     
+        List<Patente> patentes = pJpaC.findPatenteEntities();
+        System.out.println(patentes.size());
+        for (int i = 0; i < patentes.size(); i++) {
+            if (Objects.equals(p.getIdProducto(), patentes.get(i).getIdProducto().getIdProducto())){
+                pat = patentes.get(i);
+              
+            }
+        }
         tfTitulo.setText(p.getTitulo());
         tfAnio.setText(p.getAnio().toString());
         tfProposito.setText(p.getProposito());
@@ -423,7 +425,7 @@ public class ActualizarPatenteController extends ControladorProductos implements
         tfTipo.setText(pat.getTipo());
         tfDescripcion.setText(pat.getDescripcion());
         tfClasificacion.setText(pat.getDescripcion());
-   
+        tfNombreEvidencia.setText(p.getNombrePDF());
          cbPais.getSelectionModel().select(p.getIdPais());
       
     }

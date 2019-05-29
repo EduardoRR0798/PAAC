@@ -1,6 +1,5 @@
 package paac;
 
-import entity.DatosLaborales;
 import entity.Gradoacademico;
 import entity.Miembro;
 import entity.Pais;
@@ -8,13 +7,10 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.chrono.Chronology;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -29,7 +25,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.StageStyle;
-
 import persistence.GradoacademicoJpaController;
 import persistence.MiembroJpaController;
 import persistence.exceptions.NonexistentEntityException;
@@ -68,7 +63,7 @@ public class InformacionGeneralController extends ControladorProductos implement
     @FXML
     private TextField tfTema;
     private ObservableList<Gradoacademico> grados = FXCollections.observableArrayList();
-    private ObservableList<String> niveles = FXCollections.observableArrayList("Licenciatura", "Maestria", "Doctorado");
+    private ObservableList<String> niveles = FXCollections.observableArrayList("Primaria","Secundaria", "Preparatoria", "Licenciatura", "Maestria", "Doctorado");
     
     /**
      * Initializes the controller class.
@@ -76,10 +71,8 @@ public class InformacionGeneralController extends ControladorProductos implement
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         recuperarGrados();
-        
         cbPais.setItems(recuperarPaises());
         cbNivel.setItems(niveles);
-       
     }    
 
     /**
@@ -98,55 +91,7 @@ public class InformacionGeneralController extends ControladorProductos implement
             System.exit(0);
         }
     }
-    @FXML
-private void agregarGrado (ActionEvent event) {
-        Respuesta r = validarCampos();
-        if (!r.isError()) {
-            Gradoacademico ga = new Gradoacademico();
-            GradoacademicoJpaController gJpaC = new GradoacademicoJpaController();
-            ga.setTema(tfTema.getText().trim());
-            ga.setAreaDisciplinar(tfAreaDisciplinar.getText().trim());
-            ga.setInstitucion(tfInstitucion.getText().trim());
-            System.out.println(cbPais.getSelectionModel().getSelectedItem());
-            System.out.println(cbPais.getSelectionModel().getSelectedItem().getIdPais());
-            ga.setIdPais(cbPais.getSelectionModel().getSelectedItem());
-            
-            if (tfInstitucionNoConsiderada.getText().isEmpty()) {
-                ga.setInstitucionNoConsiderada("NO HAY");
-            } else {
-                ga.setInstitucionNoConsiderada(tfInstitucionNoConsiderada.getText().trim());
-            }
-            LocalDate localDate = dcFechaFinal.getValue();
-            Instant instant = Instant.from(localDate.atStartOfDay(ZoneId.systemDefault()));
-            Date fechaFinal = Date.from(instant);
-            ga.setFechaFin(fechaFinal);
-            LocalDate localDate1 = dcFechaInicio.getValue();
-            Instant instant1 = Instant.from(localDate1.atStartOfDay(ZoneId.systemDefault()));
-            Date fechaInicial = Date.from(instant1);
-            ga.setFechaInicio(fechaInicial);
-            LocalDate localDate2 = dcFechaTitulacion.getValue();
-            Instant instant2 = Instant.from(localDate2.atStartOfDay(ZoneId.systemDefault()));
-            Date fechaTitulacion = Date.from(instant2);
-            ga.setFechatitulacion(fechaTitulacion);
-            ga.setNivel(cbNivel.getSelectionModel().getSelectedItem());
-            MiembroJpaController mJpaC = new MiembroJpaController();
-            ga.setIdMiembro(mJpaC.findMiembro(1));
-            try {
-               
-                gJpaC.create(ga);
-                lblMensaje.setText("Grado academico registrado exitosamente.");
-                limpiarCampos();
-                grados.removeAll(grados);
-                recuperarGrados();
-            } catch (Exception ex) {
-                lblMensaje.setText("Error actualizando el grado academico.");
-                lblMensaje.setVisible(true);
-            }
-        } else {
-            lblMensaje.setText(r.getMensaje());
-            lblMensaje.setVisible(true);
-        }
-    }
+
     /**
      * Actualiza un grado academico.
      * @param event Clic en el boton Actualizar.
@@ -156,7 +101,7 @@ private void agregarGrado (ActionEvent event) {
         Respuesta r = validarCampos();
         if (!r.isError()) {
             Gradoacademico ga = cbTema.getSelectionModel().getSelectedItem();
-           //Gradoacademico ga = new Gradoacademico();
+            //Gradoacademico ga = new Gradoacademico();
             GradoacademicoJpaController gJpaC = new GradoacademicoJpaController();
             ga.setTema(tfTema.getText().trim());
             ga.setAreaDisciplinar(tfAreaDisciplinar.getText().trim());
@@ -186,8 +131,8 @@ private void agregarGrado (ActionEvent event) {
             MiembroJpaController mJpaC = new MiembroJpaController();
             ga.setIdMiembro(mJpaC.findMiembro(1));
             try {
+                gJpaC.edit(ga);
                 //gJpaC.create(ga);
-                gJpaC.create(ga);
                 lblMensaje.setText("Grado academico actualizado exitosamente.");
                 limpiarCampos();
                 grados.removeAll(grados);
@@ -201,7 +146,6 @@ private void agregarGrado (ActionEvent event) {
             lblMensaje.setVisible(true);
         }
     }
-    
 
     /**
      * Elimina un grado academico de la lista.
@@ -241,14 +185,14 @@ private void agregarGrado (ActionEvent event) {
     private void llenarDatos(ActionEvent event) {
         if (!cbTema.getSelectionModel().isEmpty()) {
             Gradoacademico ga = cbTema.getSelectionModel().getSelectedItem();
-            cbTema.getSelectionModel().getSelectedIndex();
+            int index = cbTema.getSelectionModel().getSelectedIndex();
             tfTema.setText(ga.getTema());
             tfAreaDisciplinar.setText(ga.getAreaDisciplinar());
             tfInstitucion.setText(ga.getInstitucion());
             tfInstitucionNoConsiderada.setText(ga.getInstitucionNoConsiderada());
             cbNivel.getSelectionModel().select(ga.getNivel());
-            ZoneId zi = ZoneId.systemDefault();
             
+            ZoneId zi = ZoneId.systemDefault();
             Date date = ga.getFechaInicio();
             Instant ins = date.toInstant();
             LocalDate ld = ins.atZone(zi).toLocalDate();
@@ -291,7 +235,6 @@ private void agregarGrado (ActionEvent event) {
             lblMensaje.setVisible(true);
         }
     }
-  
     
     /**
      * Valida que todos los campos cumplan con los requerimientos requeridos.
@@ -360,4 +303,6 @@ private void agregarGrado (ActionEvent event) {
         }
         return permiso;
     }
+    
+    
 }
