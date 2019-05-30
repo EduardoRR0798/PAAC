@@ -6,35 +6,28 @@
 package paac;
 
 import entity.Libro;
+import entity.Miembro;
 import entity.Producto;
 import entity.ProductoMiembro;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import persistence.LibroJpaController;
 import persistence.ProductoJpaController;
@@ -45,13 +38,14 @@ import persistence.ProductoMiembroJpaController;
  *
  * @author Foncho
  */
-public class SeleccionarLibroController implements Initializable {
+public class SeleccionarLibroController extends ControladorProductos implements Initializable {
 
     @FXML
     private Button btn_cancelar;
     @FXML
     private ListView<Producto> lst;
     private ObservableList<Producto> productos = FXCollections.observableArrayList();
+    private Miembro miembro;
 
     /**
      * Initializes the controller class.
@@ -59,21 +53,26 @@ public class SeleccionarLibroController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-        recuperarProductos();
-
         lst.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                     if (mouseEvent.getClickCount() == 2) {
                         if (!productos.isEmpty()) {
-                            Integer p = lst.getSelectionModel().getSelectedItems().get(0).getIdProducto();
-                            abrirVentanaEditar(lst.getSelectionModel().getSelectedItem());
+                            Producto p = lst.getSelectionModel().getSelectedItem();
+                            actualizarLibro(miembro, p);
+                            ((Node) btn_cancelar).getScene().getWindow().hide();
                         }
                     }
                 }
             }
         });
+    }
+
+    void recibirParametros(Miembro miembro) {
+        this.miembro = miembro;
+        recuperarProductos();
+        
     }
 
     @FXML
@@ -85,7 +84,8 @@ public class SeleccionarLibroController implements Initializable {
         cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
         Optional<ButtonType> result = cancelar.showAndWait();
         if (result.get() == ButtonType.OK) {
-            System.exit(0);
+            abrirMenu(miembro);
+            ((Node) btn_cancelar).getScene().getWindow().hide();
         }
     }
 
@@ -94,6 +94,9 @@ public class SeleccionarLibroController implements Initializable {
      * Recupera todos los productos asociados a una memoria que pertenezca al
      * miembro.
      */
+       /**
+     * Recupera todos los productos asociados a una memoria que pertenezca al miembro.
+     */
     private void recuperarProductos() {
         ProductoJpaController pJpaC = new ProductoJpaController();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
@@ -101,25 +104,23 @@ public class SeleccionarLibroController implements Initializable {
         //recupero todos los producto miembro que cuenten con el id del usuario.
         List<ProductoMiembro> pc = pmJpaC.findProductoMiembroEntities();
         for (int i = 0; i < pc.size(); i++) {
-            if (Objects.equals(pc.get(i).getIdMiembro().getIdMiembro(), 5)) {
+            if (Objects.equals(pc.get(i).getIdMiembro().getIdMiembro(), miembro.getIdMiembro())) {
                 pcss.add(pc.get(i));
             }
         }
         //recupero TODOS los productos que tengan que ver con ese miembro.
         Producto p;
-        ArrayList<Integer> nums = new ArrayList<>();
         ArrayList<Producto> productosTemp = new ArrayList<>();
         for (int i = 0; i < pcss.size(); i++) {
             p = pJpaC.findProducto(pcss.get(i).getIdProducto().getIdProducto());
-            System.out.println(p.getIdProducto());
             productosTemp.add(p);
         }
-        //filtro los productos que si sean tesis.
-        LibroJpaController JpaController = new LibroJpaController();
+        //filtro los productos que si sean memorias.
+        LibroJpaController control = new LibroJpaController();
         //filtrar memorias
         Libro mem;
         for (int i = 0; i < productosTemp.size(); i++) {
-            mem = JpaController.encontrarLibroPorIdProducto(productosTemp.get(i));
+            mem = control.encontrarLibroPorIdProducto(productosTemp.get(i));
             if (!Objects.equals(mem, null)) {
                 productos.add(productosTemp.get(i));
             }
@@ -127,30 +128,4 @@ public class SeleccionarLibroController implements Initializable {
         lst.getItems().setAll(productos);
     }
 
-    /**
-     * Este metodo abre una nueva ventana para editar el articulo seleccionado
-     * por el miembro.
-     *
-     * @param p id del producto seleccionado.
-     */
-    private void abrirVentanaEditar(Producto p) {
-        try {
-            Locale.setDefault(new Locale("es"));
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("ActualizarLibro.fxml"));
-            Parent responder = loader.load();
-            ActualizarLibroControlador controller = loader.getController();
-
-            controller.recibirParametros(p);
-
-            Scene scene = new Scene(responder);
-            Stage stage = new Stage();
-
-            stage.setScene(scene);
-            stage.show();
-            ((Node) (btn_cancelar)).getScene().getWindow().hide();
-        } catch (IOException ex) {
-            Logger.getLogger(SeleccionarMemoriaController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
 }
