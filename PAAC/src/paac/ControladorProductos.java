@@ -414,6 +414,31 @@ public abstract class ControladorProductos {
      * Este metodo abre una nueva ventana para registrar un producto
      * por el miembro.
      */
+    protected void actualizarLibro(Miembro miembro, Producto producto) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("ActualizarLibro.fxml"));
+            
+            Parent responder = loader.load();
+            ActualizarLibroControlador cam = loader.getController();
+            cam.recibirParametros(producto,miembro);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Actualizar Libro");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * Este metodo abre una nueva ventana para registrar un producto
+     * por el miembro.
+     */
     protected void actualizarPrototipo(Miembro miembro, Producto producto) {
         try {
             Locale.setDefault(new Locale("es"));
@@ -502,6 +527,31 @@ public abstract class ControladorProductos {
             Scene scene = new Scene(responder);
             Stage stage = new Stage();
             stage.setTitle("Seleccion de memorias");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * Este metodo abre una nueva ventana para registrar un producto
+     * por el miembro.
+     */
+    protected void seleccionarLibro(Miembro miembro) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("SeleccionarLibro.fxml"));
+            
+            Parent responder = loader.load();
+            SeleccionarLibroController smc = loader.getController();
+            smc.recibirParametros(miembro);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Seleccion de libros");
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {

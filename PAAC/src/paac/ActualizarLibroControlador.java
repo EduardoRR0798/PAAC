@@ -67,7 +67,7 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
     @FXML
     private ComboBox<Pais> cbPaises;
     @FXML
-    private TextArea propositotxt;
+    private ComboBox<String> cb_proposito;
     @FXML
     private TextField isbntxt;
     @FXML
@@ -114,10 +114,7 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
     private File file;
     private Producto p;
     private Libro l;
-    ObservableList<String> estados = FXCollections.observableArrayList(
-            "Planeado",
-            "En proceso",
-            "Terminado");
+    private Miembro m;
 
     /**
      * Initializes the controller class.
@@ -125,13 +122,28 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-        estadocb.setItems(estados);
+        estadocb.setItems(super.estados);
+        cb_proposito.setItems(super.propositos);
         colaboradores = super.recuperarColaboradores();
-        miembros = super.recuperarMiembros();
         paises = recuperarPaises();
         cbPaises.setItems(paises);
+ 
+    }
+    
+    /**
+     * Recibe el id del producto seleccionado anteriormente.
+     *
+     * @param pro id del producto.
+     */
+    public void recibirParametros(Producto pro, Miembro m) {
+        this.m = m;
+        this.p = pro;
+        miembros = recuperarMiembros(m);
+        cInvolucrados = recuperarColaboradoresInvolucrados(p);
+        mInvolucrados = recuperarMiembrosInvolucrados(p);
         iniciarMiembros();
         iniciarColaboradores();
+        iniciarPantalla();
     }
 
     @FXML
@@ -181,14 +193,15 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
 
     @FXML
     private void clickCancelar(ActionEvent event) {
-        Alert cancelar = new Alert(Alert.AlertType.CONFIRMATION);
-        cancelar.setTitle("Cancelar proceso");
-        cancelar.setHeaderText(null);
-        cancelar.initStyle(StageStyle.UTILITY);
-        cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
-        Optional<ButtonType> result = cancelar.showAndWait();
+        Alert cancela = new Alert(Alert.AlertType.CONFIRMATION);
+        cancela.setTitle("Cancelar proceso");
+        cancela.setHeaderText(null);
+        cancela.initStyle(StageStyle.UTILITY);
+        cancela.setContentText("¿Esta seguro de que desea cancelar el proceso?");
+        Optional<ButtonType> result = cancela.showAndWait();
         if (result.get() == ButtonType.OK) {
-            System.exit(0);
+            seleccionarLibro(m);
+            ((Node) cancelar).getScene().getWindow().hide();
         }
     }
 
@@ -202,7 +215,8 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
             actualizarProducto();
-            regresarAVentanaAnterior();
+            abrirMenu(m);
+            ((Node) cancelar).getScene().getWindow().hide();
         }
     }
 
@@ -302,7 +316,7 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
         titulotxt.setText(p.getTitulo());
         cbPaises.getSelectionModel().select(p.getIdPais());
         aniotxt.setText(p.getAnio().toString());
-        propositotxt.setText(p.getProposito());
+        cb_proposito.getSelectionModel().select(p.getProposito());
         isbntxt.setText(l.getIsbn());
         editorialtxt.setText(l.getEditorial());
         paginastxt.setText(String.valueOf(l.getNumPaginas()));
@@ -319,7 +333,6 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource(
                     "SeleccionarLibro.fxml"));
-
             Parent seleccion = loader.load();
             Scene scene = new Scene(seleccion);
             Stage stage = new Stage();
@@ -336,12 +349,10 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
         Respuesta r = new Respuesta();
         if (titulotxt.getText().isEmpty()
                 || aniotxt.getText().isEmpty()
-                || propositotxt.getText().isEmpty()
+                || cb_proposito.getSelectionModel().isEmpty()
                 || isbntxt.getText().isEmpty()
                 || editorialtxt.getText().isEmpty()
-                || paginastxt.getText().isEmpty()
                 || ediciontxt.getText().isEmpty()
-                || ejemplarestxt.getText().isEmpty()
                 || cbPaises.getSelectionModel().isEmpty()) {
             r.setError(true);
             r.setMensaje("No puede haber campos vacíos");
@@ -360,10 +371,10 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             r.setErrorcode(2);
             return r;
         }
-        if (propositotxt.getText().length() > 255) {
+        if (Integer.valueOf(aniotxt.getText()) < 1950) {
             r.setError(true);
-            r.setMensaje("El proposito no puede tener mas de 255 caracteres");
-            r.setErrorcode(3);
+            r.setMensaje("Ingrese un año mayor a 1950");
+            r.setErrorcode(2);
             return r;
         }
         if (!isbntxt.getText().matches("^(97(8|9))?\\d{9}(\\d|X)$")) {
@@ -372,16 +383,10 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             r.setErrorcode(4);
             return r;
         }
-        if (editorialtxt.getText().length() > 255) {
+        if (editorialtxt.getText().trim().length() > 255) {
             r.setError(true);
             r.setMensaje("El nombre de la editorial no puede ser mayor a 255 caracteres");
             r.setErrorcode(5);
-            return r;
-        }
-        if (!paginastxt.getText().matches("[0-9]*") || paginastxt.getText().length() > 10) {
-            r.setError(true);
-            r.setMensaje("Solo se permite números en Páginas menores a 10 digitos");
-            r.setErrorcode(6);
             return r;
         }
         if (!ediciontxt.getText().matches("[0-9]*") || ediciontxt.getText().length() > 10) {
@@ -390,22 +395,24 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             r.setErrorcode(7);
             return r;
         }
-        if (!ejemplarestxt.getText().matches("[0-9]*") || ejemplarestxt.getText().length() > 10) {
-            r.setError(true);
-            r.setMensaje("Solo se permite números en Ejemplares menores a 10 digitos");
-            r.setErrorcode(8);
-            return r;
-        }
-        if (txt_archivo.equals("")) {
-            r.setError(true);
-            r.setMensaje("Debe seleccionar un archivo");
-            r.setErrorcode(9);
-            return r;
-        }
-        if (Objects.equals(file, null)) {
-            r.setError(true);
-            r.setMensaje("Seleccione un archivo PDF como evidencia.");
-            r.setErrorcode(10);
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            if (!paginastxt.getText().matches("[0-9]*") || paginastxt.getText().length() > 7) {
+                r.setError(true);
+                r.setMensaje("Solo se permite números en Páginas menores a 7 digitos");
+                r.setErrorcode(6);
+                return r;
+            }
+            if (!ejemplarestxt.getText().matches("[0-9]*") || ejemplarestxt.getText().length() > 6) {
+                r.setError(true);
+                r.setMensaje("Solo se permite números en Ejemplares menores a 6 digitos");
+                r.setErrorcode(8);
+                return r;
+            }
+            if (Objects.equals(file, null)) {
+                r.setError(true);
+                r.setMensaje("Seleccione un archivo PDF como evidencia.");
+                r.setErrorcode(10);
+            }
         }
         r.setMensaje("Exitoso");
         r.setError(false);
@@ -418,9 +425,10 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
         l.setEdicion(Integer.valueOf(ediciontxt.getText()));
         l.setEditorial(ediciontxt.getText().trim());
         l.setIsbn(isbntxt.getText());
-        l.setNumPaginas(Integer.valueOf(paginastxt.getText()));
-        l.setTiraje(Integer.valueOf(ejemplarestxt.getText()));
-
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            l.setNumPaginas(Integer.valueOf(paginastxt.getText()));
+            l.setTiraje(Integer.valueOf(ejemplarestxt.getText()));
+        }
         List<Libro> lista = new ArrayList();
         lista.add(l);
 
@@ -432,22 +440,22 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
 
         p.setAnio(Integer.valueOf(aniotxt.getText()));
         p.setTitulo(titulotxt.getText().trim());
-        p.setProposito(propositotxt.getText().trim());
+        p.setProposito(cb_proposito.getSelectionModel().getSelectedItem());
         p.setIdPais(cbPaises.getSelectionModel().getSelectedItem());
         p.setEstadoActual(estadocb.getSelectionModel().getSelectedItem());
         p.setLibroList(lista);
-
-        if (!Objects.equals(file, null)) {
-            byte[] doc;
-            try {
-                doc = Files.readAllBytes(file.toPath());
-                p.setArchivoPDF(doc);
-                p.setNombrePDF(file.getName());
-            } catch (IOException ex) {
-                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            if (!Objects.equals(file, null)) {
+                byte[] doc;
+                try {
+                    doc = Files.readAllBytes(file.toPath());
+                    p.setArchivoPDF(doc);
+                    p.setNombrePDF(file.getName());
+                } catch (IOException ex) {
+                    Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
-
         ProductoJpaController prJpaC = new ProductoJpaController();
         try {
             prJpaC.edit(p);
@@ -519,4 +527,22 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             }
         }
     }
+
+    @FXML
+    private void cambiarEstado(ActionEvent event
+    ) {
+        if (estadocb.getSelectionModel().getSelectedIndex() == 0) {
+            ejemplarestxt.setDisable(true);
+            txt_archivo.setDisable(true);
+            btn_subirArchivo.setDisable(true);
+            paginastxt.setDisable(true);
+        } else {
+            ejemplarestxt.setDisable(false);
+            txt_archivo.setDisable(false);
+            btn_subirArchivo.setDisable(false);
+            paginastxt.setDisable(false);
+        }
+    }
+
+    
 }
