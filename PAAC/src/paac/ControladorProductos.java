@@ -635,7 +635,7 @@ public abstract class ControladorProductos {
         }
     }
 
-    void registrarTesis(Miembro miembro) {
+    protected void registrarTesis(Miembro miembro) {
         try {
             Locale.setDefault(new Locale("es"));
             FXMLLoader loader = new FXMLLoader();
@@ -656,7 +656,7 @@ public abstract class ControladorProductos {
         }
     }
     
-    void registrarLibro(Miembro miembro) {
+    protected void registrarLibro(Miembro miembro) {
         try {
             Locale.setDefault(new Locale("es"));
             FXMLLoader loader = new FXMLLoader();
