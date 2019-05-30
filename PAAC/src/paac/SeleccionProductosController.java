@@ -112,6 +112,8 @@ public class SeleccionProductosController extends ControladorProductos implement
                 ((Node) btnCancelar).getScene().getWindow().hide();
                 break;
             case 6:
+                super.registrarTesis(miembro);
+                ((Node) btnCancelar).getScene().getWindow().hide();
                 break;
             default:
                 break;

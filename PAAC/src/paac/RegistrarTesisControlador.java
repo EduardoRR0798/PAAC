@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +29,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -60,7 +62,7 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
     @FXML
     private ComboBox<Pais> paisescb;
     @FXML
-    private TextArea propositotxt;
+    private ComboBox<String> cb_proposito;
     @FXML
     private TextField registrotxt;
     @FXML
@@ -68,7 +70,7 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
     @FXML
     private TextField usuariotxt;
     @FXML
-    private DatePicker fechadp;
+    private TextField txt_anio;
     @FXML
     private ComboBox<String> gradocb;
     @FXML
@@ -101,26 +103,29 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
     private ListView<Miembro> lstAutores;
     @FXML
     private ListView<Colaborador> lstColaboradores;
+    @FXML
+    private Button btn_subirArchivo;
     // atributos necesarios
     ObservableList<String> estados = FXCollections.observableArrayList(
-        "En proceso",
-        "Finalizado");
+            "En proceso",
+            "Finalizado");
     ObservableList<String> clasif = FXCollections.observableArrayList(
-        "Clase 1",
-        "Clase 2",
-        "Clase 3");
+            "Clase 1",
+            "Clase 2",
+            "Clase 3");
     ObservableList<String> grados = FXCollections.observableArrayList(
-        "Doctorado",
-        "Especialidad",
-        "Especialidad médica",
-        "Licenciatura",
-        "Maestría",
-        "Técnico",
-        "Técnico superior universitario");
+            "Doctorado",
+            "Especialidad",
+            "Especialidad médica",
+            "Licenciatura",
+            "Maestría",
+            "Técnico",
+            "Técnico superior universitario");
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
     private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
     private File file;
+    private Miembro m;
 
     /**
      * Initializes the controller class.
@@ -128,11 +133,11 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+        cb_proposito.setItems(super.propositos);
         gradocb.setItems(grados);
         clasificacioncb.setItems(clasif);
         estadocb.setItems(estados);
         colaboradores = super.recuperarColaboradores();
-        miembros = super.recuperarMiembros();
         paises = recuperarPaises();
         paisescb.setItems(paises);
         iniciarMiembros();
@@ -176,6 +181,9 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
                     txt_nombreColaborador.setText("");
                     btn_guardarColaborador.setVisible(false);
                     btn_guardarColaborador.setDisable(true);
+                } else {
+                    errorlbl.setText("Escriba un nombre valido");
+                    errorlbl.setVisible(true);
                 }
             } else {
                 errorlbl.setText("Escriba el nombre de un Colaborador");
@@ -186,15 +194,22 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
 
     @FXML
     private void clickCancelar(ActionEvent event) {
-        Alert cancelar = new Alert(Alert.AlertType.CONFIRMATION);
-        cancelar.setTitle("Cancelar proceso");
-        cancelar.setHeaderText(null);
-        cancelar.initStyle(StageStyle.UTILITY);
-        cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
-        Optional<ButtonType> result = cancelar.showAndWait();
+        Alert cancela = new Alert(Alert.AlertType.CONFIRMATION);
+        cancela.setTitle("Cancelar proceso");
+        cancela.setHeaderText(null);
+        cancela.initStyle(StageStyle.UTILITY);
+        cancela.setContentText("¿Esta seguro de que desea cancelar el proceso?");
+        Optional<ButtonType> result = cancela.showAndWait();
         if (result.get() == ButtonType.OK) {
-            System.exit(0);
+            seleccionarProductos(m);
+            ((Node) cancelar).getScene().getWindow().hide();
         }
+    }
+
+    public void setMiembro(Miembro miembro) {
+        this.m = miembro;
+        miembros = super.recuperarMiembros(m);
+        iniciarMiembros();
     }
 
     @FXML
@@ -207,6 +222,8 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
             registrarTesis();
+            abrirMenu(m);
+            ((Node) cancelar).getScene().getWindow().hide();
         }
     }
 
@@ -232,15 +249,14 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
         Respuesta r = new Respuesta();
         if (titulotxt.getText().isEmpty()
                 || gradocb.getSelectionModel().isEmpty()
-                || propositotxt.getText().isEmpty()
+                || cb_proposito.getSelectionModel().isEmpty()
                 || registrotxt.getText().isEmpty()
                 || descripciontxt.getText().isEmpty()
                 || usuariotxt.getText().isEmpty()
-                || fechadp.getValue() == null
+                || txt_anio.getText().isEmpty()
                 || paisescb.getSelectionModel().isEmpty()
                 || clasificacioncb.getSelectionModel().isEmpty()
-                || estadocb.getSelectionModel().isEmpty()
-                || txt_numHojas.getText().isEmpty()) {
+                || estadocb.getSelectionModel().isEmpty()) {
             r.setError(true);
             r.setMensaje("No puede haber campos vacíos");
             r.setErrorcode(1);
@@ -258,10 +274,16 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
             r.setErrorcode(3);
             return r;
         }
-        if (propositotxt.getText().length() > 255) {
+        if (!txt_anio.getText().matches("^(\\d{4})+$")) {
             r.setError(true);
-            r.setMensaje("El proposito no puede tener mas de 255 caracteres");
-            r.setErrorcode(5);
+            r.setMensaje("Ingrese un año valido");
+            r.setErrorcode(2);
+            return r;
+        }
+        if (Integer.valueOf(txt_anio.getText()) < 1950 || Integer.valueOf(txt_anio.getText()) > LocalDate.now().getYear()) {
+            r.setError(true);
+            r.setMensaje("Ingrese un año mayor a 1950 y no mayor al actual");
+            r.setErrorcode(2);
             return r;
         }
         if (registrotxt.getText().length() > 10 || !registrotxt.getText().matches("[0-9]*")) {
@@ -282,15 +304,19 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
             r.setErrorcode(8);
             return r;
         }
-        if (Objects.equals(file, null)) {
-            r.setError(true);
-            r.setMensaje("Seleccione un archivo PDF como evidencia.");
-            r.setErrorcode(9);
-        }
-        if (!txt_numHojas.getText().matches("[0-9]*")) {
-            r.setError(true);
-            r.setMensaje("Valor no numerico en numero de hojas");
-            r.setErrorcode(9);
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            if (!txt_numHojas.getText().matches("[0-9]*")) {
+                r.setError(true);
+                r.setMensaje("Valor no numerico en numero de hojas");
+                r.setErrorcode(9);
+                return r;
+            }
+            if (Objects.equals(file, null)) {
+                r.setError(true);
+                r.setMensaje("Seleccione un archivo PDF como evidencia.");
+                r.setErrorcode(9);
+                return r;
+            }
         }
         r.setMensaje("Exitoso");
         r.setError(false);
@@ -332,6 +358,7 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
             items.add(cmi);
         }
         mb_autores.getItems().setAll(items);
+        lstAutores.getItems().add(m);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
 
@@ -350,25 +377,28 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
         tesis.setNumRegistro(Integer.valueOf(registrotxt.getText().trim()));
         tesis.setClasificacionInter((String) clasificacioncb.getValue());
         tesis.setDescripcion(descripciontxt.getText().trim());
-        tesis.setNumHojas(Integer.valueOf(txt_numHojas.getText().trim()));
         tesis.setUsuarioDirigido(usuariotxt.getText().trim());
         List<Tesis> t = new ArrayList<>();
+        
+        ///datos del Producto///
+        Producto producto = new Producto();
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            tesis.setNumHojas(Integer.valueOf(txt_numHojas.getText().trim()));
+            byte[] doc;
+            try {
+                doc = Files.readAllBytes(file.toPath());
+                producto.setArchivoPDF(doc);
+                producto.setNombrePDF(file.getName());
+            } catch (IOException ex) {
+                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         t.add(tesis);
         TesisJpaController tj = new TesisJpaController();
         tj.create(tesis);
-        ///datos del Producto///
-        Producto producto = new Producto();
-        byte[] doc;
-        try {
-            doc = Files.readAllBytes(file.toPath());
-            producto.setArchivoPDF(doc);
-            producto.setNombrePDF(file.getName());
-        } catch (IOException ex) {
-            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        producto.setAnio(fechadp.getValue().getYear());
+        producto.setAnio(Integer.valueOf(txt_anio.getText()));
         producto.setTitulo(titulotxt.getText().trim());
-        producto.setProposito(propositotxt.getText().trim());
+        producto.setProposito(cb_proposito.getSelectionModel().getSelectedItem());
         producto.setIdPais(paisescb.getSelectionModel().getSelectedItem());
         producto.setEstadoActual(estadocb.getSelectionModel().getSelectedItem());
         producto.setTesisList(t);
@@ -399,6 +429,19 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
             pm.setIdMiembro(mis.get(i));
             pm.setIdProducto(producto);
             pmJpaC.create(pm);
+        }
+    }
+
+    @FXML
+    private void cambiarEstado(ActionEvent event) {
+        if (estadocb.getSelectionModel().getSelectedIndex() == 0) {
+            txt_numHojas.setDisable(true);
+            txt_archivo.setDisable(true);
+            btn_subirArchivo.setDisable(true);
+        } else {
+            txt_numHojas.setDisable(false);
+            txt_archivo.setDisable(false);
+            btn_subirArchivo.setDisable(false);
         }
     }
 }
