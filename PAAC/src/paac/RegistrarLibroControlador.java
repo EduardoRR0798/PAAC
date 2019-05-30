@@ -37,7 +37,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -104,19 +103,15 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
     private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
     private File file;
-    ObservableList<String> estados = FXCollections.observableArrayList(
-            "En proceso",
-            "Finalizado");
     private Miembro m;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        estadocb.setItems(estados);
+        estadocb.setItems(super.estados);
         colaboradores = super.recuperarColaboradores();
         cb_proposito.setItems(super.propositos);
         paises = recuperarPaises();
         cbPaises.setItems(paises);
-        iniciarMiembros();
         iniciarColaboradores();
         cbPaises.getSelectionModel().select(116);
     }
