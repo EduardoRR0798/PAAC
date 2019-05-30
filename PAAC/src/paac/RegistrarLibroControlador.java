@@ -28,6 +28,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -60,7 +61,7 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
     @FXML
     private ComboBox<Pais> cbPaises;
     @FXML
-    private TextArea propositotxt;
+    private ComboBox<String> cb_proposito;
     @FXML
     private TextField isbntxt;
     @FXML
@@ -106,12 +107,13 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
     ObservableList<String> estados = FXCollections.observableArrayList(
             "En proceso",
             "Finalizado");
+    private Miembro m;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         estadocb.setItems(estados);
         colaboradores = super.recuperarColaboradores();
-        miembros = super.recuperarMiembros();
+        cb_proposito.setItems(super.propositos);
         paises = recuperarPaises();
         cbPaises.setItems(paises);
         iniciarMiembros();
@@ -166,14 +168,15 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
 
     @FXML
     private void clickCancelar(ActionEvent event) {
-        Alert cancelar = new Alert(Alert.AlertType.CONFIRMATION);
-        cancelar.setTitle("Cancelar proceso");
-        cancelar.setHeaderText(null);
-        cancelar.initStyle(StageStyle.UTILITY);
-        cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
-        Optional<ButtonType> result = cancelar.showAndWait();
+        Alert cancela = new Alert(Alert.AlertType.CONFIRMATION);
+        cancela.setTitle("Cancelar proceso");
+        cancela.setHeaderText(null);
+        cancela.initStyle(StageStyle.UTILITY);
+        cancela.setContentText("¿Esta seguro de que desea cancelar el proceso?");
+        Optional<ButtonType> result = cancela.showAndWait();
         if (result.get() == ButtonType.OK) {
-            System.exit(0);
+            seleccionarProductos(m);
+            ((Node) cancelar).getScene().getWindow().hide();
         }
     }
 
@@ -187,6 +190,8 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
             registrarLibro();
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
+            abrirMenu(m);
+            ((Node) cancelar).getScene().getWindow().hide();
         }
     }
 
@@ -212,12 +217,10 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
         Respuesta r = new Respuesta();
         if (titulotxt.getText().isEmpty()
                 || aniotxt.getText().isEmpty()
-                || propositotxt.getText().isEmpty()
+                || cb_proposito.getSelectionModel().isEmpty()
                 || isbntxt.getText().isEmpty()
                 || editorialtxt.getText().isEmpty()
-                || paginastxt.getText().isEmpty()
                 || ediciontxt.getText().isEmpty()
-                || ejemplarestxt.getText().isEmpty()
                 || cbPaises.getSelectionModel().isEmpty()) {
             r.setError(true);
             r.setMensaje("No puede haber campos vacíos");
@@ -236,10 +239,10 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
             r.setErrorcode(2);
             return r;
         }
-        if (propositotxt.getText().length() > 255) {
+        if (Integer.valueOf(aniotxt.getText())<1950) {
             r.setError(true);
-            r.setMensaje("El proposito no puede tener mas de 255 caracteres");
-            r.setErrorcode(3);
+            r.setMensaje("Ingrese un año mayor a 1950");
+            r.setErrorcode(2);
             return r;
         }
         if (!isbntxt.getText().matches("^(97(8|9))?\\d{9}(\\d|X)$")) {
@@ -248,16 +251,10 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
             r.setErrorcode(4);
             return r;
         }
-        if (editorialtxt.getText().length() > 255) {
+        if (editorialtxt.getText().trim().length() > 255) {
             r.setError(true);
             r.setMensaje("El nombre de la editorial no puede ser mayor a 255 caracteres");
             r.setErrorcode(5);
-            return r;
-        }
-        if (!paginastxt.getText().matches("[0-9]*") || paginastxt.getText().length() > 10) {
-            r.setError(true);
-            r.setMensaje("Solo se permite números en Páginas menores a 10 digitos");
-            r.setErrorcode(6);
             return r;
         }
         if (!ediciontxt.getText().matches("[0-9]*") || ediciontxt.getText().length() > 10) {
@@ -266,22 +263,24 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
             r.setErrorcode(7);
             return r;
         }
-        if (!ejemplarestxt.getText().matches("[0-9]*") || ejemplarestxt.getText().length() > 10) {
-            r.setError(true);
-            r.setMensaje("Solo se permite números en Ejemplares menores a 10 digitos");
-            r.setErrorcode(8);
-            return r;
-        }
-        if (txt_archivo.equals("")) {
-            r.setError(true);
-            r.setMensaje("Debe seleccionar un archivo");
-            r.setErrorcode(9);
-            return r;
-        }
-        if (Objects.equals(file, null)) {
-            r.setError(true);
-            r.setMensaje("Seleccione un archivo PDF como evidencia.");
-            r.setErrorcode(10);
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            if (!paginastxt.getText().matches("[0-9]*") || paginastxt.getText().length() > 7) {
+                r.setError(true);
+                r.setMensaje("Solo se permite números en Páginas menores a 7 digitos");
+                r.setErrorcode(6);
+                return r;
+            }
+            if (!ejemplarestxt.getText().matches("[0-9]*") || ejemplarestxt.getText().length() > 6) {
+                r.setError(true);
+                r.setMensaje("Solo se permite números en Ejemplares menores a 6 digitos");
+                r.setErrorcode(8);
+                return r;
+            }
+            if (Objects.equals(file, null)) {
+                r.setError(true);
+                r.setMensaje("Seleccione un archivo PDF como evidencia.");
+                r.setErrorcode(10);
+            }
         }
         r.setMensaje("Exitoso");
         r.setError(false);
@@ -323,6 +322,7 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
             items.add(cmi);
         }
         mbMiembros.getItems().setAll(items);
+        lstAutores.getItems().add(m);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
 
@@ -340,30 +340,32 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
         l.setEdicion(Integer.valueOf(ediciontxt.getText()));
         l.setEditorial(ediciontxt.getText().trim());
         l.setIsbn(isbntxt.getText());
-        l.setNumPaginas(Integer.valueOf(paginastxt.getText()));
-        l.setTiraje(Integer.valueOf(ejemplarestxt.getText()));
+        //datos del producto
+        Producto pro = new Producto();
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            l.setNumPaginas(Integer.valueOf(paginastxt.getText()));
+            l.setTiraje(Integer.valueOf(ejemplarestxt.getText()));
+            byte[] doc;
+            try {
+                doc = Files.readAllBytes(file.toPath());
+                pro.setArchivoPDF(doc);
+                pro.setNombrePDF(file.getName());
+            } catch (IOException ex) {
+                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         List<Libro> lista = new ArrayList<>();
         lista.add(l);
         LibroJpaController ljpa = new LibroJpaController();
         ljpa.create(l);
-        //datos del producto
-        Producto producto = new Producto();
-        byte[] doc;
-        try {
-            doc = Files.readAllBytes(file.toPath());
-            producto.setArchivoPDF(doc);
-            producto.setNombrePDF(file.getName());
-        } catch (IOException ex) {
-            Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        producto.setAnio(Integer.valueOf(aniotxt.getText()));
-        producto.setTitulo(titulotxt.getText().trim());
-        producto.setProposito(propositotxt.getText().trim());
-        producto.setIdPais(cbPaises.getSelectionModel().getSelectedItem());
-        producto.setEstadoActual(estadocb.getSelectionModel().getSelectedItem());
-        producto.setLibroList(lista);
+        pro.setAnio(Integer.valueOf(aniotxt.getText()));
+        pro.setTitulo(titulotxt.getText().trim());
+        pro.setProposito(cb_proposito.getSelectionModel().getSelectedItem());
+        pro.setIdPais(cbPaises.getSelectionModel().getSelectedItem());
+        pro.setEstadoActual(estadocb.getSelectionModel().getSelectedItem());
+        pro.setLibroList(lista);
         ProductoJpaController prJpaC = new ProductoJpaController();
-        if (!prJpaC.create(producto)) {
+        if (!prJpaC.create(pro)) {
             errorlbl.setText("Error al conectar con la base de datos...");
         }
         ///datos del producto-colaborador///
@@ -372,7 +374,7 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
         ProductoColaborador pc;
         for (int i = 0; i < colas.size(); i++) {
             pc = new ProductoColaborador();
-            pc.setProducto(producto);
+            pc.setProducto(pro);
             pc.setColaborador(colas.get(i));
             try {
                 pcJpaC.create(pc);
@@ -387,8 +389,29 @@ public class RegistrarLibroControlador extends ControladorProductos implements I
         for (int i = 0; i < mis.size(); i++) {
             pm = new ProductoMiembro();
             pm.setIdMiembro(mis.get(i));
-            pm.setIdProducto(producto);
+            pm.setIdProducto(pro);
             pmJpaC.create(pm);
+        }
+    }
+
+    public void setMiembro(Miembro miembro) {
+        this.m = miembro;
+        miembros = super.recuperarMiembros(m);
+        iniciarMiembros();
+    }
+
+    @FXML
+    private void cambiarEstado(ActionEvent event) {
+        if (estadocb.getSelectionModel().getSelectedIndex() == 0) {
+            ejemplarestxt.setDisable(true);
+            txt_archivo.setDisable(true);
+            btn_subirArchivo.setDisable(true);
+            paginastxt.setDisable(true);
+        } else {
+            ejemplarestxt.setDisable(false);
+            txt_archivo.setDisable(false);
+            btn_subirArchivo.setDisable(false);
+            paginastxt.setDisable(false);
         }
     }
 }

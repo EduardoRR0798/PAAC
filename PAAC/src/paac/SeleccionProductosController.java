@@ -100,6 +100,8 @@ public class SeleccionProductosController extends ControladorProductos implement
             case 1:
                 break;
             case 2:
+                super.registrarLibro(miembro);
+                ((Node) btnCancelar).getScene().getWindow().hide();
                 break;
             case 3:
                 super.registrarMemoria(miembro);
@@ -112,6 +114,8 @@ public class SeleccionProductosController extends ControladorProductos implement
                 ((Node) btnCancelar).getScene().getWindow().hide();
                 break;
             case 6:
+                super.registrarTesis(miembro);
+                ((Node) btnCancelar).getScene().getWindow().hide();
                 break;
             default:
                 break;

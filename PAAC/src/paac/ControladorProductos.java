@@ -634,4 +634,47 @@ public abstract class ControladorProductos {
                     .log(Level.SEVERE, null, ex);
         }
     }
+
+    void registrarTesis(Miembro miembro) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("RegistrarTesis.fxml"));
+            
+            Parent responder = loader.load();
+            RegistrarTesisControlador cra = loader.getController();
+            cra.setMiembro(miembro);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Seleccion de productos");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    void registrarLibro(Miembro miembro) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("RegistrarLibro.fxml"));
+            
+            Parent responder = loader.load();
+            RegistrarLibroControlador cra = loader.getController();
+            cra.setMiembro(miembro);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Seleccion de productos");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+
 }
