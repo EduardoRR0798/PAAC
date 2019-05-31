@@ -102,6 +102,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
     // atributos necesarios
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
+    ArrayList<CheckMenuItem> itemsColaborador = new ArrayList<>();
     private File file;
     private Miembro m;
 
@@ -235,9 +236,13 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
                     c.setNombre(tfColaborador.getText());
                     ColaboradorJpaController cJpaC = new ColaboradorJpaController();
                     cJpaC.create(c);
-                    colaboradores = recuperarColaboradores();
+                    colaboradores.add(c);
+                    CheckMenuItem cmi = new CheckMenuItem(c.toString());
+                    cmi.setUserData(c);
+                    itemsColaborador.add(cmi);
+                    mbColaboradores.getItems().add(cmi);
+                    ponerAtributoColaborador(cmi);
                     tfColaborador.clear();
-                    
                 }
             } else {
                 lblMensaje.setText("Escriba el nombre de un Colaborador");
@@ -338,33 +343,33 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         MemoriaJpaController mJpaC = new MemoriaJpaController();
         mJpaC.create(memoria);
         ///datos del Producto///
-        Producto producto = new Producto();
+        Producto produc = new Producto();
         if (!btnCargar.isDisabled()) {
             byte[] doc;
             try {
                 doc = Files.readAllBytes(file.toPath());
-                producto.setArchivoPDF(doc);
-                producto.setNombrePDF(file.getName());
+                produc.setArchivoPDF(doc);
+                produc.setNombrePDF(file.getName());
             } catch (IOException ex) {
                 Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         
-        producto.setAnio(Integer.parseInt(tfAnio.getText()));
-        producto.setTitulo(tfTitulo.getText().trim());
-        producto.setProposito(cbProposito.getSelectionModel().getSelectedItem());
-        producto.setIdPais(cbPais.getSelectionModel().getSelectedItem());
-        producto.setEstadoActual(cbEstadoActual.getSelectionModel().getSelectedItem());
+        produc.setAnio(Integer.parseInt(tfAnio.getText()));
+        produc.setTitulo(tfTitulo.getText().trim());
+        produc.setProposito(cbProposito.getSelectionModel().getSelectedItem());
+        produc.setIdPais(cbPais.getSelectionModel().getSelectedItem());
+        produc.setEstadoActual(cbEstadoActual.getSelectionModel().getSelectedItem());
         //Busco el CA del miembro que esta registrando el producto.
         CaMiembroJpaController camJpaC = new CaMiembroJpaController();
         CuerpoAcademicoJpaController caJpaC = new CuerpoAcademicoJpaController();
         CaMiembro cam = camJpaC.findByMiembro(m.getIdMiembro());
         CuerpoAcademico ca = caJpaC.findCuerpoAcademico(cam.getCaMiembroPK().getIdCuerpoAcademico());
         //Fijo el CuerpoAcademico al producto.
-        producto.setIdCuerpoAcademico(ca);
-        producto.setMemoriaList(memos);
+        produc.setIdCuerpoAcademico(ca);
+        produc.setMemoriaList(memos);
         ProductoJpaController prJpaC = new ProductoJpaController();
-        if (!prJpaC.create(producto)) {
+        if (!prJpaC.create(produc)) {
            lblMensaje.setText(ERRORBD);
         }
         ///datos del producto-colaborador///
@@ -373,7 +378,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         ProductoColaborador pc;
         for (int i = 0; i < colas.size(); i++) {
             pc = new ProductoColaborador();
-            pc.setProducto(producto);
+            pc.setProducto(produc);
             pc.setColaborador(colas.get(i));
             try {
                 pcJpaC.create(pc);
@@ -388,7 +393,7 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
         for (int i = 0; i < mis.size(); i++) {
             pm = new ProductoMiembro();
             pm.setIdMiembro(mis.get(i));
-            pm.setIdProducto(producto);
+            pm.setIdProducto(produc);
             pmJpaC.create(pm);
         }
     }
@@ -398,16 +403,25 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
      */
     public void iniciarColaboradores() {
         CheckMenuItem cmi;
-        ArrayList<CheckMenuItem> items = new ArrayList<>();
+        
         for (int i = 0; i < colaboradores.size(); i++) {
             cmi = new CheckMenuItem(colaboradores.get(i).toString());
             cmi.setUserData(colaboradores.get(i));
-            items.add(cmi);
+            itemsColaborador.add(cmi);
         }
-        mbColaboradores.getItems().setAll(items);
+        mbColaboradores.getItems().setAll(itemsColaborador);
         
-        for (final CheckMenuItem item : items) {
-            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+        itemsColaborador.forEach((item) -> {
+            ponerAtributoColaborador(item);
+        });
+    }
+    
+    /**
+     * Pone la opcion de que al seleccionarlo se sume a la lista de autores.
+     * @param item Un CheckMenuItem que contenga al colaborador.
+     */
+    private void ponerAtributoColaborador(CheckMenuItem item) {
+        item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
                 
             if (newValue) {
                     lstColaboradores.getItems().add((Colaborador) item.getUserData());
@@ -415,7 +429,6 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
                     lstColaboradores.getItems().remove((Colaborador) item.getUserData());
                 }
             });
-        }
     }
     
     /**
@@ -423,16 +436,25 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
      */
     public void iniciarMiembros() {
         CheckMenuItem cmi;
-        ArrayList<CheckMenuItem> items = new ArrayList<>();
+        ArrayList<CheckMenuItem> itemsMiembro = new ArrayList<>();
         for (int i = 0; i < miembros.size(); i++) {
             cmi = new CheckMenuItem(miembros.get(i).toString());
             cmi.setUserData(miembros.get(i));
-            items.add(cmi);
+            itemsMiembro.add(cmi);
         }
-        mbMiembros.getItems().setAll(items);
+        mbMiembros.getItems().setAll(itemsMiembro);
         lstAutores.getItems().add(m);
-        for (final CheckMenuItem item : items) {
-            item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+        itemsMiembro.forEach((item) -> {
+            ponerAtributoMiembro(item);
+        });
+    }
+    
+    /**
+     * Pone la opcion de que al seleccionarlo se sume a la lista de autores.
+     * @param item Un CheckMenuItem que contenga al miembro.
+     */
+    private void ponerAtributoMiembro(CheckMenuItem item) {
+        item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
                 
             if (newValue) {
                     lstAutores.getItems().add((Miembro) item.getUserData());
@@ -440,7 +462,6 @@ public class ControladorRegistrarMemoria extends ControladorProductos implements
                     lstAutores.getItems().remove((Miembro) item.getUserData());
                 }
             });
-        }
     }
     
     /**
