@@ -439,6 +439,31 @@ public abstract class ControladorProductos {
      * Este metodo abre una nueva ventana para registrar un producto
      * por el miembro.
      */
+    protected void actualizarTesis(Miembro miembro, Producto producto) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("ActualizarTesis.fxml"));
+            
+            Parent responder = loader.load();
+            ActualizarTesisControlador cam = loader.getController();
+            cam.recibirParametros(producto,miembro);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Actualizar Tesis");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * Este metodo abre una nueva ventana para registrar un producto
+     * por el miembro.
+     */
     protected void actualizarPrototipo(Miembro miembro, Producto producto) {
         try {
             Locale.setDefault(new Locale("es"));
@@ -636,6 +661,52 @@ public abstract class ControladorProductos {
     }
     
     /**
+     * Este metodo abre una nueva ventana para registrar un producto
+     * por el miembro.
+     */
+    protected void seleccionarProductoConsultar(Miembro miembro) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("SeleccionarProductoConsulta.fxml"));
+            
+            Parent responder = loader.load();
+            SeleccionarProductoConsultaController sapc = loader.getController();
+            sapc.recibirParametros(miembro);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Seleccion de productos");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    protected void consultarProducto(Miembro miembro, Producto pro, int origen) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("ConsultarProducto.fxml"));
+            
+            Parent responder = loader.load();
+            ConsultarProductoController sapc = loader.getController();
+            sapc.recibirParametros(miembro, pro, origen);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Consulta de producto");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
      * Este metodo abre la ventana para seleccionar los miembros a modificar.
      * @param miembro Miembro que inicio sesion en el sistema.
      */
@@ -718,7 +789,49 @@ public abstract class ControladorProductos {
             
             Scene scene = new Scene(responder);
             Stage stage = new Stage();
-            stage.setTitle("Seleccion de productos");
+            stage.setTitle("Registrar libro");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+
+    void seleccionarTesis(Miembro miembro) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("SeleccionarTesis.fxml"));
+            
+            Parent responder = loader.load();
+            SeleccionarTesisController smc = loader.getController();
+            smc.recibirParametros(miembro);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Seleccion de tesis");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(SeleccionProductosController.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    void generarCurriculum(Miembro miembro) {
+        try {
+            Locale.setDefault(new Locale("es"));
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("GenerarCurriculum.fxml"));
+            
+            Parent responder = loader.load();
+            GenerarCurriculumController smc = loader.getController();
+            smc.recibirParametros(miembro);
+            
+            Scene scene = new Scene(responder);
+            Stage stage = new Stage();
+            stage.setTitle("Curriculum");
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {
