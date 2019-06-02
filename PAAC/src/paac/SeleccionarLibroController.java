@@ -53,6 +53,7 @@ public class SeleccionarLibroController extends ControladorProductos implements 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+
         lst.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -72,7 +73,6 @@ public class SeleccionarLibroController extends ControladorProductos implements 
     void recibirParametros(Miembro miembro) {
         this.miembro = miembro;
         recuperarProductos();
-        
     }
 
     @FXML
@@ -91,11 +91,8 @@ public class SeleccionarLibroController extends ControladorProductos implements 
 
     //folio 41939553, 
     /**
-     * Recupera todos los productos asociados a una memoria que pertenezca al
+     * Recupera todos los productos asociados a un libro que pertenezca al
      * miembro.
-     */
-       /**
-     * Recupera todos los productos asociados a una memoria que pertenezca al miembro.
      */
     private void recuperarProductos() {
         ProductoJpaController pJpaC = new ProductoJpaController();
