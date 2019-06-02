@@ -16,10 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -29,21 +27,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -67,7 +60,7 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
     @FXML
     private ComboBox<Pais> paisescb;
     @FXML
-    private TextArea propositotxt;
+    private ComboBox<String> cb_proposito;
     @FXML
     private TextField registrotxt;
     @FXML
@@ -75,9 +68,7 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
     @FXML
     private TextField usuariotxt;
     @FXML
-    private DatePicker fechadp;
-    @FXML
-    private TextField gradotxt;
+    private ComboBox<String> cb_grado;
     @FXML
     private ComboBox<String> clasificacioncb;
     @FXML
@@ -90,6 +81,8 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
     private Label lbl_nombreColaborador;
     @FXML
     private TextField txt_nombreColaborador;
+    @FXML
+    private TextField txt_anio;
     @FXML
     private Button btn_guardarColaborador;
     @FXML
@@ -105,18 +98,25 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
     @FXML
     private Button btnAgregar;
     @FXML
+    private Button btn_subirArchivo;
+    @FXML
     private ListView<Colaborador> lstColaboradores;
     @FXML
     private TextField txt_numHojas;
-
-    ObservableList<String> estados = FXCollections.observableArrayList(
-            "Planeado",
-            "En proceso",
-            "Terminado");
     ObservableList<String> clasif = FXCollections.observableArrayList(
-            "Clase 1",
-            "Clase 2",
-            "Clase 3");
+            "Teórica",
+            "Práctica",
+            "Teórico-Práctica",
+            "De Investigación documental",
+            "De investigación de campo");
+    ObservableList<String> grados = FXCollections.observableArrayList(
+            "Doctorado",
+            "Especialidad",
+            "Especialidad médica",
+            "Licenciatura",
+            "Maestría",
+            "Técnico",
+            "Técnico superior universitario");
     private ObservableList<Colaborador> colaboradores = FXCollections.observableArrayList();
     private ObservableList<Pais> paises = FXCollections.observableArrayList();
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
@@ -125,6 +125,8 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
     private File file;
     private Producto p;
     private Tesis t;
+    private Miembro m;
+    private ArrayList<CheckMenuItem> itemsColaborador = new ArrayList<>();
 
     /**
      * Initializes the controller class.
@@ -133,13 +135,23 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         clasificacioncb.setItems(clasif);
-        estadocb.setItems(estados);
+        estadocb.setItems(super.estados);
+        cb_grado.setItems(grados);
+        cb_proposito.setItems(super.propositos);
         colaboradores = super.recuperarColaboradores();
-        miembros = super.recuperarMiembros();
         paises = recuperarPaises();
         paisescb.setItems(paises);
+    }
+
+    public void recibirParametros(Producto pro, Miembro m) {
+        this.m = m;
+        this.p = pro;
+        miembros = recuperarMiembros(m);
+        cInvolucrados = recuperarColaboradoresInvolucrados(p);
+        mInvolucrados = recuperarMiembrosInvolucrados(p);
         iniciarMiembros();
         iniciarColaboradores();
+        iniciarPantalla();
     }
 
     @FXML
@@ -171,7 +183,12 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
                     c.setNombre(txt_nombreColaborador.getText().trim());
                     ColaboradorJpaController cJpaC = new ColaboradorJpaController();
                     cJpaC.create(c);
-                    recuperarColaboradores();
+                    colaboradores.add(c);
+                    CheckMenuItem cmi = new CheckMenuItem(c.toString());
+                    cmi.setUserData(c);
+                    itemsColaborador.add(cmi);
+                    mb_colaboradores.getItems().add(cmi);
+                    ponerAtributoColaborador(cmi);
                     lbl_nombreColaborador.setVisible(false);
                     txt_nombreColaborador.setVisible(false);
                     txt_nombreColaborador.setDisable(true);
@@ -188,14 +205,15 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
 
     @FXML
     private void clickCancelar(ActionEvent event) {
-        Alert cancelar = new Alert(Alert.AlertType.CONFIRMATION);
-        cancelar.setTitle("Cancelar proceso");
-        cancelar.setHeaderText(null);
-        cancelar.initStyle(StageStyle.UTILITY);
-        cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
-        Optional<ButtonType> result = cancelar.showAndWait();
+        Alert cancela = new Alert(Alert.AlertType.CONFIRMATION);
+        cancela.setTitle("Cancelar proceso");
+        cancela.setHeaderText(null);
+        cancela.initStyle(StageStyle.UTILITY);
+        cancela.setContentText("¿Esta seguro de que desea cancelar el proceso?");
+        Optional<ButtonType> result = cancela.showAndWait();
         if (result.get() == ButtonType.OK) {
-            System.exit(0);
+            seleccionarTesis(m);
+            ((Node) cancelar).getScene().getWindow().hide();
         }
     }
 
@@ -209,7 +227,8 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
             errorlbl.setText(r.getMensaje());
             errorlbl.setVisible(true);
             actualizarProducto();
-            regresarAVentanaAnterior();
+            abrirMenu(m);
+            ((Node) cancelar).getScene().getWindow().hide();
         }
     }
 
@@ -252,7 +271,7 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
             items.add(cmi);
         }
         mb_autores.getItems().setAll(items);
-
+        lstAutores.getItems().add(m);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
 
@@ -274,15 +293,14 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
 
     private void iniciarColaboradores() {
         CheckMenuItem cmi;
-        ArrayList<CheckMenuItem> items = new ArrayList<>();
         for (int i = 0; i < colaboradores.size(); i++) {
             cmi = new CheckMenuItem(colaboradores.get(i).toString());
             cmi.setUserData(colaboradores.get(i));
-            items.add(cmi);
+            itemsColaborador.add(cmi);
         }
-        mb_colaboradores.getItems().setAll(items);
+        mb_colaboradores.getItems().setAll(itemsColaborador);
 
-        for (final CheckMenuItem item : items) {
+        for (final CheckMenuItem item : itemsColaborador) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
 
                 if (newValue) {
@@ -293,9 +311,9 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
             });
         }
         for (int i = 0; i < cInvolucrados.size(); i++) {
-            for (int j = 0; j < items.size(); j++) {
-                if (cInvolucrados.get(i).equals(items.get(j).getUserData())) {
-                    items.get(j).setSelected(true);
+            for (int j = 0; j < itemsColaborador.size(); j++) {
+                if (cInvolucrados.get(i).equals(itemsColaborador.get(j).getUserData())) {
+                    itemsColaborador.get(j).setSelected(true);
                 }
             }
         }
@@ -307,33 +325,37 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
         tesis = tjc.encontrarTesisPorIdProducto(p);
         t = tesis;
         titulotxt.setText(p.getTitulo());
-        propositotxt.setText(p.getProposito());
-        gradotxt.setText(t.getGrado());
+        cb_proposito.getSelectionModel().select(p.getProposito());
+        cb_grado.getSelectionModel().select(t.getGrado());
         registrotxt.setText(t.getNumRegistro().toString());
         descripciontxt.setText(t.getDescripcion());
         usuariotxt.setText(t.getUsuarioDirigido());
         paisescb.getSelectionModel().select(p.getIdPais());
         clasificacioncb.getSelectionModel().select(t.getClasificacionInter());
         estadocb.getSelectionModel().select(p.getEstadoActual());
-        txt_numHojas.setText(t.getNumHojas().toString());
-        txt_archivo.setText(p.getNombrePDF());
-        fechadp.setValue(LocalDate.ofYearDay(p.getAnio(), 100));
-        
+        txt_anio.setText(p.getAnio().toString());
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            txt_numHojas.setText(t.getNumHojas().toString());
+            txt_archivo.setText(p.getNombrePDF());
+        } else {
+            txt_numHojas.setDisable(true);
+            txt_archivo.setDisable(true);
+            btn_subirArchivo.setDisable(true);
+        }
     }
 
     public Respuesta validarCampos() {
         Respuesta r = new Respuesta();
         if (titulotxt.getText().isEmpty()
-                || gradotxt.getText().isEmpty()
-                || propositotxt.getText().isEmpty()
+                || cb_grado.getSelectionModel().isEmpty()
+                || cb_proposito.getSelectionModel().isEmpty()
                 || registrotxt.getText().isEmpty()
                 || descripciontxt.getText().isEmpty()
                 || usuariotxt.getText().isEmpty()
-                || fechadp.getValue() == null
+                || txt_anio.getText().isEmpty()
                 || paisescb.getSelectionModel().isEmpty()
                 || clasificacioncb.getSelectionModel().isEmpty()
-                || estadocb.getSelectionModel().isEmpty()
-                || txt_numHojas.getText().isEmpty()) {
+                || estadocb.getSelectionModel().isEmpty()) {
             r.setError(true);
             r.setMensaje("No puede haber campos vacíos");
             r.setErrorcode(1);
@@ -345,17 +367,28 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
             r.setErrorcode(2);
             return r;
         }
-        if (gradotxt.getText().length() > 150) {
-            r.setError(true);
-            r.setMensaje("El grado no puede tener mas de 150 caracteres");
-            r.setErrorcode(4);
-            return r;
-        }
-        if (propositotxt.getText().length() > 255) {
-            r.setError(true);
-            r.setMensaje("El proposito no puede tener mas de 255 caracteres");
-            r.setErrorcode(5);
-            return r;
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            if (txt_numHojas.getText().isEmpty()) {
+                r.setError(true);
+                r.setMensaje("Insertar cantidad de hojas");
+                r.setErrorcode(1);
+                return r;
+            }
+            if (txt_archivo.getText().isEmpty()){
+                r.setError(true);
+                r.setMensaje("Seleccione un nuevo archivo PDF como evidencia.");
+                r.setErrorcode(9);
+            }
+            if (Objects.equals(file, null)) {
+                r.setError(true);
+                r.setMensaje("Seleccione un archivo PDF como evidencia.");
+                r.setErrorcode(9);
+            }
+            if (!txt_numHojas.getText().matches("[0-9]*")) {
+                r.setError(true);
+                r.setMensaje("Valor no numerico en numero de hojas");
+                r.setErrorcode(9);
+            }
         }
         if (registrotxt.getText().length() > 10 || !registrotxt.getText().matches("[0-9]*")) {
             r.setError(true);
@@ -375,38 +408,10 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
             r.setErrorcode(8);
             return r;
         }
-        if (Objects.equals(file, null)) {
-            r.setError(true);
-            r.setMensaje("Seleccione un archivo PDF como evidencia.");
-            r.setErrorcode(9);
-        }
-        if (!txt_numHojas.getText().matches("[0-9]*")) {
-            r.setError(true);
-            r.setMensaje("Valor no numerico en numero de hojas");
-            r.setErrorcode(9);
-        }
+
         r.setMensaje("Exitoso");
         r.setError(false);
         return r;
-    }
-    
-    private void regresarAVentanaAnterior() {
-        try {
-            Locale.setDefault(new Locale("es"));
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource(
-                    "SeleccionarTesis.fxml"));
-
-            Parent seleccion = loader.load();
-            Scene scene = new Scene(seleccion);
-            Stage stage = new Stage();
-            stage.fullScreenProperty();
-            stage.setScene(scene);
-            stage.show();
-            ((Node) (cancelar)).getScene().getWindow().hide();
-        } catch (IOException ex) {
-            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     private void actualizarProducto() {
@@ -414,38 +419,43 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
         Tesis te = tjc.encontrarTesisPorIdProducto(p);
         te.setClasificacionInter(clasificacioncb.getSelectionModel().getSelectedItem());
         te.setDescripcion(descripciontxt.getText().trim());
-        te.setGrado(gradotxt.getText().trim());
-        te.setNumHojas(Integer.valueOf(txt_numHojas.getText()));
+        te.setGrado(cb_grado.getSelectionModel().getSelectedItem());
+
         te.setNumRegistro(Integer.valueOf(registrotxt.getText()));
         te.setUsuarioDirigido(usuariotxt.getText());
-        
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            te.setNumHojas(Integer.valueOf(txt_numHojas.getText()));
+        }
+
         List<Tesis> lista = new ArrayList();
         lista.add(te);
-        
+
         try {
             tjc.edit(te);
         } catch (Exception ex) {
             Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        p.setAnio(fechadp.getValue().getYear());
+
+        p.setAnio(Integer.valueOf(txt_anio.getText()));
         p.setTitulo(titulotxt.getText().trim());
-        p.setProposito(propositotxt.getText().trim());
+        p.setProposito(cb_proposito.getSelectionModel().getSelectedItem());
         p.setIdPais(paisescb.getSelectionModel().getSelectedItem());
         p.setEstadoActual(estadocb.getSelectionModel().getSelectedItem());
         p.setTesisList(lista);
-        
-        if (!Objects.equals(file, null)) {
-            byte[] doc;
-            try {
-                doc = Files.readAllBytes(file.toPath());
-                p.setArchivoPDF(doc);
-                p.setNombrePDF(file.getName());
-            } catch (IOException ex) {
-                Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            if (!Objects.equals(file, null)) {
+                byte[] doc;
+                try {
+                    doc = Files.readAllBytes(file.toPath());
+                    p.setArchivoPDF(doc);
+                    p.setNombrePDF(file.getName());
+                } catch (IOException ex) {
+                    Logger.getLogger(RegistrarPrototipoController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
-        
+
         ProductoJpaController prJpaC = new ProductoJpaController();
         try {
             prJpaC.edit(p);
@@ -456,16 +466,15 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
             Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
             errorlbl.setText("Error al conectar con la base de datos");
         }
-        
+
         ///datos del producto-colaborador///
-        
         List<Colaborador> colas = lstColaboradores.getItems();
         ProductoColaboradorJpaController pcJpaC = new ProductoColaboradorJpaController();
         List<ProductoColaborador> pcs = pcJpaC.findByIdProducto(p.getIdProducto());
         ProductoColaborador productCol;
         for (int j = 0; j < colas.size(); j++) {
             if (!cInvolucrados.contains(colas.get(j))) {
-                productCol =  new ProductoColaborador();
+                productCol = new ProductoColaborador();
                 productCol.setColaborador(colas.get(j));
                 productCol.setProducto(p);
                 try {
@@ -477,7 +486,7 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
                 cInvolucrados.remove(colas.get(j));
             }
         }
-        if (cInvolucrados.size() > 0) {           
+        if (cInvolucrados.size() > 0) {
             for (int i = 0; i < cInvolucrados.size(); i++) {
                 productCol = pcJpaC.findByIdPC(cInvolucrados.get(i).getIdColaborador(), p.getIdProducto());
                 try {
@@ -487,7 +496,7 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
                 }
             }
         }
-        
+
         //datos del producto-Miembro
         List<Miembro> miems = lstAutores.getItems();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
@@ -495,7 +504,7 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
         ProductoMiembro productMiem;
         for (int j = 0; j < miems.size(); j++) {
             if (!mInvolucrados.contains(miems.get(j))) {
-                productMiem =  new ProductoMiembro();
+                productMiem = new ProductoMiembro();
                 productMiem.setIdMiembro(miems.get(j));
                 productMiem.setIdProducto(p);
                 try {
@@ -507,7 +516,7 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
                 mInvolucrados.remove(miems.get(j));
             }
         }
-        if (mInvolucrados.size() > 0) {           
+        if (mInvolucrados.size() > 0) {
             for (int i = 0; i < mInvolucrados.size(); i++) {
                 productMiem = pmJpaC.findByIdPM(mInvolucrados.get(i), p);
                 try {
@@ -518,5 +527,33 @@ public class ActualizarTesisControlador extends ControladorProductos implements 
             }
         }
     }
-}
 
+    @FXML
+    private void cambiarEstado(ActionEvent event) {
+        if (estadocb.getSelectionModel().getSelectedIndex() == 0) {
+            txt_numHojas.setDisable(true);
+            txt_archivo.setDisable(true);
+            btn_subirArchivo.setDisable(true);
+        } else {
+            txt_numHojas.setDisable(false);
+            txt_archivo.setDisable(false);
+            btn_subirArchivo.setDisable(false);
+        }
+    }
+    
+    /**
+     * Pone la opcion de que al seleccionarlo se sume a la lista de autores.
+     * @param item Un CheckMenuItem que contenga al colaborador.
+     */
+    private void ponerAtributoColaborador(CheckMenuItem item) {
+        item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+                
+            if (newValue) {
+                    lstColaboradores.getItems().add((Colaborador) item.getUserData());
+                } else {
+                    lstColaboradores.getItems().remove((Colaborador) item.getUserData());
+                }
+            });
+    }
+
+}

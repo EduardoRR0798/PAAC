@@ -48,6 +48,8 @@ public class MenuPrincipalController extends ControladorProductos implements Ini
     @FXML
     private MenuItem miEstado;
     @FXML
+    private MenuItem miGenerarCurriculum;
+    @FXML
     private Menu mControlCa;
     @FXML
     private ImageView imgUV;
@@ -100,7 +102,7 @@ public class MenuPrincipalController extends ControladorProductos implements Ini
      */
     @FXML
     private void consultarProductos(ActionEvent event) {
-        
+        seleccionarProductoConsultar(miembro);
         ((Node) mbMenu).getScene().getWindow().hide();
     }
 
@@ -161,6 +163,12 @@ public class MenuPrincipalController extends ControladorProductos implements Ini
     @FXML
     private void registrarMiembro(ActionEvent event) {
         registrarNuevoMiembro(miembro);
+        ((Node) mbMenu).getScene().getWindow().hide();
+    }
+    
+    @FXML
+    private void generarCurriculum(ActionEvent event){
+        generarCurriculum(miembro);
         ((Node) mbMenu).getScene().getWindow().hide();
     }
     

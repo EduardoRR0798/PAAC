@@ -8,7 +8,6 @@ package paac;
 import entity.Miembro;
 import entity.Producto;
 import entity.ProductoMiembro;
-import entity.Tesis;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,21 +30,21 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.StageStyle;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
-import persistence.TesisJpaController;
 
 /**
  * FXML Controller class
  *
- * @author Foncho
+ * @author ponch
  */
-public class SeleccionarTesisController extends ControladorProductos implements Initializable {
+public class SeleccionarProductoConsultaController extends ControladorProductos implements Initializable {
 
     @FXML
     private Button btn_cancelar;
     @FXML
     private ListView<Producto> lst;
+    private Miembro miembro;
     private ObservableList<Producto> productos = FXCollections.observableArrayList();
-    Miembro miembro;
+    private int origen = 1;
 
     /**
      * Initializes the controller class.
@@ -60,39 +59,34 @@ public class SeleccionarTesisController extends ControladorProductos implements 
                     if (mouseEvent.getClickCount() == 2) {
                         if (!productos.isEmpty()) {
                             Producto p = lst.getSelectionModel().getSelectedItem();
-                            actualizarTesis(miembro, p);
+                            consultarProducto(miembro, p, origen);
                             ((Node) btn_cancelar).getScene().getWindow().hide();
                         }
                     }
                 }
             }
         });
-    }
-
-    void recibirParametros(Miembro miembro) {
-        this.miembro = miembro;
-        recuperarProductos();
-    }
+    }    
 
     @FXML
     private void cancelar(ActionEvent event) {
-        Alert cancelar = new Alert(Alert.AlertType.CONFIRMATION);
-        cancelar.setTitle("Cancelar proceso");
-        cancelar.setHeaderText(null);
-        cancelar.initStyle(StageStyle.UTILITY);
-        cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
-        Optional<ButtonType> result = cancelar.showAndWait();
+        Alert cancela = new Alert(Alert.AlertType.CONFIRMATION);
+        cancela.setTitle("Cancelar proceso");
+        cancela.setHeaderText(null);
+        cancela.initStyle(StageStyle.UTILITY);
+        cancela.setContentText("¿Esta seguro de que desea cancelar el proceso?");
+        Optional<ButtonType> result = cancela.showAndWait();
         if (result.get() == ButtonType.OK) {
             abrirMenu(miembro);
             ((Node) btn_cancelar).getScene().getWindow().hide();
         }
     }
 
-    //folio 41939553, 
-    /**
-     * Recupera todos los productos asociados a una memoria que pertenezca al
-     * miembro.
-     */
+    public void recibirParametros(Miembro m) {
+        this.miembro = m;
+        recuperarProductos();
+    }
+    
     private void recuperarProductos() {
         ProductoJpaController pJpaC = new ProductoJpaController();
         ProductoMiembroJpaController pmJpaC = new ProductoMiembroJpaController();
@@ -106,22 +100,12 @@ public class SeleccionarTesisController extends ControladorProductos implements 
         }
         //recupero TODOS los productos que tengan que ver con ese miembro.
         Producto p;
-        ArrayList<Producto> productosTemp = new ArrayList<>();
         for (int i = 0; i < pcss.size(); i++) {
             p = pJpaC.findProducto(pcss.get(i).getIdProducto().getIdProducto());
-            productosTemp.add(p);
-        }
-        //filtro los productos que si sean tesis.
-        TesisJpaController JpaController = new TesisJpaController();
-        //filtrar memorias
-        Tesis mem;
-        for (int i = 0; i < productosTemp.size(); i++) {
-            mem = JpaController.encontrarTesisPorIdProducto(productosTemp.get(i));
-            if (!Objects.equals(mem, null)) {
-                productos.add(productosTemp.get(i));
+            if(p!=null){
+                productos.add(p);
             }
         }
         lst.getItems().setAll(productos);
     }
-
 }

@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.text.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="750.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.MenuPrincipalController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="750.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paac.MenuPrincipalController">
    <children>
       <ImageView fx:id="imgUv" fitHeight="433.0" fitWidth="594.0" layoutX="86.0" layoutY="34.0" opacity="0.44" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="33.0" AnchorPane.leftAnchor="85.33331298828125" AnchorPane.rightAnchor="86.66668701171875" AnchorPane.topAnchor="34.0">
          <image>
@@ -19,6 +22,7 @@
               <MenuItem fx:id="miRegistrar" mnemonicParsing="false" onAction="#registrarProductos" text="Registrar Produto" />
                   <MenuItem fx:id="miActualizar" mnemonicParsing="false" onAction="#actualizarProductos" text="Actualizar Producto" />
                   <MenuItem fx:id="miConsultar" mnemonicParsing="false" onAction="#consultarProductos" text="Consultar Productos" />
+                  <MenuItem fx:id="miGenerarCurriculum" mnemonicParsing="false" onAction="#generarCurriculum" text="Generar Curriculum" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Informacion personal">

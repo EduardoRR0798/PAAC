@@ -18,7 +18,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -28,11 +27,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -41,7 +37,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -115,6 +110,7 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
     private Producto p;
     private Libro l;
     private Miembro m;
+    private ArrayList<CheckMenuItem> itemsColaborador = new ArrayList<>();
 
     /**
      * Initializes the controller class.
@@ -127,9 +123,9 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
         colaboradores = super.recuperarColaboradores();
         paises = recuperarPaises();
         cbPaises.setItems(paises);
- 
+
     }
-    
+
     /**
      * Recibe el id del producto seleccionado anteriormente.
      *
@@ -175,6 +171,12 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
                     c.setNombre(txt_nombreColaborador.getText().trim());
                     ColaboradorJpaController cJpaC = new ColaboradorJpaController();
                     cJpaC.create(c);
+                    colaboradores.add(c);
+                    CheckMenuItem cmi = new CheckMenuItem(c.toString());
+                    cmi.setUserData(c);
+                    itemsColaborador.add(cmi);
+                    mbColaboradores.getItems().add(cmi);
+                    ponerAtributoColaborador(cmi);
                     lbl_nombreColaborador.setVisible(false);
                     txt_nombreColaborador.setVisible(false);
                     txt_nombreColaborador.setDisable(true);
@@ -259,7 +261,7 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             items.add(cmi);
         }
         mbMiembros.getItems().setAll(items);
-
+        lstAutores.getItems().add(m);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
 
@@ -281,15 +283,14 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
 
     private void iniciarColaboradores() {
         CheckMenuItem cmi;
-        ArrayList<CheckMenuItem> items = new ArrayList<>();
         for (int i = 0; i < colaboradores.size(); i++) {
             cmi = new CheckMenuItem(colaboradores.get(i).toString());
             cmi.setUserData(colaboradores.get(i));
-            items.add(cmi);
+            itemsColaborador.add(cmi);
         }
-        mbColaboradores.getItems().setAll(items);
+        mbColaboradores.getItems().setAll(itemsColaborador);
 
-        for (final CheckMenuItem item : items) {
+        for (final CheckMenuItem item : itemsColaborador) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
 
                 if (newValue) {
@@ -300,9 +301,9 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             });
         }
         for (int i = 0; i < cInvolucrados.size(); i++) {
-            for (int j = 0; j < items.size(); j++) {
-                if (cInvolucrados.get(i).equals(items.get(j).getUserData())) {
-                    items.get(j).setSelected(true);
+            for (int j = 0; j < itemsColaborador.size(); j++) {
+                if (cInvolucrados.get(i).equals(itemsColaborador.get(j).getUserData())) {
+                    itemsColaborador.get(j).setSelected(true);
                 }
             }
         }
@@ -313,36 +314,25 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
         LibroJpaController ljc = new LibroJpaController();
         libro = ljc.encontrarLibroPorIdProducto(p);
         l = libro;
+        estadocb.getSelectionModel().select(p.getEstadoActual());
         titulotxt.setText(p.getTitulo());
         cbPaises.getSelectionModel().select(p.getIdPais());
         aniotxt.setText(p.getAnio().toString());
         cb_proposito.getSelectionModel().select(p.getProposito());
         isbntxt.setText(l.getIsbn());
         editorialtxt.setText(l.getEditorial());
-        paginastxt.setText(String.valueOf(l.getNumPaginas()));
         ediciontxt.setText(String.valueOf(l.getEdicion()));
-        ejemplarestxt.setText(String.valueOf(l.getTiraje()));
-        txt_archivo.setText(p.getNombrePDF());
-        estadocb.getSelectionModel().select(p.getEstadoActual());
-
-    }
-
-    private void regresarAVentanaAnterior() {
-        try {
-            Locale.setDefault(new Locale("es"));
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource(
-                    "SeleccionarLibro.fxml"));
-            Parent seleccion = loader.load();
-            Scene scene = new Scene(seleccion);
-            Stage stage = new Stage();
-            stage.fullScreenProperty();
-            stage.setScene(scene);
-            stage.show();
-            ((Node) (cancelar)).getScene().getWindow().hide();
-        } catch (IOException ex) {
-            Logger.getLogger(ControladorActualizarMemoria.class.getName()).log(Level.SEVERE, null, ex);
+        if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            txt_archivo.setText(p.getNombrePDF());
+            ejemplarestxt.setText(String.valueOf(l.getTiraje()));
+            paginastxt.setText(String.valueOf(l.getNumPaginas()));
+        } else {
+            ejemplarestxt.setDisable(true);
+            txt_archivo.setDisable(true);
+            btn_subirArchivo.setDisable(true);
+            paginastxt.setDisable(true);
         }
+
     }
 
     public Respuesta validarCampos() {
@@ -396,6 +386,12 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             return r;
         }
         if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            if (paginastxt.getText().isEmpty() || ejemplarestxt.getText().isEmpty()) {
+                r.setError(true);
+                r.setMensaje("No puede haber campos vacíos");
+                r.setErrorcode(1);
+                return r;
+            }
             if (!paginastxt.getText().matches("[0-9]*") || paginastxt.getText().length() > 7) {
                 r.setError(true);
                 r.setMensaje("Solo se permite números en Páginas menores a 7 digitos");
@@ -404,7 +400,7 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             }
             if (!ejemplarestxt.getText().matches("[0-9]*") || ejemplarestxt.getText().length() > 6) {
                 r.setError(true);
-                r.setMensaje("Solo se permite números en Ejemplares menores a 6 digitos");
+                r.setMensaje("Solo se permite números en ejemplares menores a 6 digitos");
                 r.setErrorcode(8);
                 return r;
             }
@@ -413,6 +409,7 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
                 r.setMensaje("Seleccione un archivo PDF como evidencia.");
                 r.setErrorcode(10);
             }
+
         }
         r.setMensaje("Exitoso");
         r.setError(false);
@@ -543,6 +540,20 @@ public class ActualizarLibroControlador extends ControladorProductos implements 
             paginastxt.setDisable(false);
         }
     }
-
     
+    /**
+     * Pone la opcion de que al seleccionarlo se sume a la lista de autores.
+     * @param item Un CheckMenuItem que contenga al colaborador.
+     */
+    private void ponerAtributoColaborador(CheckMenuItem item) {
+        item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+                
+            if (newValue) {
+                    lstColaboradores.getItems().add((Colaborador) item.getUserData());
+                } else {
+                    lstColaboradores.getItems().remove((Colaborador) item.getUserData());
+                }
+            });
+    }
+
 }

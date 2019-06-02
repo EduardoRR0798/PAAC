@@ -5,7 +5,9 @@
  */
 package paac;
 
+import entity.CaMiembro;
 import entity.Colaborador;
+import entity.CuerpoAcademico;
 import entity.Miembro;
 import entity.Pais;
 import entity.Producto;
@@ -42,7 +44,9 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import persistence.CaMiembroJpaController;
 import persistence.ColaboradorJpaController;
+import persistence.CuerpoAcademicoJpaController;
 import persistence.ProductoColaboradorJpaController;
 import persistence.ProductoJpaController;
 import persistence.ProductoMiembroJpaController;
@@ -123,6 +127,7 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
     private ObservableList<Miembro> miembros = FXCollections.observableArrayList();
     private File file;
     private Miembro m;
+    private ArrayList<CheckMenuItem> itemsColaborador = new ArrayList<>();
 
     /**
      * Initializes the controller class.
@@ -170,7 +175,12 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
                     c.setNombre(txt_nombreColaborador.getText().trim());
                     ColaboradorJpaController cJpaC = new ColaboradorJpaController();
                     cJpaC.create(c);
-                    recuperarColaboradores();
+                    colaboradores.add(c);
+                    CheckMenuItem cmi = new CheckMenuItem(c.toString());
+                    cmi.setUserData(c);
+                    itemsColaborador.add(cmi);
+                    mb_colaboradores.getItems().add(cmi);
+                    ponerAtributoColaborador(cmi);
                     lbl_nombreColaborador.setVisible(false);
                     txt_nombreColaborador.setVisible(false);
                     txt_nombreColaborador.setDisable(true);
@@ -301,6 +311,12 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
             return r;
         }
         if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
+            if (txt_numHojas.getText().isEmpty()) {
+                r.setError(true);
+                r.setMensaje("No puede haber campos vacíos");
+                r.setErrorcode(1);
+                return r;
+            }
             if (!txt_numHojas.getText().matches("[0-9]*")) {
                 r.setError(true);
                 r.setMensaje("Valor no numerico en numero de hojas");
@@ -325,15 +341,14 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
      */
     public void iniciarColaboradores() {
         CheckMenuItem cmi;
-        ArrayList<CheckMenuItem> items = new ArrayList<>();
         for (int i = 0; i < colaboradores.size(); i++) {
             cmi = new CheckMenuItem(colaboradores.get(i).toString());
             cmi.setUserData(colaboradores.get(i));
-            items.add(cmi);
+            itemsColaborador.add(cmi);
         }
-        mb_colaboradores.getItems().setAll(items);
+        mb_colaboradores.getItems().setAll(itemsColaborador);
 
-        for (final CheckMenuItem item : items) {
+        for (final CheckMenuItem item : itemsColaborador) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
 
                 if (newValue) {
@@ -375,7 +390,7 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
         tesis.setDescripcion(descripciontxt.getText().trim());
         tesis.setUsuarioDirigido(usuariotxt.getText().trim());
         List<Tesis> t = new ArrayList<>();
-        
+
         ///datos del Producto///
         Producto producto = new Producto();
         if (estadocb.getSelectionModel().getSelectedIndex() == 1) {
@@ -398,6 +413,13 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
         producto.setIdPais(paisescb.getSelectionModel().getSelectedItem());
         producto.setEstadoActual(estadocb.getSelectionModel().getSelectedItem());
         producto.setTesisList(t);
+        //Busco el CA del miembro que esta registrando el producto.
+        CaMiembroJpaController camJpaC = new CaMiembroJpaController();
+        CuerpoAcademicoJpaController caJpaC = new CuerpoAcademicoJpaController();
+        CaMiembro cam = camJpaC.findByMiembro(m.getIdMiembro());
+        CuerpoAcademico ca = caJpaC.findCuerpoAcademico(cam.getCaMiembroPK().getIdCuerpoAcademico());
+        //Fijo el CuerpoAcademico al producto.
+        producto.setIdCuerpoAcademico(ca);
         ProductoJpaController prJpaC = new ProductoJpaController();
         if (!prJpaC.create(producto)) {
             errorlbl.setText("Error al conectar con la base de datos...");
@@ -439,5 +461,20 @@ public class RegistrarTesisControlador extends ControladorProductos implements I
             txt_archivo.setDisable(false);
             btn_subirArchivo.setDisable(false);
         }
+    }
+    
+    /**
+     * Pone la opcion de que al seleccionarlo se sume a la lista de autores.
+     * @param item Un CheckMenuItem que contenga al colaborador.
+     */
+    private void ponerAtributoColaborador(CheckMenuItem item) {
+        item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
+                
+            if (newValue) {
+                    lstColaboradores.getItems().add((Colaborador) item.getUserData());
+                } else {
+                    lstColaboradores.getItems().remove((Colaborador) item.getUserData());
+                }
+            });
     }
 }

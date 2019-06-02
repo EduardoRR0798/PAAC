@@ -6,6 +6,7 @@
 package paac;
 
 import entity.Lgac;
+import entity.Miembro;
 import entity.Producto;
 import entity.ProductoProyecto;
 import entity.Proyecto;
@@ -23,6 +24,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -45,7 +47,8 @@ import persistence.ProyectoJpaController;
  *
  * @author Foncho
  */
-public class RegistrarProyectoControlador implements Initializable {
+public class RegistrarProyectoControlador extends ControladorProductos implements Initializable {
+
     @FXML
     private TextField txt_nombre;
     @FXML
@@ -53,7 +56,7 @@ public class RegistrarProyectoControlador implements Initializable {
     @FXML
     private TextField txt_tipo;
     @FXML
-    private TextArea txt_cantidad;
+    private TextField txt_cantidad;
     @FXML
     private DatePicker fechaFindp;
     @FXML
@@ -67,11 +70,12 @@ public class RegistrarProyectoControlador implements Initializable {
     @FXML
     private Button aceptar;
     @FXML
-    private MenuButton mb_producto = new MenuButton();
+    private MenuButton mb_productos;
     @FXML
     private ListView<Producto> lv_productos;
     private ObservableList<Producto> productos = FXCollections.observableArrayList();
     private ObservableList<Lgac> lgacs = FXCollections.observableArrayList();
+    Miembro miembro;
 
     /**
      * Initializes the controller class.
@@ -79,79 +83,84 @@ public class RegistrarProyectoControlador implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+        this.recuperarLGAC();
         recuperarProductos();
-        recuperarLgac();
-    }    
+    }
+
+    void recibirParametros(Miembro miembro) {
+        this.miembro = miembro;
+        recuperarProductos();
+    }
 
     @FXML
     private void clickCancelar(ActionEvent event) {
-        Alert cancelar = new Alert(Alert.AlertType.CONFIRMATION);
-        cancelar.setTitle("Cancelar proceso");
-        cancelar.setHeaderText(null);
-        cancelar.initStyle(StageStyle.UTILITY);
-        cancelar.setContentText("¿Esta seguro de que desea cancelar el proceso?");
-        Optional<ButtonType> result = cancelar.showAndWait();
-        if(result.get() == ButtonType.OK) {
-            System.exit(0);
+        Alert cancela = new Alert(Alert.AlertType.CONFIRMATION);
+        cancela.setTitle("Cancelar proceso");
+        cancela.setHeaderText(null);
+        cancela.initStyle(StageStyle.UTILITY);
+        cancela.setContentText("¿Esta seguro de que desea cancelar el proceso?");
+        Optional<ButtonType> result = cancela.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            abrirMenu(miembro);
+            ((Node) cancelar).getScene().getWindow().hide();
         }
     }
 
     @FXML
     private void clickAceptar(ActionEvent event) {
         Respuesta r = validarCampos();
-        if(r.isError()){
+        if (r.isError()) {
             lbl_error.setText(r.getMensaje());
             lbl_error.setVisible(true);
-        }else{
+        } else {
             lbl_error.setText(r.getMensaje());
             lbl_error.setVisible(true);
             registrarProyecto();
         }
     }
-    
-    public Respuesta validarCampos(){
+
+    public Respuesta validarCampos() {
         Respuesta r = new Respuesta();
-        if(txt_nombre.getText().isEmpty() || txt_descripcion.getText().isEmpty()
+        if (txt_nombre.getText().isEmpty() || txt_descripcion.getText().isEmpty()
                 || txt_tipo.getText().isEmpty() || txt_cantidad.getText().isEmpty()
                 || fechaFindp.getValue() == null || fechaIniciodp.getValue() == null
-                || cb_ldgac.getValue() == null
-                ){
+                || cb_ldgac.getValue() == null) {
             r.setError(true);
             r.setMensaje("No puede haber campos vacíos");
             r.setErrorcode(1);
             return r;
         }
-        if(txt_nombre.getText().length()>52){
+        if (txt_nombre.getText().length() > 52) {
             r.setError(true);
             r.setMensaje("El titulo no puede tener mas de 52 caracteres");
             r.setErrorcode(2);
             return r;
         }
-        if(fechaIniciodp.getValue().isBefore(fechaFindp.getValue())){
+        if (fechaIniciodp.getValue().isAfter(fechaFindp.getValue())) {
             r.setError(true);
             r.setMensaje("La fecha inicial no puede ser después de la fecha final");
             r.setErrorcode(3);
             return r;
         }
-        if(txt_descripcion.getText().length()>255){
+        if (txt_descripcion.getText().length() > 255) {
             r.setError(true);
             r.setMensaje("La descripcion no puede tener mas de 255 caracteres");
             r.setErrorcode(4);
             return r;
         }
-        if(!txt_tipo.getText().matches("[a-zA-Z0-9]")){
+        if (txt_tipo.getText().trim().length()>255) {
             r.setError(true);
-            r.setMensaje("El tipo solo acepta numeros y letras");
+            r.setMensaje("El tipo no puede tener mas de 255 caracteres");
             r.setErrorcode(5);
             return r;
         }
-        if(!txt_cantidad.getText().matches("^[+]?\\d*$")){
+        if (!txt_cantidad.getText().matches("^[+]?\\d*$")) {
             r.setError(true);
             r.setMensaje("La cantidad solo acepta numeros");
             r.setErrorcode(6);
             return r;
         }
-        if(lv_productos.getItems().isEmpty()){
+        if (lv_productos.getItems().isEmpty()) {
             r.setError(true);
             r.setMensaje("Es necesario al menos un producto para poder registrar un proyecto");
             r.setErrorcode(6);
@@ -161,37 +170,31 @@ public class RegistrarProyectoControlador implements Initializable {
         r.setError(false);
         return r;
     }
-    
-    private boolean recuperarProductos() {
-        Producto m = new Producto();
+
+    private void recuperarProductos() {
         ProductoJpaController pJpaC = new ProductoJpaController();
         List<Producto> ms = new ArrayList<>();
         ms = pJpaC.findAll();
-        
-        if (ms.isEmpty()) {
-            return false;
-        }
         for (int i = 0; i < ms.size(); i++) {
             productos.add(ms.get(i));
         }
-        //lstAutores.setItems(miembros);
         iniciarProductos();
-        return true;
     }
-    
+
     public void iniciarProductos() {
+        System.out.println("HOLA desde iniciar");
         CheckMenuItem cmi;
         ArrayList<CheckMenuItem> items = new ArrayList<>();
         for (int i = 0; i < productos.size(); i++) {
             cmi = new CheckMenuItem(productos.get(i).toString());
             cmi.setUserData(productos.get(i));
-            items.add(cmi);
+                items.add(cmi);
         }
-        mb_producto.getItems().setAll(items);
+        mb_productos.getItems().setAll(items);
         for (final CheckMenuItem item : items) {
             item.selectedProperty().addListener((observableValue, oldValue, newValue) -> {
-                
-            if (newValue) {
+
+                if (newValue) {
                     lv_productos.getItems().add((Producto) item.getUserData());
                 } else {
                     lv_productos.getItems().remove((Producto) item.getUserData());
@@ -206,18 +209,18 @@ public class RegistrarProyectoControlador implements Initializable {
         proyecto.setFechaInicio(Date.from(fechaIniciodp.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()));
         proyecto.setFechaFin(Date.from(fechaFindp.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()));
         proyecto.setDescripcion(txt_descripcion.getText());
-        proyecto.setIdLGACApoyo(cb_ldgac.getValue());
+        proyecto.setIdLGACApoyo(cb_ldgac.getSelectionModel().getSelectedItem());
         proyecto.setTipoApoyo(txt_tipo.getText());
         proyecto.setCantidadApoyo(Integer.valueOf(txt_cantidad.getText()));
-        
+
         List<Proyecto> list = new ArrayList<>();
         list.add(proyecto);
         ProyectoJpaController pjc = new ProyectoJpaController();
         pjc.create(proyecto);
-        
+
         ObservableList<Producto> colas = lv_productos.getItems();
         ProductoProyectoJpaController ppjc = new ProductoProyectoJpaController();
-        
+
         ProductoProyecto pp;
         for (int i = 0; i < colas.size(); i++) {
             pp = new ProductoProyecto();
@@ -230,19 +233,14 @@ public class RegistrarProyectoControlador implements Initializable {
             }
         }
     }
-    
-    private boolean recuperarLgac() {
-        LgacJpaController ljc = new LgacJpaController();
-        List<Lgac> ps;
-        ps = ljc.findLgacEntities();
-        for (int i = 0; i < ps.size(); i++) {
-            lgacs.add(ps.get(i));
+
+        private void recuperarLGAC() {
+        LgacJpaController lJpaC = new LgacJpaController();
+        List<Lgac> lcs = lJpaC.findLgacEntities();
+        for (int i = 0; i < lcs.size(); i++) {
+            lgacs.add(lcs.get(i));
         }
-        if (lgacs.isEmpty()) {
-            return false;
-        }
-        cb_ldgac.setItems(lgacs);
-        return true;
+        cb_ldgac.getItems().setAll(lgacs);
     }
     
 }
